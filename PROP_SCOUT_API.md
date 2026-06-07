@@ -1,0 +1,708 @@
+# Prop Scout — Backend API Reference
+
+Base URL (production): `https://<your-railway-domain>`  
+Base URL (local dev): `http://localhost:3001`  
+All responses are JSON. All game-level endpoints accept a `gamePk` (MLB integer game ID).  
+All responses include an `X-Cache: HIT | MISS` header.
+
+---
+
+## Authentication
+No API key required for data endpoints. Auth endpoints use JWT (see `/api/auth`).
+
+---
+
+## Slate & Schedule
+
+### `GET /api/schedule`
+Today's MLB slate with probable pitchers, venue, and game time.
+
+**Query params:** none (always returns today)
+
+**Response:**
+```json
+[
+  {
+    "gamePk": 716463,
+    "status": "Preview",
+    "gameTime": "2026-04-20T17:10:00Z",
+    "away": { "id": 147, "name": "New York Yankees", "abbr": "NYY" },
+    "home": { "id": 143, "name": "Philadelphia Phillies", "abbr": "PHI" },
+    "venue": "Citizens Bank Park",
+    "probablePitchers": {
+      "away": { "id": 543037, "name": "Gerrit Cole", "hand": "R" },
+      "home": { "id": 554430, "name": "Zack Wheeler", "hand": "R" }
+    }
+  }
+]
+```
+
+---
+
+## Lineups
+
+### `GET /api/lineups/:gamePk`
+Confirmed batting order with player IDs, batting order position, and hand.
+
+**Response:**
+```json
+{
+  "gamePk": 716463,
+  "away": [
+    { "id": 592450, "name": "Aaron Judge", "order": 3, "position": "RF", "batSide": "R" }
+  ],
+  "home": [
+    { "id": 671739, "name": "Bryson Stott", "order": 1, "position": "SS", "batSide": "L" }
+  ]
+}
+```
+
+---
+
+## Player Stats
+
+### `GET /api/players/:playerId/stats?group=hitting|pitching`
+Season stats + player info. Defaults to `hitting`.
+
+**Response (hitting):**
+```json
+{
+  "id": 592450, "name": "Aaron Judge", "team": "NYY",
+  "position": "RF", "hand": "R",
+  "avg": ".291", "ops": ".987", "hr": 18, "rbi": 52,
+  "season": { "gamesPlayed": 60, "atBats": 205, "hits": 60, "homeRuns": 18, ... }
+}
+```
+
+**Response (pitching):**
+```json
+{
+  "id": 543037, "name": "Gerrit Cole", "team": "NYY",
+  "era": "2.85", "whip": "1.04", "kPer9": "10.8", "bbPer9": "2.1",
+  "wins": 6, "losses": 2, "ip": "69.0", "k": 83, "bb": 16
+}
+```
+
+---
+
+### `GET /api/players/:playerId/gamelog?group=hitting|pitching`
+Recent game-by-game log. Returns last 10 games (hitting) or last 5 starts (pitching).
+
+**Response (pitching):**
+```json
+{
+  "group": "pitching",
+  "seasonEra": "2.85",
+  "avgIP": "6.1",
+  "games": [
+    { "date": "2026-04-17", "opponent": "BOS", "ip": "7.0", "k": 9, "er": 1, "pc": 98, "result": "W" }
+  ]
+}
+```
+
+**Response (hitting):**
+```json
+{
+  "group": "hitting",
+  "seasonAvg": ".291", "last7Avg": ".340",
+  "avg": ".291", "ops": ".987", "slg": ".612", "hr": 18, "avgTB": "1.8",
+  "hitRate": [1, 0, 1, 1, 1],
+  "games": [
+    { "date": "2026-04-17", "opponent": "BOS", "ab": 4, "h": 2, "hr": 1, "rbi": 2, "avg": ".340" }
+  ]
+}
+```
+
+---
+
+### `GET /api/players/:batterId/rbi-context`
+Career RBI rate context for batter props.
+
+**Response:**
+```json
+{ "rbiPerGame": 0.621, "rbiRate": 0.142, "slg": ".512", "extraBaseHits": 387 }
+```
+
+---
+
+### `GET /api/players/:batterId/vs/:pitcherId`
+Career head-to-head batter vs pitcher stats.
+
+**Response:**
+```json
+{
+  "batterId": "592450", "pitcherId": "543037",
+  "atBats": 22, "hits": 7, "avg": ".318", "homeRuns": 2,
+  "strikeOuts": 5, "obp": ".375", "slg": ".590", "season": "career"
+}
+```
+Returns `{ "atBats": 0 }` when no H2H history exists.
+
+---
+
+## Statcast / Pitch Analytics
+
+### `GET /api/arsenal/:pitcherId?year=2026`
+Pitcher's full pitch mix from Baseball Savant — usage, velocity, whiff rate, and batter performance per pitch type.
+
+**Response:**
+```json
+{
+  "pitcherId": 543037,
+  "season": 2026,
+  "arsenal": [
+    {
+      "abbr": "FF",
+      "name": "4-Seam Fastball",
+      "usagePct": 38,
+      "avgVelo": 97.4,
+      "whiffRate": "18%",
+      "avg": ".241",
+      "slg": ".441",
+      "putAwayRate": "22%"
+    },
+    { "abbr": "SL", "name": "Slider", "usagePct": 31, "avgVelo": 88.2, "whiffRate": "36%", "avg": ".198", "slg": ".312" }
+  ]
+}
+```
+
+---
+
+### `GET /api/splits/:batterId?year=2026`
+Batter's performance against each pitch type this season (Statcast).
+
+**Response:**
+```json
+{
+  "batterId": 592450,
+  "season": 2026,
+  "splits": {
+    "FF": { "avg": ".310", "whiff": "14%", "slg": ".680", "pitches": 312 },
+    "SL": { "avg": ".198", "whiff": "38%", "slg": ".290", "pitches": 188 }
+  }
+}
+```
+
+---
+
+### `GET /api/pitcher-splits/:pitcherId?year=2026`
+Pitcher's ERA, WHIP, K/9, and BB/9 split by batter handedness.
+
+**Response:**
+```json
+{
+  "pitcherId": 543037,
+  "vsLeft":  { "avg": ".215", "ops": ".641", "k9": "11.2", "bb9": "2.8" },
+  "vsRight": { "avg": ".238", "ops": ".702", "k9": "10.4", "bb9": "1.9" }
+}
+```
+
+---
+
+### `GET /api/stat-splits/:playerId?group=hitting|pitching`
+Home/away, vs LHP/RHP, and day/night splits for a player.
+
+**Response (hitting):**
+```json
+{
+  "playerId": 592450,
+  "home":    { "avg": ".305", "ops": "1.012", "hr": 10 },
+  "away":    { "avg": ".278", "ops": ".962",  "hr": 8  },
+  "vsLeft":  { "avg": ".320", "ops": "1.040" },
+  "vsRight": { "avg": ".272", "ops": ".951"  },
+  "day":     { "avg": ".298", "ops": ".978"  },
+  "night":   { "avg": ".285", "ops": ".996"  }
+}
+```
+
+---
+
+## Game Context
+
+### `GET /api/umpires/:gamePk`
+Home plate umpire with historical zone tendency stats.
+
+**Response:**
+```json
+{
+  "gamePk": 716463,
+  "homePlate": {
+    "id": 427,
+    "name": "Angel Hernandez",
+    "stats": {
+      "kRate": "19.2%",
+      "bbRate": "9.1%",
+      "tendency": "Tight zone — favors pitchers",
+      "rating": "pitcher"
+    }
+  }
+}
+```
+
+---
+
+### `GET /api/nrfi/:gamePk`
+First-inning scoring tendencies for both teams.
+
+**Response:**
+```json
+{
+  "gamePk": 716463,
+  "away": { "scoredPct": 0.38, "avgRuns": 0.52, "tendency": "Slow starters" },
+  "home": { "scoredPct": 0.41, "avgRuns": 0.58, "tendency": "Average 1st inning output" },
+  "lean": "NRFI",
+  "confidence": 64
+}
+```
+
+---
+
+### `GET /api/bullpen/:gamePk`
+Bullpen health, fatigue level, and individual reliever usage for a team.
+
+**Response:**
+```json
+{
+  "gamePk": 716463,
+  "away": {
+    "grade": "A",
+    "fatigue": "FRESH",
+    "pitchesLast3Days": 87,
+    "relievers": [
+      { "id": 518886, "name": "Clay Holmes", "era": "2.10", "whip": "1.01", "lastApp": "2026-04-17", "pitches": 14, "k9": "9.8", "bb9": "2.4" }
+    ]
+  },
+  "home": { ... }
+}
+```
+
+---
+
+### `GET /api/injuries`
+Active IL placements from the last 14 days across all MLB teams.
+
+**Response:**
+```json
+{
+  "injuries": [
+    { "playerId": 592450, "playerName": "Aaron Judge", "team": "NYY", "status": "10-Day IL", "date": "2026-04-10", "description": "oblique strain" }
+  ]
+}
+```
+> Note: response is `{ injuries: [] }`, not a plain array.
+
+---
+
+## Odds & Props
+
+### `GET /api/odds`
+Today's MLB game lines (moneyline, total, runline) from DraftKings, FanDuel, Caesars, BetMGM.  
+Shared server cache — **20 minutes**. Does not burn quota on repeat calls.
+
+**Response:**
+```json
+{
+  "map": {
+    "New York Yankees|Philadelphia Phillies": {
+      "awayML": "+108", "homeML": "-128",
+      "total": "8.5", "overOdds": "-110", "underOdds": "-110",
+      "awaySpread": "+1.5", "awaySpreadOdds": "-170",
+      "homeSpread": "-1.5", "homeSpreadOdds": "+142",
+      "book": "DK",
+      "books": {
+        "DK":  { "awayML": "+108", "homeML": "-128", "total": "8.5" },
+        "FD":  { "awayML": "+106", "homeML": "-126", "total": "8.5" }
+      }
+    }
+  },
+  "eventIdMap": { "New York Yankees|Philadelphia Phillies": "abc123eventid" },
+  "remaining": "380",
+  "used": "120",
+  "fetchedAt": "1:04:22 PM"
+}
+```
+
+---
+
+### `GET /api/player-props/:gamePk?eventId=<oddsEventId>`
+Sportsbook player prop lines (K, TB, H, HR) for a specific game.  
+Shared server cache — **10 minutes** (2 min if no props posted). Pass `eventId` from `/api/odds` to skip an extra lookup.
+
+**Response:**
+```json
+{
+  "gamePk": 716463,
+  "reason": "ok",
+  "props": [
+    {
+      "player": "Gerrit Cole",
+      "market": "pitcher_strikeouts",
+      "marketLabel": "K",
+      "line": 7.5,
+      "overOdds": "-115", "underOdds": "-105",
+      "book": "DK",
+      "books": {
+        "DK":  { "line": 7.5, "overOdds": "-115", "underOdds": "-105" },
+        "FD":  { "line": 7.5, "overOdds": "-118", "underOdds": "-102" },
+        "CZR": { "line": 8.0, "overOdds": "+100", "underOdds": "-120" },
+        "MGM": { "line": 8.0, "overOdds": "+105", "underOdds": "-125" }
+      }
+    }
+  ]
+}
+```
+
+**`reason` values:**  
+- `"ok"` — props found  
+- `"no_props"` — event found on Odds API but no prop markets posted yet  
+- `"no_event"` — game not found on Odds API (props not yet listed)
+
+**LINE INTELLIGENCE (sharp vs square signal):**  
+The `books` object enables cross-book line comparison. Sharp books (DK, FD) set more accurate lines than square books (CZR, MGM). A gap ≥ 0.5 between the sharp average and square average is a meaningful edge signal.  
+- Gap ≥ 0.5 → base 55% confidence + 10% per 0.5 gap, capped at 80%  
+- Example: sharp avg 7.5, square avg 8.0 → gap 0.5 → 65% edge confidence
+
+---
+
+### `GET /api/weather`
+Current weather for a single stadium via Open-Meteo. Cached **1 hour** server-side.
+
+Query params: `lat`, `lon`, `tz`, `hour`, `key` (cache key, e.g. stadium name).
+
+**Response:** `{ temp, windspeed, winddirection, weathercode, precipitation_probability, relativehumidity, fetchedAt, cached }`
+
+---
+
+### `POST /api/weather/batch`
+Batch weather fetch for multiple games in a single call. Used by the iOS app instead of per-game requests. Cached **1 hour** per stadium server-side.
+
+**Request body:**
+```json
+[
+  { "gamePk": 716463, "lat": 39.9061, "lon": -75.1665, "tz": "America/New_York", "hour": 19, "key": "Citizens Bank Park" }
+]
+```
+
+**Response:** `{ [gamePk]: { temp, windspeed, winddirection, weathercode, precipitation_probability, relativehumidity, fetchedAt } }`
+
+Dome stadiums should be excluded from the request body — the mobile client sets a hardcoded dome result for them.
+
+---
+
+### `GET /api/slate-bundle`
+**Mobile-optimised aggregation endpoint.** Returns schedule + odds + per-game NRFI + per-game weather in a single response, replacing ~15–30 individual requests per session on a full slate.
+
+Query params: `date` (YYYY-MM-DD, defaults to today in Honolulu time).
+
+**Response:**
+```json
+{
+  "schedule":   [ /* same shape as GET /api/schedule */ ],
+  "oddsMap":    { "Away|Home": { /* same shape as GET /api/odds map entries */ } },
+  "nrfiMap":    { "[gamePk]": { "awayFirst": {}, "homeFirst": {}, "lean": "NRFI", "confidence": 64 } },
+  "weatherMap": { "[gamePk]": { "temp": 72, "windspeed": 9, "winddirection": 220, "weathercode": 2, "precipitation_probability": 5, "relativehumidity": 58 } },
+  "fetchedAt":  "2026-05-19T18:00:00.000Z"
+}
+```
+
+- `oddsMap` is keyed by `"Away|Home"` team name string (same format as `GET /api/odds`).
+- Dome stadium games have `weatherMap[gamePk] = null` — client applies its own dome result.
+- Bundle TTL: **5 minutes**. Each sub-component uses its own cache, so upstream calls only fire on individual cache misses.
+- Any component failure (odds API down, weather unreachable) is non-fatal — that key returns `null` in the response.
+
+---
+
+## AI Analysis
+
+### `POST /api/props/:gamePk`
+Generates 3–5 AI prop recommendations for a game using Claude + live web search.  
+Cached **45 minutes** per game. Returns picks with confidence, lean, and cited reasoning.
+
+**Request body:**
+```json
+{ "context": "<pre-formatted game summary string — see below>" }
+```
+
+**Context string format** (build this from the other endpoints):
+```
+Game: NYY @ PHI at Citizens Bank Park
+Away SP: Gerrit Cole (RHP) — ERA 2.85, WHIP 1.04, K/9 10.8, BB/9 2.1, avgIP 6.4, avgK 8.7, avgPC 101
+Home SP: Zack Wheeler (RHP) — ERA 2.91, WHIP 1.09, K/9 9.8, BB/9 2.2, avgIP 6.2, avgK 8.1, avgPC 97
+Umpire: Angel Hernandez — K Rate 19.2%, BB Rate 9.1%, tendency: Tight zone — favors pitchers
+Weather: 72°F, 9 mph OUT to RF, partly cloudy
+Park: Citizens Bank Park — HR factor +8%, Hit factor +3%
+Away Bullpen: Grade A, Fatigue FRESH
+Home Bullpen: Grade B, Fatigue MODERATE
+NRFI lean: NRFI (64% confidence) — away scored 38%, home scored 41% in 1st inn
+Total: 8.5 (-110 / -110) — DK
+Cole K line: O7.5 -115 DK
+Wheeler K line: O6.5 -120 DK
+```
+
+**Response:**
+```json
+{
+  "gamePk": 716463,
+  "searchUsed": true,
+  "props": [
+    {
+      "label": "Cole K's O/U 7.5",
+      "propType": "K",
+      "lean": "OVER",
+      "positive": true,
+      "confidence": 72,
+      "reason": "Cole's 10.8 K/9 against a lineup with 26% team whiff rate meets Hernandez's tight zone (19.2% K rate) and a pitcher-neutral park — line of 7.5 is beatable given his 8.7 K avg over last 3 starts."
+    }
+  ]
+}
+```
+
+**propType values:** `K` | `Total` | `NRFI` | `F5` | `Outs` | `RL`  
+**lean values:** `OVER` | `UNDER` | `NRFI` | `YRFI` | `OVER F5` | `UNDER F5` | `AWAY -1.5` | `HOME -1.5`
+
+---
+
+## Live Game State
+
+### `GET /api/linescore/:gamePk`
+Live score by inning for in-progress games.
+
+**Response:**
+```json
+{
+  "gamePk": 716463,
+  "status": "In Progress",
+  "inning": 6, "isTop": false,
+  "away": { "abbr": "NYY", "runs": 3, "hits": 6, "errors": 0 },
+  "home": { "abbr": "PHI", "runs": 2, "hits": 5, "errors": 1 },
+  "innings": [
+    { "num": 1, "away": 1, "home": 0 },
+    { "num": 2, "away": 0, "home": 2 }
+  ]
+}
+```
+
+---
+
+### `GET /api/boxscore/:gamePk`
+Full boxscore for in-progress or final games. Includes batter and pitcher lines.
+
+**Response:**
+```json
+{
+  "gamePk": 716463,
+  "status": "Final",
+  "away": {
+    "batters": [{ "name": "Aaron Judge", "ab": 4, "h": 2, "hr": 1, "rbi": 2, "bb": 1, "k": 1 }],
+    "pitchers": [{ "name": "Gerrit Cole", "ip": "7.0", "h": 5, "er": 2, "k": 9, "bb": 1 }]
+  },
+  "home": { ... }
+}
+```
+
+---
+
+### `GET /api/daily-card`
+Full-slate AI analysis card for today's MLB games. Uses Claude Sonnet to surface the 2–3 strongest plays across all games after analyzing every available signal.
+
+**Rate limits:**
+- Max **10 uncached calls per calendar day** (resets midnight Honolulu) — ~$1.50/day safeguard
+- Cached **45 minutes** — all users share one result per window
+- Returns `429` with `{ error, cap }` when daily cap is reached
+
+**Response:**
+```json
+{
+  "date": "2026-04-21",
+  "card": "1. BEST BETS SUMMARY\n- ...\n\n2. PICK BREAKDOWN\n...",
+  "gamesAnalyzed": 15,
+  "generatedAt": "2026-04-21T14:32:10Z",
+  "tokens": { "input": 4800, "output": 980, "estCost": "0.0291" },
+  "cap": { "date": "2026-04-21", "calls": 3, "remaining": 7 }
+}
+```
+
+**Card sections (always in this order):**
+1. `BEST BETS SUMMARY` — ranked list of top plays
+2. `PICK BREAKDOWN` — one block per pick: `PROP`, `CONFIDENCE`, `EDGE`, `SIGNALS`, `RISK`, `PLAYABILITY`
+3. `PASSES` — plays considered but rejected, with reason
+4. `OFFICIAL CARD` — final plays, one per line: `Player — Market — Line — Direction — Confidence`
+
+> Analysis rules applied silently: min 2 independent signals, unconfirmed lineup lowers batter prop confidence, missing umpire lowers K prop confidence, avgIP < 5.0 blocks K overs, bad lines noted in PLAYABILITY only.
+
+### `GET /api/ai-board/edges`
+Returns today's pre-scored Predict candidates written by the daily AI snapshot job. Reading this endpoint **never** triggers an Anthropic call — all scoring happened server-side at 10 AM HST and again ~95 min before first pitch.
+
+**Query params:**
+- `date` (optional, `YYYY-MM-DD`) — defaults to today Honolulu. Use for debugging prior runs.
+
+**Response:**
+```json
+{
+  "edges": [
+    {
+      "id": "corey-seager-k-2025-05-20",
+      "market": "k",
+      "playerName": "Corey Seager",
+      "team": "TEX",
+      "gameLabel": "TEX @ HOU",
+      "score": 72,
+      "simConfidence": 68,
+      "bookLine": 1.5,
+      "edge": 0.14,
+      "aiScore": 77,
+      "aiReason": "Corey Seager posts 34% K rate vs. RHP with two strikeouts per game in last five."
+    }
+  ],
+  "generatedAt": "2026-05-20T23:04:11Z",
+  "slateDate": "2026-05-20"
+}
+```
+
+If no snapshot has run yet today, returns `{ "edges": [], "generatedAt": null, "fallback": true }`.
+
+**Caching:** 5-minute in-memory TTL. Snapshot updates at most twice daily (10 AM HST + pregame).
+
+---
+
+## Picks
+
+### `POST /api/picks`
+Logs a new pick for the authenticated user.
+
+**Auth:** required
+
+**Request body:**
+```json
+{
+  "playerId": 592450,
+  "playerName": "Aaron Judge",
+  "market": "hr",
+  "side": "OVER",
+  "bookLine": 0.5,
+  "odds": "-130",
+  "units": 1,
+  "slateDate": "2026-06-07",
+  "gameLabel": "NYY @ PHI",
+  "source": "board"
+}
+```
+
+**Response (success):** `201 { ok: true, id: 42 }`
+
+**Response (duplicate):** `409 { error: "already_logged", id: 42 }`
+
+Duplicate detection is keyed on `(userId, playerId, market, slateDate)`. A second tap on the same card returns the existing pick's `id` rather than creating a new row.
+
+---
+
+### `GET /api/picks?days=N`
+Returns picks for the authenticated user.
+
+**Auth:** required
+
+**Query params:** `days` — `0` returns all-time; `7` returns last 7 days; `30` returns last 30 days. Defaults to `0`.
+
+**Response:**
+```json
+{
+  "picks": [
+    {
+      "id": 42,
+      "playerId": 592450,
+      "playerName": "Aaron Judge",
+      "market": "hr",
+      "side": "OVER",
+      "bookLine": 0.5,
+      "odds": "-130",
+      "units": 1,
+      "slateDate": "2026-06-07",
+      "gameLabel": "NYY @ PHI",
+      "resultHit": true,
+      "actualStat": 1,
+      "gradeStatus": null,
+      "pnl": 0.77,
+      "voided": false
+    }
+  ]
+}
+```
+
+`resultHit` is `COALESCE(picks.result_hit, board_card_snapshots.result_hit)` — the frontend grading engine writes to `picks.result_hit` directly; the board snapshot provides a fallback.
+
+---
+
+### `GET /api/picks/stats?days=N`
+Returns aggregate record stats for the authenticated user.
+
+**Auth:** required
+
+**Query params:** `days` — same as `GET /api/picks`.
+
+**Response:**
+```json
+{ "wins": 14, "losses": 9, "pending": 3, "hitRate": 0.609, "totalPnl": 4.23 }
+```
+
+`pending` count excludes voided, PPD, scratch, and push picks. `hitRate` excludes pending/push/ppd/scratch. `totalPnl` uses vig-adjusted calculation when odds are present, flat units otherwise.
+
+---
+
+### `PATCH /api/picks/:id/void`
+Marks a pick as voided and removes it from the active picks list.
+
+**Auth:** required
+
+**Response:** `{ ok: true }`
+
+Void is only permitted before a game starts, or for PPD/SCRATCH edge cases. Once a game is LIVE the Void button is hidden in the UI, but the endpoint itself does not enforce this — it is a UI-level guard.
+
+---
+
+### `PATCH /api/picks/:id/grade`
+Writes a grading result directly to the picks table. Called by the frontend grading engine after a game goes final.
+
+**Auth:** required
+
+**Request body:**
+```json
+{ "resultHit": true, "actualStat": 9, "gradeStatus": null }
+```
+
+- `resultHit` — `true` (hit), `false` (miss), `null` (unresolved)
+- `actualStat` — the raw stat value used to grade (e.g. `9` for 9 strikeouts)
+- `gradeStatus` — `"ppd"` (postponed/cancelled), `"scratch"` (player did not play), `"push"` (exact line), or `null` (standard hit/miss)
+
+**Response:** `{ ok: true, resultHit: true, actualStat: 9, gradeStatus: null, result: "hit" }`
+
+Also writes legacy `result` text field (`"hit"` / `"miss"`) for backwards compatibility with existing pick rows.
+
+---
+
+## Recommended Research Flow
+
+For a full pre-game picture, call endpoints in this order:
+
+```
+1. GET /api/schedule                          → get gamePk + pitcher IDs
+2. GET /api/lineups/:gamePk                   → batting order + batter IDs
+3. GET /api/players/:pitcherId/stats?group=pitching   → SP season stats
+4. GET /api/players/:pitcherId/gamelog?group=pitching  → SP recent form
+5. GET /api/arsenal/:pitcherId                → SP pitch mix (Statcast)
+6. GET /api/pitcher-splits/:pitcherId         → SP vs L/R
+7. GET /api/splits/:batterId  (per batter)    → batter vs pitch types
+8. GET /api/players/:batterId/vs/:pitcherId   → H2H history
+9. GET /api/stat-splits/:batterId             → home/away + L/R splits
+10. GET /api/umpires/:gamePk                  → home plate ump tendency
+11. GET /api/nrfi/:gamePk                     → first inning lean
+12. GET /api/bullpen/:gamePk                  → bullpen health
+13. GET /api/injuries                         → check for scratches
+14. GET /api/odds                             → current lines + totals
+15. GET /api/player-props/:gamePk?eventId=... → prop lines (incl. per-book for LINE INTELLIGENCE)
+16. GET /api/weather                          → single-stadium weather (per-game)
+    POST /api/weather/batch                   → batch weather for all non-dome games at once
+17. POST /api/props/:gamePk  { context }      → per-game AI picks with reasoning
+18. GET /api/daily-card                       → full-slate AI card (best 2–3 plays, all games)
+19. GET /api/slate-bundle                     → mobile bundle: schedule + oddsMap + nrfiMap + weatherMap in one call
+20. GET /api/ai-board/edges                   → pre-scored Predict candidates (daily snapshot, no Anthropic call on read)
+```
