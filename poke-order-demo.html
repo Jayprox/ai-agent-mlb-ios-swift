@@ -1,0 +1,200 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Poke Order Dropdown Demo</title>
+  <style>
+    :root {
+      color-scheme: light;
+      --bg: #f6f3ea;
+      --panel: #fffaf0;
+      --border: #d6c7a8;
+      --text: #2c2418;
+      --muted: #6f624d;
+      --accent: #a04e1a;
+      --accent-soft: #f1dfc8;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      font-family: Georgia, "Times New Roman", serif;
+      background:
+        radial-gradient(circle at top left, #fff6e3 0, transparent 32%),
+        linear-gradient(180deg, #f7f1e4 0%, #efe5d1 100%);
+      color: var(--text);
+      display: grid;
+      place-items: center;
+      padding: 24px;
+    }
+
+    .card {
+      width: min(100%, 560px);
+      background: var(--panel);
+      border: 1px solid var(--border);
+      border-radius: 18px;
+      padding: 28px;
+      box-shadow: 0 14px 40px rgba(92, 67, 29, 0.12);
+    }
+
+    h1 {
+      margin: 0 0 8px;
+      font-size: clamp(1.8rem, 3vw, 2.3rem);
+      line-height: 1.1;
+    }
+
+    p {
+      margin: 0 0 24px;
+      color: var(--muted);
+      line-height: 1.5;
+    }
+
+    .field {
+      margin-bottom: 18px;
+    }
+
+    .field.hidden {
+      display: none;
+    }
+
+    label {
+      display: block;
+      margin-bottom: 8px;
+      font-weight: 700;
+      font-size: 0.98rem;
+    }
+
+    select {
+      width: 100%;
+      appearance: none;
+      padding: 12px 14px;
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      background: #fff;
+      color: var(--text);
+      font: inherit;
+    }
+
+    .note {
+      margin-top: 10px;
+      color: var(--muted);
+      font-size: 0.92rem;
+    }
+  </style>
+</head>
+<body>
+  <main class="card">
+    <h1>Poke Order Selector</h1>
+    <p>Select a poke order code to reveal the matching sample and specimen options.</p>
+
+    <div class="field">
+      <label for="poke-order-code">Poke Order Code</label>
+      <select id="poke-order-code">
+        <option value="">Choose a poke order</option>
+      </select>
+    </div>
+
+    <div class="field hidden" id="samples-field">
+      <label for="samples">Samples</label>
+      <select id="samples">
+        <option value="">Choose a sample</option>
+      </select>
+    </div>
+
+    <div class="field hidden" id="specimen-field">
+      <label for="specimen">Specimen</label>
+      <select id="specimen">
+        <option value="">Choose a specimen</option>
+      </select>
+    </div>
+
+    <div class="note">Options are matched by the selected poke order code.</div>
+  </main>
+
+  <script>
+    const pokeOrders = [
+      { name: "Pokerus Test", code: "8008.1114" },
+      { name: "Poke Flu Shot", code: "6008.13" },
+      { name: "Poke Burn Test", code: "117.216" },
+      { name: "Poke Curse Test", code: "616.3002" }
+    ];
+
+    const questionMap = {
+      "8008.1114": {
+        Samples: ["Blood-Red", "Blood-Blue"],
+        Specimen: ["Plasma", "Serum"]
+      },
+      "6008.13": {
+        Samples: ["Tail"],
+        Specimen: ["Tail"]
+      },
+      "117.216": {
+        Samples: ["Blood-Crimson"],
+        Specimen: ["Blood"]
+      },
+      "616.3002": {
+        Samples: ["Poison Swab", "Stool Test"],
+        Specimen: ["Swab", "Swab Random"]
+      }
+    };
+
+    const codeSelect = document.getElementById("poke-order-code");
+    const samplesSelect = document.getElementById("samples");
+    const specimenSelect = document.getElementById("specimen");
+    const samplesField = document.getElementById("samples-field");
+    const specimenField = document.getElementById("specimen-field");
+
+    function setOptions(selectElement, placeholder, values) {
+      selectElement.innerHTML = "";
+
+      const placeholderOption = document.createElement("option");
+      placeholderOption.value = "";
+      placeholderOption.textContent = placeholder;
+      selectElement.appendChild(placeholderOption);
+
+      values.forEach((value) => {
+        const option = document.createElement("option");
+        option.value = value;
+        option.textContent = value;
+        selectElement.appendChild(option);
+      });
+    }
+
+    function resetDependentFields() {
+      setOptions(samplesSelect, "Choose a sample", []);
+      setOptions(specimenSelect, "Choose a specimen", []);
+      samplesField.classList.add("hidden");
+      specimenField.classList.add("hidden");
+    }
+
+    pokeOrders.forEach((order) => {
+      const option = document.createElement("option");
+      option.value = order.code;
+      option.textContent = `${order.name} (${order.code})`;
+      codeSelect.appendChild(option);
+    });
+
+    codeSelect.addEventListener("change", () => {
+      const selectedCode = codeSelect.value;
+      const match = questionMap[selectedCode];
+
+      if (!match) {
+        resetDependentFields();
+        return;
+      }
+
+      setOptions(samplesSelect, "Choose a sample", match.Samples || []);
+      setOptions(specimenSelect, "Choose a specimen", match.Specimen || []);
+      samplesField.classList.remove("hidden");
+      specimenField.classList.remove("hidden");
+    });
+
+    resetDependentFields();
+  </script>
+</body>
+</html>

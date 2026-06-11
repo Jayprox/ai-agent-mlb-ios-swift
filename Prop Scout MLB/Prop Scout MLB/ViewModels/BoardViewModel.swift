@@ -1,0 +1,157 @@
+import Foundation
+import Combine
+
+final class BoardViewModel: ObservableObject {
+    @Published var snapshot: BoardSnapshot? = nil
+    @Published var isLoading = false
+    @Published var isRefreshing = false
+    @Published var errorMessage: String? = nil
+    @Published var selectedMarket: BoardMarket = .k
+    @Published var selectedGameMarket: BoardMarket = .nrfi
+
+    /// How long to wait between passive re-fetches while any market is still
+    /// empty for today. A plain `GET /api/board/snapshot` recomputes any `[]`
+    /// market for today (subject to a ~10-minute negative cache), so this
+    /// just needs to be a reasonable "keep checking" cadence (60-90s).
+    private static let pollIntervalNanos: UInt64 = 75 * 1_000_000_000
+
+    private var slateDate: String {
+        let f = DateFormatter()
+        f.dateFormat = "yyyy-MM-dd"
+        f.timeZone = TimeZone(identifier: "Pacific/Honolulu")
+        return f.string(from: Date())
+    }
+
+    var generatedAtLabel: String {
+        guard let raw = snapshot?.generatedAt,
+              let date = ISO8601DateFormatter().date(from: raw) else { return "" }
+        let f = DateFormatter()
+        f.dateFormat = "MMM d 'at' h:mm a"
+        f.timeZone = TimeZone(identifier: "Pacific/Honolulu")
+        return f.string(from: date) + " HI"
+    }
+
+    // Current candidates based on selected tab
+    var currentCandidates: [BoardCandidate] {
+        let market = selectedMarket == .nrfi ? selectedGameMarket : selectedMarket
+        return snapshot?.candidates(for: market) ?? []
+    }
+
+    /// Returns (hits, gradedTotal) for a given market tab.
+    func hitStats(for market: BoardMarket) -> (hits: Int, total: Int) {
+        let candidates = snapshot?.candidates(for: market) ?? []
+        let graded = candidates.filter { $0.gradeIsHit != nil }
+        return (graded.filter { $0.gradeIsHit == true }.count, graded.count)
+    }
+
+    /// True when the snapshot has been checked and this market is present
+    /// but empty (`[]`) — i.e. "lineups not posted yet" rather than "no data
+    /// fetched at all".
+    func isEmptyButChecked(_ market: BoardMarket) -> Bool {
+        snapshot?.rawArray(for: market)?.isEmpty == true
+    }
+
+    /// True only when the snapshot is for *today* and at least one of the
+    /// 10 board markets is present-but-empty (`[]`) — meaning the backend
+    /// may self-heal it on a follow-up request. Historical-date snapshots
+    /// (or a snapshot we haven't loaded yet) never poll.
+    private var shouldKeepPolling: Bool {
+        guard let snapshot, snapshot.date == slateDate else { return false }
+        return BoardMarket.allCases.contains { isEmptyButChecked($0) }
+    }
+
+    // MARK: - Fetch
+    func load(refresh: Bool = false) async {
+        DispatchQueue.main.async {
+            if refresh { self.isRefreshing = true } else { self.isLoading = true }
+            self.errorMessage = nil
+        }
+        do {
+            var path = "\(Endpoints.boardSnapshot)?date=\(slateDate)"
+            if refresh { path += "&refresh=1" }
+            let snap: BoardSnapshot = try await APIClient.shared.get(path: path)
+            #if DEBUG
+            if refresh {
+                await Self.diagnoseHitsAndHR(path: path, decoded: snap)
+            }
+            #endif
+            DispatchQueue.main.async {
+                self.snapshot = snap
+                self.isLoading = false
+                self.isRefreshing = false
+            }
+        } catch let e as APIError {
+            DispatchQueue.main.async {
+                self.errorMessage = e.errorDescription
+                self.isLoading = false
+                self.isRefreshing = false
+            }
+        } catch {
+            DispatchQueue.main.async {
+                self.errorMessage = error.localizedDescription
+                self.isLoading = false
+                self.isRefreshing = false
+            }
+        }
+    }
+
+    /// Initial load, followed by periodic passive re-fetches while today's
+    /// snapshot still has an empty (`[]`) market — the backend self-heals
+    /// these on request, so re-polling the same endpoint is enough to pick
+    /// up candidates once lineups post / lines populate. Stops
+    /// automatically when the surrounding `.task` is cancelled (e.g. the
+    /// view disappears), once every market has data, or if the snapshot's
+    /// `date` is no longer today.
+    func loadAndPollIfNeeded() async {
+        await load()
+        while !Task.isCancelled && shouldKeepPolling {
+            do {
+                try await Task.sleep(nanoseconds: Self.pollIntervalNanos)
+            } catch {
+                break
+            }
+            if Task.isCancelled { break }
+            await load()
+        }
+    }
+
+    #if DEBUG
+    /// One-shot diagnostic: re-fetches the same path as raw JSON (bypassing
+    /// `LossyArray`) and reports, for `hr`/`hits`, the raw element count vs.
+    /// the count `BoardSnapshot` actually decoded, the `date` field as
+    /// returned by the server, and — if there's a raw/decoded count mismatch
+    /// — the keys and decode error for the first raw element. This isolates
+    /// whether HR/Hits candidates are present in the response but being
+    /// silently dropped by `LossyArray` due to a field shape mismatch.
+    private static func diagnoseHitsAndHR(path: String, decoded: BoardSnapshot) async {
+        do {
+            let raw = try await APIClient.shared.getRawData(path: path)
+            guard let json = try JSONSerialization.jsonObject(with: raw) as? [String: Any] else {
+                print("📦 board/snapshot diagnostic: top-level JSON is not an object")
+                return
+            }
+            print("📦 board/snapshot date field = \(String(describing: json["date"]))")
+            for key in ["hr", "hits"] {
+                let rawArr = json[key] as? [[String: Any]]
+                let rawCount = rawArr?.count ?? -1
+                let decodedCount = (key == "hr" ? decoded.hr : decoded.hits)?.count ?? -1
+                print("📦 board/snapshot[\(key)] raw count = \(rawCount), decoded count = \(decodedCount)")
+                if rawCount != decodedCount, let first = rawArr?.first {
+                    let sortedKeys = first.keys.sorted()
+                    print("📦 board/snapshot[\(key)] first raw element keys = \(sortedKeys)")
+                    if let elementData = try? JSONSerialization.data(withJSONObject: first) {
+                        do {
+                            _ = try JSONDecoder().decode(BoardCandidate.self, from: elementData)
+                            print("✅ board/snapshot[\(key)] first element decodes as BoardCandidate (unexpected given count mismatch)")
+                        } catch {
+                            print("❌ board/snapshot[\(key)] first element decode error: \(error)")
+                        }
+                    }
+                }
+            }
+        } catch {
+            print("⚠️ board/snapshot diagnostic raw fetch failed: \(error)")
+        }
+    }
+    #endif
+}

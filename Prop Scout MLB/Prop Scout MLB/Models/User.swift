@@ -24,11 +24,24 @@ enum IntOrString: Decodable {
 }
 
 struct MeResponse: Decodable {
-    let userId: Int
+    let userId: String
     let username: String
     let role: String?
 }
 
 struct OkResponse: Decodable {
     let ok: Bool
+}
+
+// MARK: - Preferences
+struct PreferencesResponse: Decodable {
+    let preferences: Preferences
+}
+
+struct Preferences: Decodable {
+    let preferredBook: String?
+}
+
+struct PreferencesUpdateRequest: Encodable {
+    let preferredBook: String?
 }

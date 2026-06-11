@@ -76,6 +76,12 @@ final class APIClient {
         do {
             return try JSONDecoder().decode(T.self, from: data)
         } catch {
+            #if DEBUG
+            print("⚠️ Decode error for \(T.self): \(error)")
+            if let raw = String(data: data, encoding: .utf8) {
+                print("📦 Raw response (first 2000 chars):\n\(raw.prefix(2000))")
+            }
+            #endif
             throw APIError.decodingError(error)
         }
     }
@@ -98,6 +104,29 @@ final class APIClient {
         let data = try JSONEncoder().encode(body)
         return try await request(path: path, method: "PATCH", bodyData: data)
     }
+
+    func put<T: Decodable, B: Encodable>(path: String, body: B) async throws -> T {
+        let data = try JSONEncoder().encode(body)
+        return try await request(path: path, method: "PUT", bodyData: data)
+    }
+
+    #if DEBUG
+    /// Debug-only: fetch the raw response body without decoding, for
+    /// diagnosing shape mismatches that `LossyArray` would otherwise hide.
+    func getRawData(path: String, authenticated: Bool = true) async throws -> Data {
+        guard let url = URL(string: Endpoints.baseURL + path) else {
+            throw APIError.invalidURL
+        }
+        var req = URLRequest(url: url)
+        req.httpMethod = "GET"
+        req.setValue("application/json", forHTTPHeaderField: "Content-Type")
+        if authenticated, let token = KeychainManager.loadToken() {
+            req.setValue("Bearer \(token)", forHTTPHeaderField: "Authorization")
+        }
+        let (data, _) = try await session.data(for: req)
+        return data
+    }
+    #endif
 }
 
 private struct ErrorResponse: Decodable {

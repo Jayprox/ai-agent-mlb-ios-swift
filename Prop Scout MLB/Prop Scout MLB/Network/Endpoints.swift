@@ -5,9 +5,10 @@ enum Endpoints {
     static let baseURL = "https://ai-agent-mlb-production.up.railway.app"
 
     // MARK: - Auth
-    static let login  = "/api/auth/login"
-    static let logout = "/api/auth/logout"
-    static let me     = "/api/auth/me"
+    static let login       = "/api/auth/login"
+    static let logout      = "/api/auth/logout"
+    static let me          = "/api/auth/me"
+    static let preferences = "/api/auth/preferences"
 
     // MARK: - Slate
     static let slateBundle = "/api/slate-bundle"
@@ -15,13 +16,14 @@ enum Endpoints {
 
     // MARK: - Board
     static let boardSnapshot = "/api/board/snapshot"
+    static let aiBoardEdges  = "/api/ai-board/edges"
 
     // MARK: - Picks
     static let picks      = "/api/picks"
     static let picksStats = "/api/picks/stats"
 
-    static func pickVoid(id: Int)  -> String { "/api/picks/\(id)/void" }
-    static func pickGrade(id: Int) -> String { "/api/picks/\(id)/grade" }
+    static func pickVoid(id: String)  -> String { "/api/picks/\(id)/void" }
+    static func pickGrade(id: String) -> String { "/api/picks/\(id)/grade" }
 
     // MARK: - Live Data
     static func linescore(gamePk: Int) -> String { "/api/linescore/\(gamePk)" }

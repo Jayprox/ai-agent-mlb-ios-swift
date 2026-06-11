@@ -8,8 +8,53 @@ final class AuthViewModel: ObservableObject {
     @Published var isLoading: Bool = false
     @Published var errorMessage: String? = nil
 
+    /// Preferred sportsbook — synced with backend (/api/auth/preferences),
+    /// cached locally so the UI has a value before the network round trip.
+    @Published var preferredBook: String = UserDefaults.standard.string(forKey: "preferredBook") ?? "DK"
+
     init() {
         isAuthenticated = KeychainManager.loadToken() != nil
+        if isAuthenticated {
+            Task {
+                await restoreUsername()
+                await loadPreferences()
+            }
+        }
+    }
+
+    // MARK: - Restore username from token
+    private func restoreUsername() async {
+        do {
+            let me: MeResponse = try await APIClient.shared.get(path: Endpoints.me)
+            DispatchQueue.main.async { self.username = me.username }
+        } catch {
+            // Token invalid — sign out silently
+            if case APIError.unauthorized = error {
+                DispatchQueue.main.async { self.isAuthenticated = false }
+            }
+        }
+    }
+
+    // MARK: - Preferences
+    func loadPreferences() async {
+        guard let resp: PreferencesResponse = try? await APIClient.shared.get(path: Endpoints.preferences) else { return }
+        if let book = resp.preferences.preferredBook {
+            DispatchQueue.main.async {
+                self.preferredBook = book
+                UserDefaults.standard.set(book, forKey: "preferredBook")
+            }
+        }
+    }
+
+    func updatePreferredBook(_ book: String) async {
+        DispatchQueue.main.async {
+            self.preferredBook = book
+            UserDefaults.standard.set(book, forKey: "preferredBook")
+        }
+        let _: PreferencesResponse? = try? await APIClient.shared.put(
+            path: Endpoints.preferences,
+            body: PreferencesUpdateRequest(preferredBook: book)
+        )
     }
 
     // MARK: - Login
@@ -36,6 +81,7 @@ final class AuthViewModel: ObservableObject {
                 self.isLoading = false
                 self.isAuthenticated = true
             }
+            await loadPreferences()
         } catch let error as APIError {
             await setError(error.errorDescription ?? "Login failed.")
         } catch {
