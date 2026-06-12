@@ -272,7 +272,13 @@ struct BoardCandidateCardView: View {
             bookLine: resolvedBookLine,
             odds: resolvedOdds,
             gameLabel: candidate.displayGameLabel,
-            playerId: candidate.rawId
+            // Game-market picks (ml/spread/total/nrfi/f5ml/f5spread) have no
+            // `rawId` (no individual player) — the backend's pick schema
+            // stores the gamePk in the `playerId` slot for these markets
+            // (see CODEX-HANDOFF.md grading notes), and requires a non-nil
+            // value to accept the POST. Without this, submitting a game-market
+            // pick fails with "playerId, market, side, slateDate required".
+            playerId: candidate.rawId ?? candidate.gamePk
         )
     }
 
