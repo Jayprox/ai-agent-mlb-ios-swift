@@ -47,9 +47,9 @@ struct AIBoardView: View {
                         vm.selectedFilter = filter
                     } label: {
                         Text(label)
-                            .font(.system(size: 12,
+                            .scaledFont(size: 12,
                                           weight: vm.selectedFilter == filter ? .bold : .medium,
-                                          design: .monospaced))
+                                          design: .monospaced)
                             .foregroundColor(vm.selectedFilter == filter ? .brandBackground : .brandTextMuted)
                             .padding(.horizontal, 12)
                             .padding(.vertical, 7)
@@ -71,13 +71,13 @@ struct AIBoardView: View {
                 if !vm.generatedAtLabel.isEmpty {
                     HStack {
                         Text("AI-scored picks · snapshot \(vm.generatedAtLabel)")
-                            .font(.system(size: 10, design: .monospaced))
+                            .scaledFont(size: 10, design: .monospaced)
                             .foregroundColor(.brandTextDim)
                         Spacer()
                         // Hit/miss record
                         if vm.hitCount + vm.missCount > 0 {
                             Text("\(vm.hitCount)/\(vm.hitCount + vm.missCount) hit")
-                                .font(.system(size: 10, weight: .bold, design: .monospaced))
+                                .scaledFont(size: 10, weight: .bold, design: .monospaced)
                                 .foregroundColor(.brandGreen)
                         }
                     }
@@ -107,14 +107,14 @@ struct AIBoardView: View {
     private var emptyState: some View {
         VStack(spacing: 12) {
             Image(systemName: "sparkles")
-                .font(.system(size: 32))
+                .scaledFont(size: 32)
                 .foregroundColor(.brandTextDim)
                 .padding(.top, 40)
             Text("No AI edges today")
-                .font(.system(size: 13, design: .monospaced))
+                .scaledFont(size: 13, design: .monospaced)
                 .foregroundColor(.brandTextMuted)
             Text("Snapshot runs at 10 AM HI daily")
-                .font(.system(size: 11, design: .monospaced))
+                .scaledFont(size: 11, design: .monospaced)
                 .foregroundColor(.brandTextDim)
         }
     }
@@ -125,7 +125,7 @@ struct AIBoardView: View {
             Spacer()
             ProgressView().tint(.brandGreen).scaleEffect(1.2)
             Text("Loading AI board…")
-                .font(.system(size: 13, design: .monospaced))
+                .scaledFont(size: 13, design: .monospaced)
                 .foregroundColor(.brandTextMuted)
             Spacer()
         }
@@ -135,15 +135,15 @@ struct AIBoardView: View {
         VStack(spacing: 12) {
             Spacer()
             Image(systemName: "exclamationmark.triangle")
-                .font(.system(size: 32))
+                .scaledFont(size: 32)
                 .foregroundColor(.brandAmber)
             Text(msg)
-                .font(.system(size: 12, design: .monospaced))
+                .scaledFont(size: 12, design: .monospaced)
                 .foregroundColor(.brandTextMuted)
                 .multilineTextAlignment(.center)
                 .padding(.horizontal, 32)
             Button("Retry") { Task { await vm.load() } }
-                .font(.system(size: 13, weight: .semibold, design: .monospaced))
+                .scaledFont(size: 13, weight: .semibold, design: .monospaced)
                 .foregroundColor(.brandGreen)
             Spacer()
         }
@@ -155,10 +155,10 @@ struct AIBoardView: View {
             ToolbarItem(placement: .principal) {
                 HStack(spacing: 6) {
                     Image(systemName: "sparkles")
-                        .font(.system(size: 14))
+                        .scaledFont(size: 14)
                         .foregroundColor(.brandPurple)
                     Text("AI Board")
-                        .font(.system(size: 17, weight: .bold, design: .monospaced))
+                        .scaledFont(size: 17, weight: .bold, design: .monospaced)
                         .foregroundColor(.brandText)
                 }
             }
@@ -166,7 +166,7 @@ struct AIBoardView: View {
                 let total = vm.hitCount + vm.missCount
                 if total > 0 {
                     Text("\(vm.hitCount)/\(total) hit")
-                        .font(.system(size: 11, weight: .bold, design: .monospaced))
+                        .scaledFont(size: 11, weight: .bold, design: .monospaced)
                         .foregroundColor(.brandGreen)
                         .padding(.horizontal, 8)
                         .padding(.vertical, 4)

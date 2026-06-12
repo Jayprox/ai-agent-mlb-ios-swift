@@ -6,9 +6,9 @@ struct ILBadge: View {
     var body: some View {
         HStack(spacing: 2) {
             Text("⚠")
-                .font(.system(size: 9))
+                .scaledFont(size: 9)
             Text("IL")
-                .font(.system(size: 9, weight: .bold, design: .monospaced))
+                .scaledFont(size: 9, weight: .bold, design: .monospaced)
         }
         .foregroundColor(.brandAmber)
         .padding(.horizontal, 4)

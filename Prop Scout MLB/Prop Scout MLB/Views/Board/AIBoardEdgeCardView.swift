@@ -12,17 +12,17 @@ struct AIBoardEdgeCardView: View {
             // MARK: - Top row: rank / AI score / ALG / SIM / result
             HStack(alignment: .center, spacing: 10) {
                 Text("\(rank)")
-                    .font(.system(size: 11, weight: .bold, design: .monospaced))
+                    .scaledFont(size: 11, weight: .bold, design: .monospaced)
                     .foregroundColor(.brandTextDim)
                     .frame(width: 20)
 
                 // AI score bubble
                 VStack(spacing: 1) {
                     Text("\(edge.aiScore)")
-                        .font(.system(size: 14, weight: .bold, design: .monospaced))
+                        .scaledFont(size: 14, weight: .bold, design: .monospaced)
                         .foregroundColor(edge.aiScoreColor)
                     Text("AI")
-                        .font(.system(size: 8, design: .monospaced))
+                        .scaledFont(size: 8, design: .monospaced)
                         .foregroundColor(.brandTextDim)
                 }
                 .frame(width: 36, height: 36)
@@ -33,10 +33,10 @@ struct AIBoardEdgeCardView: View {
                 if let alg = edge.score {
                     VStack(spacing: 1) {
                         Text("\(alg)")
-                            .font(.system(size: 11, weight: .semibold, design: .monospaced))
+                            .scaledFont(size: 11, weight: .semibold, design: .monospaced)
                             .foregroundColor(edge.algScoreColor)
                         Text("ALG")
-                            .font(.system(size: 8, design: .monospaced))
+                            .scaledFont(size: 8, design: .monospaced)
                             .foregroundColor(.brandTextDim)
                     }
                 }
@@ -44,10 +44,10 @@ struct AIBoardEdgeCardView: View {
                 // SIM confidence
                 if let sim = edge.simConfidence {
                     Text("\(sim)%")
-                        .font(.system(size: 10, design: .monospaced))
+                        .scaledFont(size: 10, design: .monospaced)
                         .foregroundColor(.brandPurple)
                     + Text(" SIM")
-                        .font(.system(size: 9, design: .monospaced))
+                        .scaledFont(size: 9, design: .monospaced)
                         .foregroundColor(.brandTextDim)
                 }
 
@@ -60,12 +60,12 @@ struct AIBoardEdgeCardView: View {
             // MARK: - Name + market + team
             HStack(spacing: 6) {
                 Text(edge.displayName)
-                    .font(.system(size: 14, weight: .bold, design: .monospaced))
+                    .scaledFont(size: 14, weight: .bold, design: .monospaced)
                     .foregroundColor(.brandText)
                 MarketBadge(market: edge.market ?? "")
                 if let team = edge.team {
                     Text(team)
-                        .font(.system(size: 11, design: .monospaced))
+                        .scaledFont(size: 11, design: .monospaced)
                         .foregroundColor(.brandTextMuted)
                 }
             }
@@ -74,7 +74,7 @@ struct AIBoardEdgeCardView: View {
 
             // MARK: - Game label
             Text(edge.displayGameLabel)
-                .font(.system(size: 11, design: .monospaced))
+                .scaledFont(size: 11, design: .monospaced)
                 .foregroundColor(.brandTextDim)
                 .padding(.horizontal, 14)
                 .padding(.top, 2)
@@ -82,7 +82,7 @@ struct AIBoardEdgeCardView: View {
             // MARK: - AI reasoning
             if let reason = edge.aiReason, !reason.isEmpty {
                 Text(reason)
-                    .font(.system(size: 11, design: .monospaced))
+                    .scaledFont(size: 11, design: .monospaced)
                     .foregroundColor(.brandTextMuted)
                     .lineSpacing(3)
                     .padding(.horizontal, 14)
@@ -97,20 +97,20 @@ struct AIBoardEdgeCardView: View {
             HStack(spacing: 0) {
                 if let lean = edge.lean, !lean.isEmpty {
                     Text(lean.uppercased())
-                        .font(.system(size: 12, weight: .bold, design: .monospaced))
+                        .scaledFont(size: 12, weight: .bold, design: .monospaced)
                         .foregroundColor(lean.uppercased() == "OVER" ? .brandGreen : .brandRed)
                         .padding(.horizontal, 14)
                 }
 
                 if let line = edge.bookLine {
                     Text(line == line.rounded() ? "\(Int(line))" : String(format: "%.1f", line))
-                        .font(.system(size: 12, weight: .semibold, design: .monospaced))
+                        .scaledFont(size: 12, weight: .semibold, design: .monospaced)
                         .foregroundColor(.brandText)
                 }
 
                 if let e = edge.edge {
                     Text("  edge +\(String(format: "%.0f", e * 100))%")
-                        .font(.system(size: 10, design: .monospaced))
+                        .scaledFont(size: 10, design: .monospaced)
                         .foregroundColor(.brandAmber)
                 }
 
@@ -121,7 +121,7 @@ struct AIBoardEdgeCardView: View {
                     showLogPick = true
                 } label: {
                     Image(systemName: "plus.circle.fill")
-                        .font(.system(size: 20))
+                        .scaledFont(size: 20)
                         .foregroundColor(.brandGreen)
                         .padding(.trailing, 14)
                         .padding(.vertical, 8)
@@ -171,7 +171,7 @@ struct AIBoardEdgeCardView: View {
 
     private func badge(_ text: String, color: Color) -> some View {
         Text(text)
-            .font(.system(size: 9, weight: .bold, design: .monospaced))
+            .scaledFont(size: 9, weight: .bold, design: .monospaced)
             .foregroundColor(color)
             .padding(.horizontal, 6)
             .padding(.vertical, 3)

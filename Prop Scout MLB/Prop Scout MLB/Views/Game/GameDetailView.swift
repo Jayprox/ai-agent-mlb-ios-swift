@@ -74,10 +74,10 @@ struct GameDetailView: View {
                 // Away
                 VStack(spacing: 2) {
                     Text(game.away.abbr)
-                        .font(.system(size: 28, weight: .bold, design: .monospaced))
+                        .scaledFont(size: 28, weight: .bold, design: .monospaced)
                         .foregroundColor(.brandText)
                     Text(game.away.name)
-                        .font(.system(size: 10, design: .monospaced))
+                        .scaledFont(size: 10, design: .monospaced)
                         .foregroundColor(.brandTextMuted)
                         .lineLimit(1)
                 }
@@ -88,23 +88,23 @@ struct GameDetailView: View {
                     if let ls = vm.linescore, ls.inning > 0 {
                         HStack(spacing: 8) {
                             Text("\(ls.awayScore)")
-                                .font(.system(size: 22, weight: .bold, design: .monospaced))
+                                .scaledFont(size: 22, weight: .bold, design: .monospaced)
                                 .foregroundColor(.brandText)
                             Text("–")
                                 .foregroundColor(.brandTextDim)
                             Text("\(ls.homeScore)")
-                                .font(.system(size: 22, weight: .bold, design: .monospaced))
+                                .scaledFont(size: 22, weight: .bold, design: .monospaced)
                                 .foregroundColor(.brandText)
                         }
                         Text(game.isLive ? "\(ls.isTop ? "▲" : "▼")\(ls.inning)" : "FINAL")
-                            .font(.system(size: 11, weight: .bold, design: .monospaced))
+                            .scaledFont(size: 11, weight: .bold, design: .monospaced)
                             .foregroundColor(game.isLive ? .brandRed : .brandTextMuted)
                     } else {
                         Text("@")
-                            .font(.system(size: 16, weight: .medium))
+                            .scaledFont(size: 16, weight: .medium)
                             .foregroundColor(.brandTextDim)
                         Text(game.formattedTime)
-                            .font(.system(size: 12, design: .monospaced))
+                            .scaledFont(size: 12, design: .monospaced)
                             .foregroundColor(.brandTextMuted)
                     }
                 }
@@ -113,10 +113,10 @@ struct GameDetailView: View {
                 // Home
                 VStack(spacing: 2) {
                     Text(game.home.abbr)
-                        .font(.system(size: 28, weight: .bold, design: .monospaced))
+                        .scaledFont(size: 28, weight: .bold, design: .monospaced)
                         .foregroundColor(.brandText)
                     Text(game.home.name)
-                        .font(.system(size: 10, design: .monospaced))
+                        .scaledFont(size: 10, design: .monospaced)
                         .foregroundColor(.brandTextMuted)
                         .lineLimit(1)
                 }
@@ -127,7 +127,7 @@ struct GameDetailView: View {
             VStack(spacing: 6) {
                 if let venue = game.venue {
                     Text(venue)
-                        .font(.system(size: 11, design: .monospaced))
+                        .scaledFont(size: 11, design: .monospaced)
                         .foregroundColor(.brandTextDim)
                 }
 
@@ -164,8 +164,8 @@ struct GameDetailView: View {
                     } label: {
                         VStack(spacing: 3) {
                             Text(tab.rawValue)
-                                .font(.system(size: 11, weight: selectedTab == tab ? .bold : .medium,
-                                              design: .monospaced))
+                                .scaledFont(size: 11, weight: selectedTab == tab ? .bold : .medium,
+                                              design: .monospaced)
                                 .foregroundColor(selectedTab == tab ? .brandText : .brandTextMuted)
                             Rectangle()
                                 .fill(selectedTab == tab ? Color.brandGreen : Color.clear)
@@ -183,7 +183,7 @@ struct GameDetailView: View {
     // MARK: - Helper
     private func badge(_ text: String, color: Color) -> some View {
         Text(text)
-            .font(.system(size: 10, weight: .semibold, design: .monospaced))
+            .scaledFont(size: 10, weight: .semibold, design: .monospaced)
             .foregroundColor(color)
             .padding(.horizontal, 8)
             .padding(.vertical, 4)

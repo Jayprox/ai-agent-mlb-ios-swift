@@ -39,11 +39,11 @@ struct ScoutView: View {
         VStack(alignment: .leading, spacing: 14) {
             VStack(alignment: .leading, spacing: 4) {
                 Text("🎯 THE SCOUT")
-                    .font(.system(size: 13, weight: .bold, design: .monospaced))
+                    .scaledFont(size: 13, weight: .bold, design: .monospaced)
                     .foregroundColor(.brandText)
                     .kerning(1)
                 Text("Builds a bankroll-aware slate from the strongest live edges, then adds short bettor-style reasoning for each play.")
-                    .font(.system(size: 11, design: .monospaced))
+                    .scaledFont(size: 11, design: .monospaced)
                     .foregroundColor(.brandTextMuted)
                     .fixedSize(horizontal: false, vertical: true)
             }
@@ -51,7 +51,7 @@ struct ScoutView: View {
             // Daily goal
             VStack(alignment: .leading, spacing: 6) {
                 Text("DAILY GOAL")
-                    .font(.system(size: 9, weight: .bold, design: .monospaced))
+                    .scaledFont(size: 9, weight: .bold, design: .monospaced)
                     .foregroundColor(.brandTextDim)
                     .kerning(1)
                 HStack(spacing: 8) {
@@ -70,7 +70,7 @@ struct ScoutView: View {
             // Unit size
             VStack(alignment: .leading, spacing: 6) {
                 Text("UNIT SIZE")
-                    .font(.system(size: 9, weight: .bold, design: .monospaced))
+                    .scaledFont(size: 9, weight: .bold, design: .monospaced)
                     .foregroundColor(.brandTextDim)
                     .kerning(1)
                 HStack(spacing: 8) {
@@ -101,7 +101,7 @@ struct ScoutView: View {
                     vm.buildSlate()
                 } label: {
                     Text("Build Scout Slate")
-                        .font(.system(size: 14, weight: .bold, design: .monospaced))
+                        .scaledFont(size: 14, weight: .bold, design: .monospaced)
                         .foregroundColor(.black)
                         .frame(maxWidth: .infinity)
                         .padding(.vertical, 12)
@@ -114,7 +114,7 @@ struct ScoutView: View {
                     vm.regenerate()
                 } label: {
                     Text("Regenerate")
-                        .font(.system(size: 14, weight: .semibold, design: .monospaced))
+                        .scaledFont(size: 14, weight: .semibold, design: .monospaced)
                         .foregroundColor(.brandText)
                         .frame(maxWidth: .infinity)
                         .padding(.vertical, 12)
@@ -135,7 +135,7 @@ struct ScoutView: View {
     // MARK: - Helper text
     private var helperText: some View {
         Text("Set your goal and unit size, then let Scout build a slate from the strongest -110-style edge plays on the board.")
-            .font(.system(size: 11, design: .monospaced))
+            .scaledFont(size: 11, design: .monospaced)
             .foregroundColor(.brandTextDim)
             .multilineTextAlignment(.center)
             .frame(maxWidth: .infinity)
@@ -148,18 +148,18 @@ struct ScoutView: View {
         VStack(alignment: .leading, spacing: 10) {
             HStack {
                 Text("SCOUT SLATE")
-                    .font(.system(size: 10, weight: .bold, design: .monospaced))
+                    .scaledFont(size: 10, weight: .bold, design: .monospaced)
                     .foregroundColor(.brandTextDim)
                     .kerning(1)
                 Spacer()
                 Text("\(vm.slate.count) plays · \(vm.slate.count)u")
-                    .font(.system(size: 10, design: .monospaced))
+                    .scaledFont(size: 10, design: .monospaced)
                     .foregroundColor(.brandTextDim)
             }
 
             if vm.slate.isEmpty {
                 Text("No live edges available right now.")
-                    .font(.system(size: 12, design: .monospaced))
+                    .scaledFont(size: 12, design: .monospaced)
                     .foregroundColor(.brandTextMuted)
                     .padding(.top, 10)
             } else {
@@ -175,19 +175,19 @@ struct ScoutView: View {
             HStack(spacing: 6) {
                 MarketBadge(market: edge.market ?? "")
                 Text(edge.displayName)
-                    .font(.system(size: 13, weight: .bold, design: .monospaced))
+                    .scaledFont(size: 13, weight: .bold, design: .monospaced)
                     .foregroundColor(.brandText)
                 Spacer()
                 Text("\(edge.aiScore)")
-                    .font(.system(size: 11, weight: .bold, design: .monospaced))
+                    .scaledFont(size: 11, weight: .bold, design: .monospaced)
                     .foregroundColor(edge.aiScoreColor)
             }
             Text(edge.displayGameLabel)
-                .font(.system(size: 10, design: .monospaced))
+                .scaledFont(size: 10, design: .monospaced)
                 .foregroundColor(.brandTextDim)
 
             Text(edge.scoutReasoning)
-                .font(.system(size: 11, design: .monospaced))
+                .scaledFont(size: 11, design: .monospaced)
                 .italic()
                 .foregroundColor(.brandTextMuted)
                 .lineSpacing(3)
@@ -203,7 +203,7 @@ struct ScoutView: View {
     private func pillButton(label: String, isSelected: Bool, color: Color, action: @escaping () -> Void) -> some View {
         Button(action: action) {
             Text(label)
-                .font(.system(size: 13, weight: isSelected ? .bold : .medium, design: .monospaced))
+                .scaledFont(size: 13, weight: isSelected ? .bold : .medium, design: .monospaced)
                 .foregroundColor(isSelected ? .black : .brandTextMuted)
                 .frame(maxWidth: .infinity)
                 .padding(.vertical, 8)
@@ -219,11 +219,11 @@ struct ScoutView: View {
     private func statBox(label: String, value: String) -> some View {
         VStack(alignment: .leading, spacing: 4) {
             Text(label)
-                .font(.system(size: 9, weight: .bold, design: .monospaced))
+                .scaledFont(size: 9, weight: .bold, design: .monospaced)
                 .foregroundColor(.brandTextDim)
                 .kerning(1)
             Text(value)
-                .font(.system(size: 18, weight: .bold, design: .monospaced))
+                .scaledFont(size: 18, weight: .bold, design: .monospaced)
                 .foregroundColor(.brandText)
         }
         .frame(maxWidth: .infinity, alignment: .leading)
@@ -238,10 +238,10 @@ struct ScoutView: View {
         ToolbarItem(placement: .principal) {
             HStack(spacing: 6) {
                 Image(systemName: "scope")
-                    .font(.system(size: 14))
+                    .scaledFont(size: 14)
                     .foregroundColor(.brandGreen)
                 Text("Scout")
-                    .font(.system(size: 17, weight: .bold, design: .monospaced))
+                    .scaledFont(size: 17, weight: .bold, design: .monospaced)
                     .foregroundColor(.brandText)
             }
         }

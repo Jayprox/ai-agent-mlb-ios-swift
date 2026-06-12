@@ -36,7 +36,7 @@ struct LogPickSheet: View {
                 ScrollView {
                     VStack(spacing: 16) {
                         Text("LOG PICK")
-                            .font(.system(size: 13, weight: .bold, design: .monospaced))
+                            .scaledFont(size: 13, weight: .bold, design: .monospaced)
                             .foregroundColor(.brandTextDim)
                             .kerning(2)
                             .frame(maxWidth: .infinity, alignment: .leading)
@@ -116,7 +116,7 @@ struct LogPickSheet: View {
                         // Error
                         if let err = errorMessage {
                             Text(err)
-                                .font(.system(size: 12, design: .monospaced))
+                                .scaledFont(size: 12, design: .monospaced)
                                 .foregroundColor(.brandRed)
                                 .frame(maxWidth: .infinity, alignment: .leading)
                         }
@@ -128,7 +128,7 @@ struct LogPickSheet: View {
                                     ProgressView().tint(.brandBackground)
                                 } else {
                                     Text("LOG PICK")
-                                        .font(.system(size: 14, weight: .bold, design: .monospaced))
+                                        .scaledFont(size: 14, weight: .bold, design: .monospaced)
                                         .foregroundColor(.brandBackground)
                                 }
                             }
@@ -221,7 +221,7 @@ struct LogPickPrefill {
 private func formField<Content: View>(label: String, @ViewBuilder content: () -> Content) -> some View {
     VStack(alignment: .leading, spacing: 6) {
         Text(label)
-            .font(.system(size: 10, weight: .bold, design: .monospaced))
+            .scaledFont(size: 10, weight: .bold, design: .monospaced)
             .foregroundColor(.brandTextDim)
             .kerning(1.2)
         content()

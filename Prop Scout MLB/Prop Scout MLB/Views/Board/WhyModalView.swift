@@ -25,25 +25,25 @@ struct WhyModalView: View {
                             HStack(spacing: 6) {
                                 if let r = rank {
                                     Text("#\(r)")
-                                        .font(.system(size: 10, weight: .bold, design: .monospaced))
+                                        .scaledFont(size: 10, weight: .bold, design: .monospaced)
                                         .foregroundColor(.brandTextDim)
                                     Text("·")
-                                        .font(.system(size: 10, design: .monospaced))
+                                        .scaledFont(size: 10, design: .monospaced)
                                         .foregroundColor(.brandTextDim)
                                 }
                                 MarketBadge(market: candidate.market)
                                 Text("PROPS")
-                                    .font(.system(size: 10, weight: .bold, design: .monospaced))
+                                    .scaledFont(size: 10, weight: .bold, design: .monospaced)
                                     .foregroundColor(.brandTextDim)
                                     .kerning(1)
                             }
                             Text(candidate.displayName)
-                                .font(.system(size: 20, weight: .bold, design: .monospaced))
+                                .scaledFont(size: 20, weight: .bold, design: .monospaced)
                                 .foregroundColor(.brandText)
                             if candidate.displayGameLabel != candidate.displayName,
                                !candidate.displayGameLabel.isEmpty {
                                 Text(candidate.displayGameLabel)
-                                    .font(.system(size: 12, design: .monospaced))
+                                    .scaledFont(size: 12, design: .monospaced)
                                     .foregroundColor(.brandCyan)   // teal, matching web
                             }
                         }
@@ -52,7 +52,7 @@ struct WhyModalView: View {
                             // ✕ close button
                             Button { dismiss() } label: {
                                 Image(systemName: "xmark")
-                                    .font(.system(size: 11, weight: .bold))
+                                    .scaledFont(size: 11, weight: .bold)
                                     .foregroundColor(.brandTextMuted)
                                     .frame(width: 26, height: 26)
                                     .background(Color.brandSurface2)
@@ -64,10 +64,10 @@ struct WhyModalView: View {
                             // Score badge
                             VStack(spacing: 2) {
                                 Text("\(candidate.score)")
-                                    .font(.system(size: 22, weight: .bold, design: .monospaced))
+                                    .scaledFont(size: 22, weight: .bold, design: .monospaced)
                                     .foregroundColor(candidate.scoreColor)
                                 Text("SCORE")
-                                    .font(.system(size: 8, weight: .bold, design: .monospaced))
+                                    .scaledFont(size: 8, weight: .bold, design: .monospaced)
                                     .foregroundColor(.brandTextDim)
                                     .kerning(1)
                             }
@@ -99,7 +99,7 @@ struct WhyModalView: View {
                         VStack(alignment: .leading, spacing: 10) {
                             HStack(alignment: .top) {
                                 Text(summary)
-                                    .font(.system(size: 12, design: .monospaced))
+                                    .scaledFont(size: 12, design: .monospaced)
                                     .foregroundColor(.brandTextMuted)
                                     .lineSpacing(4)
                                     .fixedSize(horizontal: false, vertical: true)
@@ -180,11 +180,11 @@ struct WhyModalView: View {
                 .fill(leanColor(candidate.leanColorBasis))
                 .frame(width: 6, height: 6)
             Text(candidate.displayLean.uppercased())
-                .font(.system(size: 11, weight: .bold, design: .monospaced))
+                .scaledFont(size: 11, weight: .bold, design: .monospaced)
                 .foregroundColor(leanColor(candidate.leanColorBasis))
             if let conf = displayConfidence {
                 Text("\(conf)%")
-                    .font(.system(size: 11, weight: .semibold, design: .monospaced))
+                    .scaledFont(size: 11, weight: .semibold, design: .monospaced)
                     .foregroundColor(.brandTextMuted)
             }
         }
@@ -199,12 +199,12 @@ struct WhyModalView: View {
         VStack(alignment: .leading, spacing: 6) {
             HStack {
                 Text("SCORE")
-                    .font(.system(size: 10, weight: .bold, design: .monospaced))
+                    .scaledFont(size: 10, weight: .bold, design: .monospaced)
                     .foregroundColor(.brandTextDim)
                     .kerning(1.5)
                 Spacer()
                 Text("\(candidate.score)/100")
-                    .font(.system(size: 14, weight: .bold, design: .monospaced))
+                    .scaledFont(size: 14, weight: .bold, design: .monospaced)
                     .foregroundColor(candidate.scoreColor)
             }
             GeometryReader { geo in
@@ -226,10 +226,10 @@ struct WhyModalView: View {
     private func statTile(label: String, value: String, valueColor: Color) -> some View {
         VStack(spacing: 4) {
             Text(value)
-                .font(.system(size: 16, weight: .bold, design: .monospaced))
+                .scaledFont(size: 16, weight: .bold, design: .monospaced)
                 .foregroundColor(valueColor)
             Text(label)
-                .font(.system(size: 10, weight: .bold, design: .monospaced))
+                .scaledFont(size: 10, weight: .bold, design: .monospaced)
                 .foregroundColor(.brandTextDim)
         }
         .frame(maxWidth: .infinity)
@@ -243,10 +243,10 @@ struct WhyModalView: View {
             ForEach(items, id: \.0) { label, value in
                 VStack(spacing: 4) {
                     Text(value)
-                        .font(.system(size: 14, weight: .bold, design: .monospaced))
+                        .scaledFont(size: 14, weight: .bold, design: .monospaced)
                         .foregroundColor(.brandText)
                     Text(label)
-                        .font(.system(size: 9, design: .monospaced))
+                        .scaledFont(size: 9, design: .monospaced)
                         .foregroundColor(.brandTextDim)
                 }
                 .frame(maxWidth: .infinity)
@@ -260,7 +260,7 @@ struct WhyModalView: View {
     private func hitRateRow(_ rates: [Int?]) -> some View {
         HStack(spacing: 6) {
             Text("L5")
-                .font(.system(size: 10, weight: .bold, design: .monospaced))
+                .scaledFont(size: 10, weight: .bold, design: .monospaced)
                 .foregroundColor(.brandTextDim)
             ForEach(Array(rates.prefix(5).enumerated()), id: \.offset) { _, val in
                 Circle()
@@ -295,11 +295,11 @@ private struct SignalRow: View {
             // Top: label + score
             HStack {
                 Text(signal.label)
-                    .font(.system(size: 13, weight: .semibold, design: .monospaced))
+                    .scaledFont(size: 13, weight: .semibold, design: .monospaced)
                     .foregroundColor(.brandText)
                 Spacer()
                 Text(signal.scoreLabel)
-                    .font(.system(size: 12, weight: .bold, design: .monospaced))
+                    .scaledFont(size: 12, weight: .bold, design: .monospaced)
                     .foregroundColor(signal.barColor)
             }
 
@@ -320,13 +320,13 @@ private struct SignalRow: View {
             HStack {
                 if let val = signal.value {
                     Text(val)
-                        .font(.system(size: 11, design: .monospaced))
+                        .scaledFont(size: 11, design: .monospaced)
                         .foregroundColor(.brandTextMuted)
                 }
                 Spacer()
                 if let desc = signal.description {
                     Text(desc)
-                        .font(.system(size: 11, design: .monospaced))
+                        .scaledFont(size: 11, design: .monospaced)
                         .foregroundColor(.brandTextDim)
                         .multilineTextAlignment(.trailing)
                 }

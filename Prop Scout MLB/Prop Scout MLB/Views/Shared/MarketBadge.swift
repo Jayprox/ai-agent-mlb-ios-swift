@@ -21,7 +21,7 @@ struct MarketBadge: View {
 
     var body: some View {
         Text(meta.label)
-            .font(.system(size: 10, weight: .bold, design: .monospaced))
+            .scaledFont(size: 10, weight: .bold, design: .monospaced)
             .foregroundColor(meta.color)
             .lineLimit(1)
             .fixedSize()
@@ -43,14 +43,14 @@ struct NRFILeanBadge: View {
     var body: some View {
         HStack(spacing: 3) {
             Text(lean.uppercased())
-                .font(.system(size: 10, weight: .bold, design: .monospaced))
+                .scaledFont(size: 10, weight: .bold, design: .monospaced)
             // Prefer reason over confidence — reason is more informative
             if let r = reason {
                 Text("(\(r))")
-                    .font(.system(size: 10, design: .monospaced))
+                    .scaledFont(size: 10, design: .monospaced)
             } else if let conf = confidence {
                 Text("\(conf)%")
-                    .font(.system(size: 10, weight: .semibold, design: .monospaced))
+                    .scaledFont(size: 10, weight: .semibold, design: .monospaced)
             }
         }
         .foregroundColor(color)

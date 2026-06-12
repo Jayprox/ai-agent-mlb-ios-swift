@@ -12,7 +12,7 @@ struct GameBullpenView: View {
             VStack(alignment: .leading, spacing: 14) {
                 if let bp = vm.bullpen {
                     Text("— BULLPEN STRENGTH & FATIGUE")
-                        .font(.system(size: 10, weight: .bold, design: .monospaced))
+                        .scaledFont(size: 10, weight: .bold, design: .monospaced)
                         .foregroundColor(.brandTextDim)
                         .kerning(1)
                         .padding(.horizontal, 16)
@@ -39,7 +39,7 @@ struct GameBullpenView: View {
                     .padding(.horizontal, 16)
                 } else {
                     Text(vm.isLoading ? "Loading bullpen…" : "Bullpen data unavailable")
-                        .font(.system(size: 12, design: .monospaced))
+                        .scaledFont(size: 12, design: .monospaced)
                         .foregroundColor(.brandTextDim)
                         .frame(maxWidth: .infinity)
                         .padding(24)
@@ -59,30 +59,30 @@ struct GameBullpenView: View {
     private func strengthCard(abbr: String, team: BullpenData.BullpenTeam?) -> some View {
         VStack(alignment: .leading, spacing: 8) {
             Text("\(abbr) BULLPEN")
-                .font(.system(size: 9, weight: .bold, design: .monospaced))
+                .scaledFont(size: 9, weight: .bold, design: .monospaced)
                 .foregroundColor(.brandTextDim)
                 .kerning(1)
 
             HStack {
                 Text("Grade")
-                    .font(.system(size: 11, design: .monospaced))
+                    .scaledFont(size: 11, design: .monospaced)
                     .foregroundColor(.brandTextMuted)
                 Spacer()
                 if let grade = team?.grade {
                     Text(grade)
-                        .font(.system(size: 18, weight: .bold, design: .monospaced))
+                        .scaledFont(size: 18, weight: .bold, design: .monospaced)
                         .foregroundColor(gradeColor(team))
                 }
             }
 
             HStack {
                 Text("Fatigue")
-                    .font(.system(size: 11, design: .monospaced))
+                    .scaledFont(size: 11, design: .monospaced)
                     .foregroundColor(.brandTextMuted)
                 Spacer()
                 if let fatigue = team?.fatigueLevel {
                     Text(fatigue)
-                        .font(.system(size: 10, weight: .bold, design: .monospaced))
+                        .scaledFont(size: 10, weight: .bold, design: .monospaced)
                         .foregroundColor(fatigueColor(fatigue))
                 }
             }
@@ -90,7 +90,7 @@ struct GameBullpenView: View {
             if let note = team?.note, !note.isEmpty {
                 Divider().background(Color.brandBorder)
                 Text(note)
-                    .font(.system(size: 10, design: .monospaced))
+                    .scaledFont(size: 10, design: .monospaced)
                     .foregroundColor(.brandTextDim)
                     .fixedSize(horizontal: false, vertical: true)
             }
@@ -111,11 +111,11 @@ struct GameBullpenView: View {
             HStack(alignment: .top) {
                 VStack(alignment: .leading, spacing: 2) {
                     Text("\(abbr) Bullpen")
-                        .font(.system(size: 14, weight: .bold, design: .monospaced))
+                        .scaledFont(size: 14, weight: .bold, design: .monospaced)
                         .foregroundColor(.brandText)
                     if let team, !team.depthSummary.isEmpty {
                         Text(team.depthSummary)
-                            .font(.system(size: 11, design: .monospaced))
+                            .scaledFont(size: 11, design: .monospaced)
                             .foregroundColor(.brandTextDim)
                     }
                 }
@@ -123,7 +123,7 @@ struct GameBullpenView: View {
                 HStack(spacing: 6) {
                     if let grade = team?.grade {
                         Text(grade)
-                            .font(.system(size: 13, weight: .bold, design: .monospaced))
+                            .scaledFont(size: 13, weight: .bold, design: .monospaced)
                             .foregroundColor(gradeColor(team))
                             .padding(.horizontal, 8)
                             .padding(.vertical, 4)
@@ -133,7 +133,7 @@ struct GameBullpenView: View {
                     }
                     if let fatigue = team?.fatigueLevel {
                         Text(fatigue)
-                            .font(.system(size: 9, weight: .bold, design: .monospaced))
+                            .scaledFont(size: 9, weight: .bold, design: .monospaced)
                             .foregroundColor(fatigueColor(fatigue))
                             .padding(.horizontal, 8)
                             .padding(.vertical, 4)
@@ -158,7 +158,7 @@ struct GameBullpenView: View {
                         .fill(Color.brandAmber)
                         .frame(width: 3)
                     Text(lean)
-                        .font(.system(size: 11, design: .monospaced))
+                        .scaledFont(size: 11, design: .monospaced)
                         .foregroundColor(.brandTextMuted)
                         .padding(.horizontal, 10)
                         .padding(.vertical, 9)
@@ -178,12 +178,12 @@ struct GameBullpenView: View {
                 } label: {
                     HStack {
                         Text("RELIEVERS (\(relievers.count))")
-                            .font(.system(size: 10, weight: .bold, design: .monospaced))
+                            .scaledFont(size: 10, weight: .bold, design: .monospaced)
                             .foregroundColor(.brandTextDim)
                             .kerning(1)
                         Spacer()
                         Text(expanded.wrappedValue ? "▲ hide" : "▼ show")
-                            .font(.system(size: 10, design: .monospaced))
+                            .scaledFont(size: 10, design: .monospaced)
                             .foregroundColor(.brandTextDim)
                     }
                     .padding(.horizontal, 12)
@@ -211,12 +211,12 @@ struct GameBullpenView: View {
     private func statTile(value: String, label: String, color: Color) -> some View {
         VStack(spacing: 3) {
             Text(value)
-                .font(.system(size: 13, weight: .bold, design: .monospaced))
+                .scaledFont(size: 13, weight: .bold, design: .monospaced)
                 .foregroundColor(color)
                 .lineLimit(1)
                 .minimumScaleFactor(0.7)
             Text(label)
-                .font(.system(size: 8, weight: .bold, design: .monospaced))
+                .scaledFont(size: 8, weight: .bold, design: .monospaced)
                 .foregroundColor(.brandTextDim)
                 .kerning(0.5)
         }
@@ -232,29 +232,29 @@ struct GameBullpenView: View {
             VStack(alignment: .leading, spacing: 2) {
                 HStack(spacing: 4) {
                     Text(r.name ?? "—")
-                        .font(.system(size: 12, weight: .semibold, design: .monospaced))
+                        .scaledFont(size: 12, weight: .semibold, design: .monospaced)
                         .foregroundColor(.brandText)
                         .lineLimit(1)
                     if let role = r.role {
                         Text(role)
-                            .font(.system(size: 8, weight: .bold, design: .monospaced))
+                            .scaledFont(size: 8, weight: .bold, design: .monospaced)
                             .foregroundColor(.brandCyan)
                     }
                     if let hand = r.hand {
                         Text(hand)
-                            .font(.system(size: 8, design: .monospaced))
+                            .scaledFont(size: 8, design: .monospaced)
                             .foregroundColor(.brandTextDim)
                     }
                 }
                 HStack(spacing: 6) {
                     if let lastApp = r.lastApp {
                         Text(lastApp)
-                            .font(.system(size: 9, design: .monospaced))
+                            .scaledFont(size: 9, design: .monospaced)
                             .foregroundColor(.brandTextDim)
                     }
                     if let status = r.status {
                         Text(status)
-                            .font(.system(size: 8, weight: .bold, design: .monospaced))
+                            .scaledFont(size: 8, weight: .bold, design: .monospaced)
                             .foregroundColor(status.uppercased() == "FRESH" ? .brandGreen : .brandRed)
                     }
                 }
@@ -274,10 +274,10 @@ struct GameBullpenView: View {
     private func statChip(_ label: String, _ value: String) -> some View {
         VStack(spacing: 1) {
             Text(value)
-                .font(.system(size: 11, weight: .semibold, design: .monospaced))
+                .scaledFont(size: 11, weight: .semibold, design: .monospaced)
                 .foregroundColor(.brandText)
             Text(label)
-                .font(.system(size: 8, design: .monospaced))
+                .scaledFont(size: 8, design: .monospaced)
                 .foregroundColor(.brandTextDim)
         }
         .frame(width: 40)

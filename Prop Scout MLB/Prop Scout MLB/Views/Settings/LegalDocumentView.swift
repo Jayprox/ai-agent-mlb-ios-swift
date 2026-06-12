@@ -33,18 +33,18 @@ struct LegalDocumentView: View {
             ScrollView {
                 VStack(alignment: .leading, spacing: 18) {
                     Text(updated)
-                        .font(.system(size: 11, design: .monospaced))
+                        .scaledFont(size: 11, design: .monospaced)
                         .foregroundColor(.brandTextDim)
 
                     ForEach(sections) { section in
                         VStack(alignment: .leading, spacing: 6) {
                             if let heading = section.heading {
                                 Text(heading)
-                                    .font(.system(size: 14, weight: .bold, design: .monospaced))
+                                    .scaledFont(size: 14, weight: .bold, design: .monospaced)
                                     .foregroundColor(.brandText)
                             }
                             Text(section.body)
-                                .font(.system(size: 13))
+                                .scaledFont(size: 13)
                                 .foregroundColor(.brandTextMuted)
                                 .lineSpacing(4)
                                 .fixedSize(horizontal: false, vertical: true)
@@ -55,11 +55,11 @@ struct LegalDocumentView: View {
 
                     VStack(alignment: .leading, spacing: 4) {
                         Text("CONTACT")
-                            .font(.system(size: 10, weight: .bold, design: .monospaced))
+                            .scaledFont(size: 10, weight: .bold, design: .monospaced)
                             .foregroundColor(.brandTextDim)
                             .kerning(1.5)
                         Text("jdsony1126@gmail.com")
-                            .font(.system(size: 13, design: .monospaced))
+                            .scaledFont(size: 13, design: .monospaced)
                             .foregroundColor(.brandGreen)
                     }
                     .padding(.bottom, 24)

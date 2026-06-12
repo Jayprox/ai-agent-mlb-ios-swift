@@ -11,7 +11,7 @@ struct PredictCardView: View {
             // MARK: - Name + team + market badges
             HStack(spacing: 6) {
                 Text(edge.displayName)
-                    .font(.system(size: 14, weight: .bold, design: .monospaced))
+                    .scaledFont(size: 14, weight: .bold, design: .monospaced)
                     .foregroundColor(.brandText)
                 if let team = edge.team {
                     teamBadge(team)
@@ -25,7 +25,7 @@ struct PredictCardView: View {
 
             // MARK: - Lean
             Text(leanLabel)
-                .font(.system(size: 12, weight: .bold, design: .monospaced))
+                .scaledFont(size: 12, weight: .bold, design: .monospaced)
                 .foregroundColor(leanLabel.hasPrefix("OVER") ? .brandGreen : .brandRed)
                 .padding(.horizontal, 14)
                 .padding(.top, 6)
@@ -34,7 +34,7 @@ struct PredictCardView: View {
             HStack(alignment: .center, spacing: 10) {
                 statBox(value: simText, label: "SIM")
                 Text("vs")
-                    .font(.system(size: 11, weight: .semibold, design: .monospaced))
+                    .scaledFont(size: 11, weight: .semibold, design: .monospaced)
                     .foregroundColor(.brandTextDim)
                 statBox(value: bookText, label: "BOOK")
                 Spacer()
@@ -46,7 +46,7 @@ struct PredictCardView: View {
             // MARK: - AI reasoning
             if let reason = edge.aiReason, !reason.isEmpty {
                 Text(reason)
-                    .font(.system(size: 11, design: .monospaced))
+                    .scaledFont(size: 11, design: .monospaced)
                     .italic()
                     .foregroundColor(.brandTextMuted)
                     .lineSpacing(3)
@@ -65,7 +65,7 @@ struct PredictCardView: View {
                     showLogPick = true
                 } label: {
                     Image(systemName: "plus.circle.fill")
-                        .font(.system(size: 20))
+                        .scaledFont(size: 20)
                         .foregroundColor(.brandGreen)
                         .padding(.trailing, 14)
                         .padding(.vertical, 8)
@@ -101,7 +101,7 @@ struct PredictCardView: View {
 
     private func teamBadge(_ team: String) -> some View {
         Text(team)
-            .font(.system(size: 10, weight: .bold, design: .monospaced))
+            .scaledFont(size: 10, weight: .bold, design: .monospaced)
             .foregroundColor(.brandTextMuted)
             .padding(.horizontal, 6)
             .padding(.vertical, 3)
@@ -112,7 +112,7 @@ struct PredictCardView: View {
 
     private var marketBadge: some View {
         Text(edge.predictMarketLabel)
-            .font(.system(size: 10, weight: .bold, design: .monospaced))
+            .scaledFont(size: 10, weight: .bold, design: .monospaced)
             .foregroundColor(.brandBlue)
             .padding(.horizontal, 6)
             .padding(.vertical, 3)
@@ -123,10 +123,10 @@ struct PredictCardView: View {
     private func statBox(value: String, label: String) -> some View {
         VStack(spacing: 2) {
             Text(value)
-                .font(.system(size: 14, weight: .bold, design: .monospaced))
+                .scaledFont(size: 14, weight: .bold, design: .monospaced)
                 .foregroundColor(.brandText)
             Text(label)
-                .font(.system(size: 8, weight: .bold, design: .monospaced))
+                .scaledFont(size: 8, weight: .bold, design: .monospaced)
                 .foregroundColor(.brandTextDim)
                 .kerning(0.5)
         }
@@ -142,10 +142,10 @@ struct PredictCardView: View {
         let color: Color = pts >= 20 ? .brandGreen : .brandAmber
         return VStack(spacing: 2) {
             Text("+\(pts)pts")
-                .font(.system(size: 13, weight: .bold, design: .monospaced))
+                .scaledFont(size: 13, weight: .bold, design: .monospaced)
                 .foregroundColor(color)
             Text("EDGE")
-                .font(.system(size: 8, weight: .bold, design: .monospaced))
+                .scaledFont(size: 8, weight: .bold, design: .monospaced)
                 .foregroundColor(.brandTextDim)
                 .kerning(0.5)
         }
@@ -158,7 +158,7 @@ struct PredictCardView: View {
 
     private func badge(_ text: String, color: Color) -> some View {
         Text(text)
-            .font(.system(size: 8, weight: .bold, design: .monospaced))
+            .scaledFont(size: 8, weight: .bold, design: .monospaced)
             .foregroundColor(color)
             .padding(.horizontal, 6)
             .padding(.vertical, 3)

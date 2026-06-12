@@ -86,7 +86,7 @@ struct BoardView: View {
                 if let label = vm.snapshot?.generatedAt != nil ? Optional(vm.generatedAtLabel) : nil {
                     HStack {
                         Text("Shared daily board · snapshot \(label)")
-                            .font(.system(size: 10, design: .monospaced))
+                            .scaledFont(size: 10, design: .monospaced)
                             .foregroundColor(.brandTextDim)
                         Spacer()
                     }
@@ -123,14 +123,14 @@ struct BoardView: View {
         let isLineupDependent = market == .hr || market == .hits
         return VStack(spacing: 12) {
             Image(systemName: "chart.bar.xaxis")
-                .font(.system(size: 32))
+                .scaledFont(size: 32)
                 .foregroundColor(.brandTextDim)
                 .padding(.top, 40)
             Text(isLineupDependent ? "Lineups not yet posted" : "No board data yet")
-                .font(.system(size: 13, design: .monospaced))
+                .scaledFont(size: 13, design: .monospaced)
                 .foregroundColor(.brandTextMuted)
             Text(isLineupDependent ? "Check back closer to first pitch" : "Refreshes daily at 10 AM HI")
-                .font(.system(size: 11, design: .monospaced))
+                .scaledFont(size: 11, design: .monospaced)
                 .foregroundColor(.brandTextDim)
 
             if isLineupDependent {
@@ -145,10 +145,10 @@ struct BoardView: View {
                                 .scaleEffect(0.7)
                         } else {
                             Image(systemName: "arrow.clockwise")
-                                .font(.system(size: 11, weight: .semibold))
+                                .scaledFont(size: 11, weight: .semibold)
                         }
                         Text(vm.isRefreshing ? "Checking…" : "Check now")
-                            .font(.system(size: 12, weight: .semibold, design: .monospaced))
+                            .scaledFont(size: 12, weight: .semibold, design: .monospaced)
                     }
                     .foregroundColor(.brandGreen)
                 }
@@ -164,15 +164,15 @@ struct BoardView: View {
         VStack(spacing: 12) {
             Spacer()
             Image(systemName: "exclamationmark.triangle")
-                .font(.system(size: 32))
+                .scaledFont(size: 32)
                 .foregroundColor(.brandAmber)
             Text(msg)
-                .font(.system(size: 12, design: .monospaced))
+                .scaledFont(size: 12, design: .monospaced)
                 .foregroundColor(.brandTextMuted)
                 .multilineTextAlignment(.center)
                 .padding(.horizontal, 32)
             Button("Retry") { Task { await vm.load() } }
-                .font(.system(size: 13, weight: .semibold, design: .monospaced))
+                .scaledFont(size: 13, weight: .semibold, design: .monospaced)
                 .foregroundColor(.brandGreen)
             Spacer()
         }
@@ -186,11 +186,11 @@ struct BoardView: View {
             VStack(spacing: 3) {
                 HStack(spacing: 3) {
                     Text(market.label)
-                        .font(.system(size: 12, weight: isSelected ? .bold : .medium, design: .monospaced))
+                        .scaledFont(size: 12, weight: isSelected ? .bold : .medium, design: .monospaced)
                         .foregroundColor(isSelected ? market.color : .brandTextMuted)
                     if showStats {
                         Text("\(stats.hits)/\(stats.total)")
-                            .font(.system(size: 9, design: .monospaced))
+                            .scaledFont(size: 9, design: .monospaced)
                             .foregroundColor(isSelected ? market.color.opacity(0.8) : .brandTextDim)
                     }
                 }
@@ -207,7 +207,7 @@ struct BoardView: View {
         Button(action: action) {
             VStack(spacing: 3) {
                 Text(label)
-                    .font(.system(size: 12, weight: isSelected ? .bold : .medium, design: .monospaced))
+                    .scaledFont(size: 12, weight: isSelected ? .bold : .medium, design: .monospaced)
                     .foregroundColor(isSelected ? .brandText : color)
                 Rectangle()
                     .fill(isSelected ? Color.brandText : Color.clear)
@@ -223,9 +223,9 @@ struct BoardView: View {
         ToolbarItem(placement: .principal) {
             HStack(spacing: 6) {
                 Text("⚾")
-                    .font(.system(size: 16))
+                    .scaledFont(size: 16)
                 Text("Board")
-                    .font(.system(size: 17, weight: .bold, design: .monospaced))
+                    .scaledFont(size: 17, weight: .bold, design: .monospaced)
                     .foregroundColor(.brandText)
             }
         }

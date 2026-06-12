@@ -15,11 +15,11 @@ struct SlateCardView: View {
                 // Away team
                 VStack(spacing: 2) {
                     Text(game.away.abbr)
-                        .font(.system(size: 22, weight: .bold, design: .monospaced))
+                        .scaledFont(size: 22, weight: .bold, design: .monospaced)
                         .foregroundColor(.brandText)
                     if let ls = linescore, (game.isFinal || game.isLive || ls.inning > 0) {
                         Text("\(ls.awayScore)")
-                            .font(.system(size: 18, weight: .bold, design: .monospaced))
+                            .scaledFont(size: 18, weight: .bold, design: .monospaced)
                             .foregroundColor(ls.awayScore > ls.homeScore ? .brandText : .brandTextMuted)
                     }
                 }
@@ -34,15 +34,15 @@ struct SlateCardView: View {
                         Text([game.inningLabel(linescore: ls), outsLabel]
                             .filter { !$0.isEmpty }
                             .joined(separator: " · "))
-                            .font(.system(size: 11, weight: .semibold, design: .monospaced))
+                            .scaledFont(size: 11, weight: .semibold, design: .monospaced)
                             .foregroundColor(.brandTextMuted)
                     } else if game.isUpcoming {
                         Text(game.formattedTime)
-                            .font(.system(size: 11, weight: .medium, design: .monospaced))
+                            .scaledFont(size: 11, weight: .medium, design: .monospaced)
                             .foregroundColor(.brandTextMuted)
                     }
                     Text("@")
-                        .font(.system(size: 13, weight: .medium))
+                        .scaledFont(size: 13, weight: .medium)
                         .foregroundColor(.brandTextDim)
                 }
                 .frame(maxWidth: .infinity)
@@ -50,11 +50,11 @@ struct SlateCardView: View {
                 // Home team
                 VStack(spacing: 2) {
                     Text(game.home.abbr)
-                        .font(.system(size: 22, weight: .bold, design: .monospaced))
+                        .scaledFont(size: 22, weight: .bold, design: .monospaced)
                         .foregroundColor(.brandText)
                     if let ls = linescore, (game.isFinal || game.isLive || ls.inning > 0) {
                         Text("\(ls.homeScore)")
-                            .font(.system(size: 18, weight: .bold, design: .monospaced))
+                            .scaledFont(size: 18, weight: .bold, design: .monospaced)
                             .foregroundColor(ls.homeScore > ls.awayScore ? .brandText : .brandTextMuted)
                     }
                 }
@@ -70,7 +70,7 @@ struct SlateCardView: View {
             VStack(alignment: .leading, spacing: 3) {
                 if !venueTimeText.isEmpty {
                     Text(venueTimeText)
-                        .font(.system(size: 11, design: .monospaced))
+                        .scaledFont(size: 11, design: .monospaced)
                         .foregroundColor(.brandTextMuted)
                 }
 
@@ -78,12 +78,12 @@ struct SlateCardView: View {
                 if let pp = game.probablePitchers {
                     HStack(spacing: 4) {
                         Text("SP")
-                            .font(.system(size: 10, weight: .bold, design: .monospaced))
+                            .scaledFont(size: 10, weight: .bold, design: .monospaced)
                             .foregroundColor(.brandTextDim)
 
                         if let away = pp.away {
                             Text(away.name.components(separatedBy: " ").last ?? away.name)
-                                .font(.system(size: 11, design: .monospaced))
+                                .scaledFont(size: 11, design: .monospaced)
                                 .foregroundColor(away.isIL == true ? .brandTextDim : .brandTextMuted)
                             if away.isIL == true {
                                 ILBadge()
@@ -91,12 +91,12 @@ struct SlateCardView: View {
                         }
 
                         Text("vs")
-                            .font(.system(size: 10, design: .monospaced))
+                            .scaledFont(size: 10, design: .monospaced)
                             .foregroundColor(.brandTextDim)
 
                         if let home = pp.home {
                             Text(home.name.components(separatedBy: " ").last ?? home.name)
-                                .font(.system(size: 11, design: .monospaced))
+                                .scaledFont(size: 11, design: .monospaced)
                                 .foregroundColor(home.isIL == true ? .brandTextDim : .brandTextMuted)
                             if home.isIL == true {
                                 ILBadge()
@@ -108,9 +108,9 @@ struct SlateCardView: View {
                     if let hint = kHint {
                         HStack(spacing: 4) {
                             Image(systemName: "bolt.fill")
-                                .font(.system(size: 8))
+                                .scaledFont(size: 8)
                             Text(hint)
-                                .font(.system(size: 10, weight: .semibold, design: .monospaced))
+                                .scaledFont(size: 10, weight: .semibold, design: .monospaced)
                         }
                         .foregroundColor(.marketK)
                         .padding(.horizontal, 6)
@@ -134,10 +134,10 @@ struct SlateCardView: View {
                         if let o = odds, let awayML = o.awayML, let homeML = o.homeML {
                             HStack(spacing: 4) {
                                 Text("ML")
-                                    .font(.system(size: 9, weight: .bold, design: .monospaced))
+                                    .scaledFont(size: 9, weight: .bold, design: .monospaced)
                                     .foregroundColor(.brandTextDim)
                                 Text("\(awayML) / \(homeML)")
-                                    .font(.system(size: 11, design: .monospaced))
+                                    .scaledFont(size: 11, design: .monospaced)
                                     .foregroundColor(.brandTextMuted)
                             }
                         }
@@ -146,10 +146,10 @@ struct SlateCardView: View {
                         if let o = odds, let total = o.total {
                             HStack(spacing: 4) {
                                 Text("O/U")
-                                    .font(.system(size: 9, weight: .bold, design: .monospaced))
+                                    .scaledFont(size: 9, weight: .bold, design: .monospaced)
                                     .foregroundColor(.brandTextDim)
                                 Text(total)
-                                    .font(.system(size: 11, weight: .semibold, design: .monospaced))
+                                    .scaledFont(size: 11, weight: .semibold, design: .monospaced)
                                     .foregroundColor(.brandText)
                             }
                         }
@@ -161,7 +161,7 @@ struct SlateCardView: View {
                                 Text(isOver ? "↑" : "↓")
                                 Text(trend.uppercased())
                             }
-                            .font(.system(size: 9, weight: .bold, design: .monospaced))
+                            .scaledFont(size: 9, weight: .bold, design: .monospaced)
                             .foregroundColor(isOver ? .brandGreen : .brandRed)
                             .padding(.horizontal, 5)
                             .padding(.vertical, 2)
@@ -174,11 +174,11 @@ struct SlateCardView: View {
                         // Weather
                         if let w = weather, !w.isDome {
                             Text(w.tempString)
-                                .font(.system(size: 11, design: .monospaced))
+                                .scaledFont(size: 11, design: .monospaced)
                                 .foregroundColor(.brandTextMuted)
                         } else if weather?.isDome == true {
                             Text("DOME")
-                                .font(.system(size: 10, weight: .semibold, design: .monospaced))
+                                .scaledFont(size: 10, weight: .semibold, design: .monospaced)
                                 .foregroundColor(.brandTextDim)
                         }
 
@@ -193,7 +193,7 @@ struct SlateCardView: View {
                        let awaySpread = o.awaySpread, let homeSpread = o.homeSpread {
                         HStack(spacing: 4) {
                             Text("RL")
-                                .font(.system(size: 9, weight: .bold, design: .monospaced))
+                                .scaledFont(size: 9, weight: .bold, design: .monospaced)
                                 .foregroundColor(.brandTextDim)
                             // Away spread + odds
                             Group {
@@ -203,11 +203,11 @@ struct SlateCardView: View {
                                         .foregroundColor(.brandTextDim)
                                 }
                             }
-                            .font(.system(size: 11, design: .monospaced))
+                            .scaledFont(size: 11, design: .monospaced)
                             .foregroundColor(.brandTextMuted)
 
                             Text("/")
-                                .font(.system(size: 10, design: .monospaced))
+                                .scaledFont(size: 10, design: .monospaced)
                                 .foregroundColor(.brandTextDim)
 
                             // Home spread + odds
@@ -218,13 +218,13 @@ struct SlateCardView: View {
                                         .foregroundColor(.brandTextDim)
                                 }
                             }
-                            .font(.system(size: 11, design: .monospaced))
+                            .scaledFont(size: 11, design: .monospaced)
                             .foregroundColor(.brandTextMuted)
 
                             if let book = o.book {
                                 Spacer()
                                 Text(book)
-                                    .font(.system(size: 9, design: .monospaced))
+                                    .scaledFont(size: 9, design: .monospaced)
                                     .foregroundColor(.brandTextDim)
                             }
                         }

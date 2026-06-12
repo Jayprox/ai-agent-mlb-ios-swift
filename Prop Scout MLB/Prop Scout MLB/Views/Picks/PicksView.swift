@@ -57,7 +57,7 @@ struct PicksView: View {
                 // Error
                 if let error = vm.errorMessage {
                     Text(error)
-                        .font(.system(size: 12, design: .monospaced))
+                        .scaledFont(size: 12, design: .monospaced)
                         .foregroundColor(.brandRed)
                         .padding(.horizontal, 16)
                 }
@@ -81,11 +81,11 @@ struct PicksView: View {
     private var header: some View {
         VStack(alignment: .leading, spacing: 4) {
             Text("📋 PICKS")
-                .font(.system(size: 13, weight: .bold, design: .monospaced))
+                .scaledFont(size: 13, weight: .bold, design: .monospaced)
                 .foregroundColor(.brandText)
                 .kerning(1)
             Text("Logged board and props plays for \(auth.username.isEmpty ? "leadoffkaiba" : auth.username)")
-                .font(.system(size: 11, design: .monospaced))
+                .scaledFont(size: 11, design: .monospaced)
                 .foregroundColor(.brandTextMuted)
         }
     }
@@ -98,8 +98,8 @@ struct PicksView: View {
                     Task { await vm.setDays(option.days) }
                 } label: {
                     Text(option.label)
-                        .font(.system(size: 12, weight: vm.selectedDays == option.days ? .bold : .medium,
-                                      design: .monospaced))
+                        .scaledFont(size: 12, weight: vm.selectedDays == option.days ? .bold : .medium,
+                                      design: .monospaced)
                         .foregroundColor(vm.selectedDays == option.days ? .white : .brandTextMuted)
                         .padding(.vertical, 7)
                         .padding(.horizontal, 16)
@@ -138,15 +138,15 @@ struct PicksView: View {
     private func statTile(label: String, value: String, sub: String?, valueColor: Color) -> some View {
         VStack(alignment: .leading, spacing: 4) {
             Text(label)
-                .font(.system(size: 9, weight: .bold, design: .monospaced))
+                .scaledFont(size: 9, weight: .bold, design: .monospaced)
                 .foregroundColor(.brandTextDim)
                 .kerning(1.2)
             Text(value)
-                .font(.system(size: 18, weight: .bold, design: .monospaced))
+                .scaledFont(size: 18, weight: .bold, design: .monospaced)
                 .foregroundColor(valueColor)
             if let sub {
                 Text(sub)
-                    .font(.system(size: 10, design: .monospaced))
+                    .scaledFont(size: 10, design: .monospaced)
                     .foregroundColor(.brandTextDim)
             }
         }
@@ -177,14 +177,14 @@ struct PicksView: View {
     private var emptyState: some View {
         VStack(spacing: 12) {
             Image(systemName: "note.text")
-                .font(.system(size: 32))
+                .scaledFont(size: 32)
                 .foregroundColor(.brandTextDim)
                 .padding(.top, 40)
             Text("No picks logged yet")
-                .font(.system(size: 13, design: .monospaced))
+                .scaledFont(size: 13, design: .monospaced)
                 .foregroundColor(.brandTextMuted)
             Button("Log your first pick") { showLogSheet = true }
-                .font(.system(size: 12, weight: .semibold, design: .monospaced))
+                .scaledFont(size: 12, weight: .semibold, design: .monospaced)
                 .foregroundColor(.brandGreen)
         }
     }
@@ -195,9 +195,9 @@ struct PicksView: View {
             ToolbarItem(placement: .principal) {
                 HStack(spacing: 6) {
                     Text("🗒️")
-                        .font(.system(size: 14))
+                        .scaledFont(size: 14)
                     Text("Picks")
-                        .font(.system(size: 17, weight: .bold, design: .monospaced))
+                        .scaledFont(size: 17, weight: .bold, design: .monospaced)
                         .foregroundColor(.brandText)
                 }
             }
@@ -212,7 +212,7 @@ struct PicksView: View {
                                 ProgressView().tint(.brandAmber).scaleEffect(0.8)
                             } else {
                                 Image(systemName: "checkmark.circle")
-                                    .font(.system(size: 16))
+                                    .scaledFont(size: 16)
                                     .foregroundColor(.brandAmber)
                                     .frame(minWidth: 44, minHeight: 44)
                                     .contentShape(Rectangle())
@@ -225,7 +225,7 @@ struct PicksView: View {
                         showLogSheet = true
                     } label: {
                         Image(systemName: "plus")
-                            .font(.system(size: 16, weight: .semibold))
+                            .scaledFont(size: 16, weight: .semibold)
                             .foregroundColor(.brandGreen)
                             .frame(minWidth: 44, minHeight: 44)
                             .contentShape(Rectangle())
@@ -273,7 +273,7 @@ private struct PickDateSectionView: View {
             } label: {
                 HStack(spacing: 8) {
                     Text(group.picks.first?.formattedDate ?? group.date)
-                        .font(.system(size: 11, weight: .bold, design: .monospaced))
+                        .scaledFont(size: 11, weight: .bold, design: .monospaced)
                         .foregroundColor(.brandTextDim)
                         .kerning(1.2)
 
@@ -283,17 +283,17 @@ private struct PickDateSectionView: View {
                     let r = record
                     if r.hits + r.misses > 0 {
                         Text("\(r.hits)-\(r.misses)")
-                            .font(.system(size: 10, weight: .semibold, design: .monospaced))
+                            .scaledFont(size: 10, weight: .semibold, design: .monospaced)
                             .foregroundColor(r.hits >= r.misses ? .brandGreen : .brandRed)
                     }
                     if r.pending > 0 {
                         Text("\(r.pending) pending")
-                            .font(.system(size: 10, design: .monospaced))
+                            .scaledFont(size: 10, design: .monospaced)
                             .foregroundColor(.brandTextDim)
                     }
 
                     Image(systemName: isExpanded ? "chevron.up" : "chevron.down")
-                        .font(.system(size: 10))
+                        .scaledFont(size: 10)
                         .foregroundColor(.brandTextDim)
                 }
                 .padding(.horizontal, 16)

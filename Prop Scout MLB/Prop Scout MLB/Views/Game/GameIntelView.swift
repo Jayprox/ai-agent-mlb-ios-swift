@@ -60,10 +60,10 @@ struct GameIntelView: View {
                 sectionLabel("AI TREND ANALYSIS")
                 Spacer()
                 Image(systemName: "cpu")
-                    .font(.system(size: 10))
+                    .scaledFont(size: 10)
                     .foregroundColor(.brandPurple)
                 Text("SCOUT AI")
-                    .font(.system(size: 9, weight: .bold, design: .monospaced))
+                    .scaledFont(size: 9, weight: .bold, design: .monospaced)
                     .foregroundColor(.brandPurple)
             }
 
@@ -72,7 +72,7 @@ struct GameIntelView: View {
                     ProgressView()
                         .tint(.brandPurple)
                     Text("Generating analysis…")
-                        .font(.system(size: 12, design: .monospaced))
+                        .scaledFont(size: 12, design: .monospaced)
                         .foregroundColor(.brandTextDim)
                 }
                 .frame(maxWidth: .infinity, alignment: .leading)
@@ -80,7 +80,7 @@ struct GameIntelView: View {
 
             } else if let summary = vm.trends?.summary, !summary.isEmpty {
                 Text(summary)
-                    .font(.system(size: 12, design: .monospaced))
+                    .scaledFont(size: 12, design: .monospaced)
                     .foregroundColor(.brandTextMuted)
                     .lineSpacing(4)
                     .fixedSize(horizontal: false, vertical: true)
@@ -89,16 +89,16 @@ struct GameIntelView: View {
                 HStack(spacing: 8) {
                     Image(systemName: "exclamationmark.circle")
                         .foregroundColor(.brandAmber)
-                        .font(.system(size: 12))
+                        .scaledFont(size: 12)
                     Text(err)
-                        .font(.system(size: 11, design: .monospaced))
+                        .scaledFont(size: 11, design: .monospaced)
                         .foregroundColor(.brandTextDim)
                     Spacer()
                     Button {
                         Task { await vm.loadTrends() }
                     } label: {
                         Text("Retry")
-                            .font(.system(size: 11, weight: .semibold, design: .monospaced))
+                            .scaledFont(size: 11, weight: .semibold, design: .monospaced)
                             .foregroundColor(.brandGreen)
                     }
                 }
@@ -110,9 +110,9 @@ struct GameIntelView: View {
                 } label: {
                     HStack(spacing: 6) {
                         Image(systemName: "wand.and.stars")
-                            .font(.system(size: 12))
+                            .scaledFont(size: 12)
                         Text("Generate Analysis")
-                            .font(.system(size: 12, weight: .semibold, design: .monospaced))
+                            .scaledFont(size: 12, weight: .semibold, design: .monospaced)
                     }
                     .foregroundColor(.brandPurple)
                     .frame(maxWidth: .infinity)
@@ -138,10 +138,10 @@ struct GameIntelView: View {
                 if let lean = nrfi.lean, let conf = nrfi.confidence {
                     HStack(spacing: 4) {
                         Text(lean.uppercased())
-                            .font(.system(size: 11, weight: .bold, design: .monospaced))
+                            .scaledFont(size: 11, weight: .bold, design: .monospaced)
                             .foregroundColor(lean.uppercased() == "NRFI" ? .brandGreen : .brandRed)
                         Text("\(conf)%")
-                            .font(.system(size: 10, design: .monospaced))
+                            .scaledFont(size: 10, design: .monospaced)
                             .foregroundColor(.brandTextDim)
                     }
                     .padding(.horizontal, 8)
@@ -165,7 +165,7 @@ struct GameIntelView: View {
     private func nrfiTeam(abbr: String, data: NRFIDetail.NRFITeamData?) -> some View {
         VStack(alignment: .leading, spacing: 6) {
             Text(abbr)
-                .font(.system(size: 11, weight: .bold, design: .monospaced))
+                .scaledFont(size: 11, weight: .bold, design: .monospaced)
                 .foregroundColor(.brandText)
             if let scored = data?.scoredPct {
                 statRow("SCORED 1st", "\(Int(scored * 100))%")
@@ -175,7 +175,7 @@ struct GameIntelView: View {
             }
             if let tendency = data?.tendency {
                 Text(tendency)
-                    .font(.system(size: 9, design: .monospaced))
+                    .scaledFont(size: 9, design: .monospaced)
                     .foregroundColor(.brandTextDim)
             }
         }
@@ -195,22 +195,22 @@ struct GameIntelView: View {
                     Image(systemName: "building.2")
                         .foregroundColor(.brandTextDim)
                     Text("Dome stadium — weather not applicable")
-                        .font(.system(size: 12, design: .monospaced))
+                        .scaledFont(size: 12, design: .monospaced)
                         .foregroundColor(.brandTextDim)
                 }
             } else {
                 HStack(alignment: .top) {
                     Text(w.tempString)
-                        .font(.system(size: 36, weight: .bold, design: .monospaced))
+                        .scaledFont(size: 36, weight: .bold, design: .monospaced)
                         .foregroundColor(.brandText)
                     Spacer()
                     if w.windspeed != nil {
                         VStack(alignment: .trailing, spacing: 4) {
                             Text(w.windLabel)
-                                .font(.system(size: 13, weight: .semibold, design: .monospaced))
+                                .scaledFont(size: 13, weight: .semibold, design: .monospaced)
                                 .foregroundColor(.brandCyan)
                             Text("WIND")
-                                .font(.system(size: 9, design: .monospaced))
+                                .scaledFont(size: 9, design: .monospaced)
                                 .foregroundColor(.brandTextDim)
                         }
                     }
@@ -239,11 +239,11 @@ struct GameIntelView: View {
             HStack {
                 VStack(alignment: .leading, spacing: 4) {
                     Text(ump.name ?? "TBA")
-                        .font(.system(size: 15, weight: .bold, design: .monospaced))
+                        .scaledFont(size: 15, weight: .bold, design: .monospaced)
                         .foregroundColor(.brandText)
                     if let tendency = ump.stats?.tendency {
                         Text(tendency)
-                            .font(.system(size: 11, design: .monospaced))
+                            .scaledFont(size: 11, design: .monospaced)
                             .foregroundColor(.brandTextMuted)
                     }
                 }
@@ -251,7 +251,7 @@ struct GameIntelView: View {
                 if let rating = ump.stats?.rating {
                     let isPitcher = rating.lowercased().contains("pitcher")
                     Text(isPitcher ? "PITCHER UMP" : "NEUTRAL UMP")
-                        .font(.system(size: 9, weight: .bold, design: .monospaced))
+                        .scaledFont(size: 9, weight: .bold, design: .monospaced)
                         .foregroundColor(isPitcher ? .brandCyan : .brandAmber)
                         .padding(.horizontal, 7)
                         .padding(.vertical, 4)
@@ -278,7 +278,7 @@ struct GameIntelView: View {
                 Spacer()
                 if let book = o.book {
                     Text(book)
-                        .font(.system(size: 10, weight: .bold, design: .monospaced))
+                        .scaledFont(size: 10, weight: .bold, design: .monospaced)
                         .foregroundColor(.brandGreen)
                 }
             }
@@ -306,10 +306,10 @@ struct GameIntelView: View {
     private func oddsCell(_ label: String, _ value: String) -> some View {
         VStack(spacing: 3) {
             Text(label)
-                .font(.system(size: 9, design: .monospaced))
+                .scaledFont(size: 9, design: .monospaced)
                 .foregroundColor(.brandTextDim)
             Text(value)
-                .font(.system(size: 12, weight: .semibold, design: .monospaced))
+                .scaledFont(size: 12, weight: .semibold, design: .monospaced)
                 .foregroundColor(label == "O/U" ? .brandAmber : .brandText)
         }
         .frame(maxWidth: .infinity)
@@ -326,17 +326,17 @@ struct GameIntelView: View {
                     ForEach(vm.notes) { note in
                         VStack(alignment: .leading, spacing: 4) {
                             Text(note.note ?? "")
-                                .font(.system(size: 12, design: .monospaced))
+                                .scaledFont(size: 12, design: .monospaced)
                                 .foregroundColor(.brandTextMuted)
                                 .fixedSize(horizontal: false, vertical: true)
                             HStack(spacing: 4) {
                                 if let user = note.username {
                                     Text(user)
-                                        .font(.system(size: 9, design: .monospaced))
+                                        .scaledFont(size: 9, design: .monospaced)
                                         .foregroundColor(.brandTextDim)
                                 }
                                 Text("· \(note.displayDate)")
-                                    .font(.system(size: 9, design: .monospaced))
+                                    .scaledFont(size: 9, design: .monospaced)
                                     .foregroundColor(.brandTextDim)
                             }
                         }
@@ -351,7 +351,7 @@ struct GameIntelView: View {
             // Note input
             HStack(spacing: 8) {
                 TextField("Add a scout note…", text: $noteText, axis: .vertical)
-                    .font(.system(size: 12, design: .monospaced))
+                    .scaledFont(size: 12, design: .monospaced)
                     .foregroundColor(.brandText)
                     .focused($noteFieldFocused)
                     .lineLimit(1...4)
@@ -375,7 +375,7 @@ struct GameIntelView: View {
                             ProgressView().tint(.brandBackground)
                         } else {
                             Image(systemName: "arrow.up")
-                                .font(.system(size: 14, weight: .bold))
+                                .scaledFont(size: 14, weight: .bold)
                                 .foregroundColor(.brandBackground)
                         }
                     }
@@ -395,7 +395,7 @@ struct GameIntelView: View {
     // MARK: - Shared helpers
     private func sectionLabel(_ text: String) -> some View {
         Text(text)
-            .font(.system(size: 10, weight: .bold, design: .monospaced))
+            .scaledFont(size: 10, weight: .bold, design: .monospaced)
             .foregroundColor(.brandTextDim)
             .kerning(1.2)
     }
@@ -403,10 +403,10 @@ struct GameIntelView: View {
     private func infoCell(_ label: String, _ value: String) -> some View {
         VStack(alignment: .leading, spacing: 3) {
             Text(label)
-                .font(.system(size: 9, design: .monospaced))
+                .scaledFont(size: 9, design: .monospaced)
                 .foregroundColor(.brandTextDim)
             Text(value)
-                .font(.system(size: 13, weight: .semibold, design: .monospaced))
+                .scaledFont(size: 13, weight: .semibold, design: .monospaced)
                 .foregroundColor(.brandText)
         }
         .frame(maxWidth: .infinity, alignment: .leading)
@@ -418,11 +418,11 @@ struct GameIntelView: View {
     private func statRow(_ label: String, _ value: String) -> some View {
         HStack {
             Text(label)
-                .font(.system(size: 9, design: .monospaced))
+                .scaledFont(size: 9, design: .monospaced)
                 .foregroundColor(.brandTextDim)
             Spacer()
             Text(value)
-                .font(.system(size: 11, weight: .semibold, design: .monospaced))
+                .scaledFont(size: 11, weight: .semibold, design: .monospaced)
                 .foregroundColor(.brandText)
         }
     }

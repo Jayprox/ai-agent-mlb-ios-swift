@@ -35,7 +35,7 @@ struct ChatView: View {
                     // Error banner
                     if let error = vm.errorMessage {
                         Text(error)
-                            .font(.system(size: 11, design: .monospaced))
+                            .scaledFont(size: 11, design: .monospaced)
                             .foregroundColor(.brandRed)
                             .padding(.horizontal, 16)
                             .padding(.vertical, 6)
@@ -73,7 +73,7 @@ struct ChatView: View {
             }
         } label: {
             Text(label)
-                .font(.system(size: 12, weight: .semibold, design: .monospaced))
+                .scaledFont(size: 12, weight: .semibold, design: .monospaced)
                 .foregroundColor(vm.persona == value ? .brandBackground : .brandTextDim)
                 .padding(.horizontal, 20)
                 .padding(.vertical, 7)
@@ -95,7 +95,7 @@ struct ChatView: View {
                 Text(vm.persona == "lotto"
                      ? "Parlay builder — finds high-upside multi-leg combinations"
                      : "Smart slate assistant with injury, odds, props, and web context")
-                    .font(.system(size: 12, design: .monospaced))
+                    .scaledFont(size: 12, design: .monospaced)
                     .foregroundColor(.brandTextDim)
                     .multilineTextAlignment(.center)
                     .padding(.horizontal, 32)
@@ -114,7 +114,7 @@ struct ChatView: View {
                 Spacer()
 
                 Text("Ask about today's slate, top K props, line movement, injury impact, or a specific pitcher/game.")
-                    .font(.system(size: 12, design: .monospaced))
+                    .scaledFont(size: 12, design: .monospaced)
                     .foregroundColor(.brandTextDim)
                     .multilineTextAlignment(.center)
                     .padding(.horizontal, 40)
@@ -168,7 +168,7 @@ struct ChatView: View {
                     axis: .vertical
                 )
                 .lineLimit(1...4)
-                .font(.system(size: 13, design: .monospaced))
+                .scaledFont(size: 13, design: .monospaced)
                 .foregroundColor(.brandText)
                 .focused($inputFocused)
                 .disabled(vm.isAtLimit)
@@ -180,7 +180,7 @@ struct ChatView: View {
                     Task { await sendMessage() }
                 } label: {
                     Image(systemName: "arrow.up.circle.fill")
-                        .font(.system(size: 28))
+                        .scaledFont(size: 28)
                         .foregroundColor(canSend ? .brandGreen : .brandTextDim)
                         .frame(minWidth: 44, minHeight: 44)
                         .contentShape(Rectangle())
@@ -213,10 +213,10 @@ struct ChatView: View {
             ToolbarItem(placement: .principal) {
                 HStack(spacing: 6) {
                     Image(systemName: "bubble.left.and.bubble.right.fill")
-                        .font(.system(size: 13))
+                        .scaledFont(size: 13)
                         .foregroundColor(.brandPurple)
                     Text("Chat")
-                        .font(.system(size: 17, weight: .bold, design: .monospaced))
+                        .scaledFont(size: 17, weight: .bold, design: .monospaced)
                         .foregroundColor(.brandText)
                 }
             }
@@ -224,10 +224,10 @@ struct ChatView: View {
                 HStack(spacing: 10) {
                     VStack(spacing: 1) {
                         Text("\(vm.remaining)")
-                            .font(.system(size: 13, weight: .bold, design: .monospaced))
+                            .scaledFont(size: 13, weight: .bold, design: .monospaced)
                             .foregroundColor(vm.remaining <= 5 ? .brandRed : .brandText)
                         Text("left")
-                            .font(.system(size: 8, design: .monospaced))
+                            .scaledFont(size: 8, design: .monospaced)
                             .foregroundColor(.brandTextDim)
                     }
                     .frame(width: 40, height: 40)
@@ -240,7 +240,7 @@ struct ChatView: View {
                             HapticManager.warning()
                             vm.clear()
                         }
-                        .font(.system(size: 12, design: .monospaced))
+                        .scaledFont(size: 12, design: .monospaced)
                         .foregroundColor(.brandTextMuted)
                     }
                 }
@@ -299,7 +299,7 @@ struct ChipFlowView: View {
     private func chipButton(_ text: String) -> some View {
         Button { onTap(text) } label: {
             Text(text)
-                .font(.system(size: 11, design: .monospaced))
+                .scaledFont(size: 11, design: .monospaced)
                 .foregroundColor(disabled ? .brandTextDim : .brandText)
                 .lineLimit(1)
                 .padding(.horizontal, 12)
@@ -331,7 +331,7 @@ struct MessageBubble: View {
         HStack {
             Spacer(minLength: 48)
             Text(message.content)
-                .font(.system(size: 13, design: .monospaced))
+                .scaledFont(size: 13, design: .monospaced)
                 .foregroundColor(.brandBackground)
                 .lineSpacing(4)
                 .padding(.horizontal, 14)
@@ -344,7 +344,7 @@ struct MessageBubble: View {
     private var assistantBubble: some View {
         HStack {
             Text(message.content)
-                .font(.system(size: 13, design: .monospaced))
+                .scaledFont(size: 13, design: .monospaced)
                 .foregroundColor(.brandText)
                 .lineSpacing(4)
                 .padding(.horizontal, 14)
@@ -395,18 +395,18 @@ struct PickResponseCard: View {
             HStack(alignment: .top) {
                 VStack(alignment: .leading, spacing: 2) {
                     Text(pick.player ?? "Unknown Player")
-                        .font(.system(size: 14, weight: .bold, design: .monospaced))
+                        .scaledFont(size: 14, weight: .bold, design: .monospaced)
                         .foregroundColor(.brandText)
                     if let team = pick.team, let opp = pick.opponent {
                         Text("\(team) vs \(opp)")
-                            .font(.system(size: 11, design: .monospaced))
+                            .scaledFont(size: 11, design: .monospaced)
                             .foregroundColor(.brandTextDim)
                     }
                 }
                 Spacer()
                 if let conf = pick.confidence {
                     Text(conf)
-                        .font(.system(size: 9, weight: .bold, design: .monospaced))
+                        .scaledFont(size: 9, weight: .bold, design: .monospaced)
                         .foregroundColor(confidenceColor)
                         .padding(.horizontal, 6)
                         .padding(.vertical, 3)
@@ -419,22 +419,22 @@ struct PickResponseCard: View {
             HStack(spacing: 6) {
                 if let label = pick.marketLabel {
                     Text(label.uppercased())
-                        .font(.system(size: 9, design: .monospaced))
+                        .scaledFont(size: 9, design: .monospaced)
                         .foregroundColor(.brandTextDim)
                 }
                 if let lean = pick.lean {
                     Text(lean)
-                        .font(.system(size: 10, weight: .bold, design: .monospaced))
+                        .scaledFont(size: 10, weight: .bold, design: .monospaced)
                         .foregroundColor(lean == "OVER" ? .brandGreen : .brandRed)
                 }
                 if !formattedLine.isEmpty {
                     Text(formattedLine)
-                        .font(.system(size: 10, design: .monospaced))
+                        .scaledFont(size: 10, design: .monospaced)
                         .foregroundColor(.brandText)
                 }
                 if let odds = pick.odds {
                     Text(odds)
-                        .font(.system(size: 10, design: .monospaced))
+                        .scaledFont(size: 10, design: .monospaced)
                         .foregroundColor(.brandTextDim)
                 }
             }
@@ -442,7 +442,7 @@ struct PickResponseCard: View {
             // Reasoning
             if let reasoning = pick.reasoning, !reasoning.isEmpty {
                 Text(reasoning)
-                    .font(.system(size: 11, design: .monospaced))
+                    .scaledFont(size: 11, design: .monospaced)
                     .foregroundColor(.brandTextMuted)
                     .lineSpacing(3)
                     .fixedSize(horizontal: false, vertical: true)
@@ -454,7 +454,7 @@ struct PickResponseCard: View {
                     HStack(spacing: 6) {
                         ForEach(signals, id: \.self) { signal in
                             Text(signal)
-                                .font(.system(size: 9, design: .monospaced))
+                                .scaledFont(size: 9, design: .monospaced)
                                 .foregroundColor(.brandTextDim)
                                 .padding(.horizontal, 7)
                                 .padding(.vertical, 3)
@@ -481,13 +481,13 @@ struct ParlayCard: View {
             // Header
             HStack(alignment: .top) {
                 Text("SUGGESTED PARLAY")
-                    .font(.system(size: 9, weight: .bold, design: .monospaced))
+                    .scaledFont(size: 9, weight: .bold, design: .monospaced)
                     .foregroundColor(.brandAmber)
                     .kerning(1)
                 Spacer()
                 if let odds = parlay.combinedOdds {
                     Text(odds)
-                        .font(.system(size: 16, weight: .bold, design: .monospaced))
+                        .scaledFont(size: 16, weight: .bold, design: .monospaced)
                         .foregroundColor(.brandAmber)
                 }
             }
@@ -502,7 +502,7 @@ struct ParlayCard: View {
                                 .frame(width: 4, height: 4)
                                 .padding(.top, 5)
                             Text(leg)
-                                .font(.system(size: 11, design: .monospaced))
+                                .scaledFont(size: 11, design: .monospaced)
                                 .foregroundColor(.brandText)
                                 .fixedSize(horizontal: false, vertical: true)
                         }
@@ -513,7 +513,7 @@ struct ParlayCard: View {
             // Reasoning
             if let reasoning = parlay.reasoning, !reasoning.isEmpty {
                 Text(reasoning)
-                    .font(.system(size: 11, design: .monospaced))
+                    .scaledFont(size: 11, design: .monospaced)
                     .foregroundColor(.brandTextMuted)
                     .lineSpacing(3)
                     .fixedSize(horizontal: false, vertical: true)

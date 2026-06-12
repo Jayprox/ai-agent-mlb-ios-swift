@@ -15,26 +15,26 @@ struct PickCardView: View {
             VStack(alignment: .leading, spacing: 3) {
                 // Player / game name
                 Text(pick.playerName ?? pick.gameLabel ?? "—")
-                    .font(.system(size: 14, weight: .semibold, design: .monospaced))
+                    .scaledFont(size: 14, weight: .semibold, design: .monospaced)
                     .foregroundColor(.brandText)
 
                 // Side + line · game · units
                 HStack(spacing: 4) {
                     Text(pick.lineDisplay)
-                        .font(.system(size: 11, design: .monospaced))
+                        .scaledFont(size: 11, design: .monospaced)
                         .foregroundColor(.brandTextMuted)
                     if let game = pick.gameLabel, pick.playerName != nil {
                         Text("·")
                             .foregroundColor(.brandTextDim)
                         Text(game)
-                            .font(.system(size: 11, design: .monospaced))
+                            .scaledFont(size: 11, design: .monospaced)
                             .foregroundColor(.brandTextDim)
                     }
                     if let units = pick.units {
                         Text("·")
                             .foregroundColor(.brandTextDim)
                         Text("\(units == units.rounded() ? "\(Int(units))" : String(format: "%.1f", units))u")
-                            .font(.system(size: 11, design: .monospaced))
+                            .scaledFont(size: 11, design: .monospaced)
                             .foregroundColor(.brandTextDim)
                     }
                 }
@@ -43,12 +43,12 @@ struct PickCardView: View {
                 HStack(spacing: 8) {
                     if let odds = pick.oddsDisplay {
                         Text(odds)
-                            .font(.system(size: 10, design: .monospaced))
+                            .scaledFont(size: 10, design: .monospaced)
                             .foregroundColor(.brandTextDim)
                     }
                     if !pick.pnlDisplay.isEmpty {
                         Text(pick.pnlDisplay)
-                            .font(.system(size: 10, weight: .semibold, design: .monospaced))
+                            .scaledFont(size: 10, weight: .semibold, design: .monospaced)
                             .foregroundColor((pick.pnl ?? 0) >= 0 ? .brandGreen : .brandRed)
                     }
                 }
@@ -68,7 +68,7 @@ struct PickCardView: View {
                             onGrade(true)
                         } label: {
                             Text("✓")
-                                .font(.system(size: 12, weight: .bold))
+                                .scaledFont(size: 12, weight: .bold)
                                 .foregroundColor(.brandGreen)
                                 .frame(width: 28, height: 28)
                                 .background(Color.brandGreen.opacity(0.12))
@@ -82,7 +82,7 @@ struct PickCardView: View {
                             onGrade(false)
                         } label: {
                             Text("✗")
-                                .font(.system(size: 12, weight: .bold))
+                                .scaledFont(size: 12, weight: .bold)
                                 .foregroundColor(.brandRed)
                                 .frame(width: 28, height: 28)
                                 .background(Color.brandRed.opacity(0.12))
@@ -96,7 +96,7 @@ struct PickCardView: View {
                             onVoid()
                         } label: {
                             Text("void")
-                                .font(.system(size: 9, design: .monospaced))
+                                .scaledFont(size: 9, design: .monospaced)
                                 .foregroundColor(.brandTextMuted)
                                 .padding(.horizontal, 6)
                                 .padding(.vertical, 4)
@@ -138,7 +138,7 @@ struct PickCardView: View {
 
     private func badge(_ text: String, color: Color) -> some View {
         Text(text)
-            .font(.system(size: 9, weight: .bold, design: .monospaced))
+            .scaledFont(size: 9, weight: .bold, design: .monospaced)
             .foregroundColor(color)
             .padding(.horizontal, 6)
             .padding(.vertical, 3)

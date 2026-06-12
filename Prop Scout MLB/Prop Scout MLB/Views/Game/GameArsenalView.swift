@@ -16,11 +16,11 @@ struct GameArsenalView: View {
                     // Savant badge
                     HStack {
                         Text("— \(pitcherName)'S ARSENAL VS \(opponentAbbr) LINEUP")
-                            .font(.system(size: 10, weight: .bold, design: .monospaced))
+                            .scaledFont(size: 10, weight: .bold, design: .monospaced)
                             .foregroundColor(.brandTextDim)
                         Spacer()
                         Text("SAVANT LIVE")
-                            .font(.system(size: 9, weight: .bold, design: .monospaced))
+                            .scaledFont(size: 9, weight: .bold, design: .monospaced)
                             .foregroundColor(.brandGreen)
                             .padding(.horizontal, 6)
                             .padding(.vertical, 3)
@@ -35,7 +35,7 @@ struct GameArsenalView: View {
                     }
                 } else {
                     Text(vm.currentArsenal == nil ? "Loading arsenal…" : "Arsenal data unavailable")
-                        .font(.system(size: 12, design: .monospaced))
+                        .scaledFont(size: 12, design: .monospaced)
                         .foregroundColor(.brandTextDim)
                         .frame(maxWidth: .infinity)
                         .padding(24)
@@ -63,7 +63,7 @@ struct GameArsenalView: View {
     private func spButton(_ label: String, side: GameDetailViewModel.SPSide) -> some View {
         Button { vm.selectedSPSide = side } label: {
             Text(label)
-                .font(.system(size: 12, weight: .semibold, design: .monospaced))
+                .scaledFont(size: 12, weight: .semibold, design: .monospaced)
                 .foregroundColor(vm.selectedSPSide == side ? .brandBackground : .brandTextMuted)
                 .frame(maxWidth: .infinity)
                 .padding(.vertical, 9)
@@ -101,33 +101,33 @@ struct PitchCardView: View {
                 pitchChip
                 VStack(alignment: .leading, spacing: 2) {
                     Text(pitch.displayName)
-                        .font(.system(size: 13, weight: .bold, design: .monospaced))
+                        .scaledFont(size: 13, weight: .bold, design: .monospaced)
                         .foregroundColor(.brandText)
                     HStack(spacing: 4) {
                         if let velo = pitch.avgVelo {
                             Text(String(format: "%.1f mph", velo))
-                                .font(.system(size: 10, design: .monospaced))
+                                .scaledFont(size: 10, design: .monospaced)
                                 .foregroundColor(.brandTextMuted)
                             // YoY velo delta badge
                             if let delta = pitch.veloDelta, abs(delta) >= 0.3 {
                                 let isDown = delta < 0
                                 HStack(spacing: 2) {
                                     Image(systemName: isDown ? "arrow.down" : "arrow.up")
-                                        .font(.system(size: 8))
+                                        .scaledFont(size: 8)
                                     Text(String(format: "%.1f", abs(delta)))
-                                        .font(.system(size: 9, design: .monospaced))
+                                        .scaledFont(size: 9, design: .monospaced)
                                 }
                                 .foregroundColor(isDown ? .brandRed : .brandAmber)
                             }
                         }
                         if let usage = pitch.usagePct {
                             Text("\(pitch.avgVelo != nil ? "· " : "")\(Int(usage))% usage")
-                                .font(.system(size: 10, design: .monospaced))
+                                .scaledFont(size: 10, design: .monospaced)
                                 .foregroundColor(.brandTextMuted)
                         }
                         if let whiff = pitch.whiffRate {
                             Text("· \(Int(whiff))% whiff")
-                                .font(.system(size: 10, design: .monospaced))
+                                .scaledFont(size: 10, design: .monospaced)
                                 .foregroundColor(.brandTextMuted)
                         }
                     }
@@ -135,7 +135,7 @@ struct PitchCardView: View {
                 Spacer()
                 // Quality badge
                 Text(pitch.quality.label)
-                    .font(.system(size: 9, weight: .bold, design: .monospaced))
+                    .scaledFont(size: 9, weight: .bold, design: .monospaced)
                     .foregroundColor(qualityColor)
                     .padding(.horizontal, 6)
                     .padding(.vertical, 3)
@@ -173,10 +173,10 @@ struct PitchCardView: View {
             if let warn = pitch.warning, !warn.isEmpty {
                 HStack(spacing: 5) {
                     Image(systemName: "exclamationmark.triangle.fill")
-                        .font(.system(size: 9))
+                        .scaledFont(size: 9)
                         .foregroundColor(.brandAmber)
                     Text(warn)
-                        .font(.system(size: 9, weight: .medium, design: .monospaced))
+                        .scaledFont(size: 9, weight: .medium, design: .monospaced)
                         .foregroundColor(.brandAmber)
                 }
                 .padding(.horizontal, 8)
@@ -189,10 +189,10 @@ struct PitchCardView: View {
             if let note = pitch.insight, !note.isEmpty {
                 HStack(spacing: 5) {
                     Image(systemName: "info.circle")
-                        .font(.system(size: 10))
+                        .scaledFont(size: 10)
                         .foregroundColor(.brandCyan)
                     Text(note)
-                        .font(.system(size: 10, design: .monospaced))
+                        .scaledFont(size: 10, design: .monospaced)
                         .foregroundColor(.brandTextMuted)
                         .fixedSize(horizontal: false, vertical: true)
                 }
@@ -211,7 +211,7 @@ struct PitchCardView: View {
 
     private var pitchChip: some View {
         Text(pitch.abbr ?? "?")
-            .font(.system(size: 11, weight: .bold, design: .monospaced))
+            .scaledFont(size: 11, weight: .bold, design: .monospaced)
             .foregroundColor(.brandBackground)
             .frame(width: 32, height: 32)
             .background(qualityColor)
@@ -221,10 +221,10 @@ struct PitchCardView: View {
     private func statMini(label: String, value: String, color: Color) -> some View {
         VStack(spacing: 2) {
             Text(value)
-                .font(.system(size: 16, weight: .bold, design: .monospaced))
+                .scaledFont(size: 16, weight: .bold, design: .monospaced)
                 .foregroundColor(color)
             Text(label)
-                .font(.system(size: 8, design: .monospaced))
+                .scaledFont(size: 8, design: .monospaced)
                 .foregroundColor(.brandTextDim)
         }
         .frame(maxWidth: .infinity)

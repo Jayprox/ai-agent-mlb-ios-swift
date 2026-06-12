@@ -19,12 +19,12 @@ struct LoginView: View {
                 // MARK: Logo
                 VStack(spacing: 8) {
                     Text("⚾")
-                        .font(.system(size: 48))
+                        .scaledFont(size: 48)
                     Text("Prop Scout")
-                        .font(.system(size: 28, weight: .bold, design: .monospaced))
+                        .scaledFont(size: 28, weight: .bold, design: .monospaced)
                         .foregroundColor(.brandText)
                     Text("MLB RESEARCH")
-                        .font(.system(size: 11, weight: .semibold, design: .monospaced))
+                        .scaledFont(size: 11, weight: .semibold, design: .monospaced)
                         .foregroundColor(.brandTextDim)
                         .kerning(2)
                 }
@@ -35,7 +35,7 @@ struct LoginView: View {
                     // Username field
                     VStack(alignment: .leading, spacing: 6) {
                         Text("USERNAME")
-                            .font(.system(size: 10, weight: .semibold, design: .monospaced))
+                            .scaledFont(size: 10, weight: .semibold, design: .monospaced)
                             .foregroundColor(.brandTextDim)
                             .kerning(1.5)
                         TextField("", text: $username)
@@ -59,7 +59,7 @@ struct LoginView: View {
                     // Password field
                     VStack(alignment: .leading, spacing: 6) {
                         Text("PASSWORD")
-                            .font(.system(size: 10, weight: .semibold, design: .monospaced))
+                            .scaledFont(size: 10, weight: .semibold, design: .monospaced)
                             .foregroundColor(.brandTextDim)
                             .kerning(1.5)
                         SecureField("", text: $password)
@@ -82,9 +82,9 @@ struct LoginView: View {
                     if let error = auth.errorMessage {
                         HStack(spacing: 6) {
                             Image(systemName: "exclamationmark.triangle.fill")
-                                .font(.system(size: 12))
+                                .scaledFont(size: 12)
                             Text(error)
-                                .font(.system(size: 13))
+                                .scaledFont(size: 13)
                         }
                         .foregroundColor(.brandRed)
                         .frame(maxWidth: .infinity, alignment: .leading)
@@ -99,7 +99,7 @@ struct LoginView: View {
                                     .tint(.brandBackground)
                             } else {
                                 Text("SIGN IN")
-                                    .font(.system(size: 14, weight: .bold, design: .monospaced))
+                                    .scaledFont(size: 14, weight: .bold, design: .monospaced)
                                     .kerning(1.5)
                                     .foregroundColor(.brandBackground)
                             }
@@ -126,11 +126,11 @@ struct LoginView: View {
                 // Footer
                 VStack(spacing: 6) {
                     Text("Accounts are provisioned by your administrator")
-                        .font(.system(size: 11, design: .monospaced))
+                        .scaledFont(size: 11, design: .monospaced)
                         .foregroundColor(.brandTextDim)
                         .multilineTextAlignment(.center)
                     Text("⚡ Full live mode")
-                        .font(.system(size: 11, design: .monospaced))
+                        .scaledFont(size: 11, design: .monospaced)
                         .foregroundColor(.brandTextDim)
                 }
                 .padding(.horizontal, 24)

@@ -11,7 +11,7 @@ struct ModelPickCardView: View {
             // MARK: - Matchup + badges
             HStack(spacing: 6) {
                 Text(edge.displayGameLabel)
-                    .font(.system(size: 11, weight: .semibold, design: .monospaced))
+                    .scaledFont(size: 11, weight: .semibold, design: .monospaced)
                     .foregroundColor(.brandTextDim)
                 badge("ALGORITHMIC", color: .brandCyan)
                 if verifiedBookCount >= 2 {
@@ -27,11 +27,11 @@ struct ModelPickCardView: View {
             HStack(alignment: .top, spacing: 8) {
                 VStack(alignment: .leading, spacing: 2) {
                     Text(titleText)
-                        .font(.system(size: 14, weight: .bold, design: .monospaced))
+                        .scaledFont(size: 14, weight: .bold, design: .monospaced)
                         .foregroundColor(.brandText)
                     if let team = edge.team {
                         Text(team)
-                            .font(.system(size: 10, design: .monospaced))
+                            .scaledFont(size: 10, design: .monospaced)
                             .foregroundColor(.brandTextMuted)
                     }
                 }
@@ -39,7 +39,7 @@ struct ModelPickCardView: View {
                 VStack(alignment: .trailing, spacing: 2) {
                     if let book = edge.bestBookLabel {
                         Text(book)
-                            .font(.system(size: 9, weight: .bold, design: .monospaced))
+                            .scaledFont(size: 9, weight: .bold, design: .monospaced)
                             .foregroundColor(.brandTextDim)
                             .kerning(0.5)
                     }
@@ -51,7 +51,7 @@ struct ModelPickCardView: View {
                                 .foregroundColor(.brandPurple)
                         }
                     }
-                    .font(.system(size: 12, weight: .bold, design: .monospaced))
+                    .scaledFont(size: 12, weight: .bold, design: .monospaced)
                 }
             }
             .padding(.horizontal, 14)
@@ -61,7 +61,7 @@ struct ModelPickCardView: View {
             if !edge.bookChips.isEmpty || edge.projectedLine != nil {
                 VStack(alignment: .leading, spacing: 6) {
                     Text("LINES")
-                        .font(.system(size: 9, weight: .bold, design: .monospaced))
+                        .scaledFont(size: 9, weight: .bold, design: .monospaced)
                         .foregroundColor(.brandTextDim)
                         .kerning(1)
 
@@ -88,7 +88,7 @@ struct ModelPickCardView: View {
                     Text(verified)
                         .foregroundColor(.brandTextMuted)
                 }
-                .font(.system(size: 10, design: .monospaced))
+                .scaledFont(size: 10, design: .monospaced)
                 .padding(.horizontal, 14)
                 .padding(.top, 8)
             }
@@ -96,7 +96,7 @@ struct ModelPickCardView: View {
             // MARK: - Analysis
             if let reason = edge.aiReason, !reason.isEmpty {
                 Text(reason)
-                    .font(.system(size: 11, design: .monospaced))
+                    .scaledFont(size: 11, design: .monospaced)
                     .italic()
                     .foregroundColor(.brandTextMuted)
                     .lineSpacing(3)
@@ -114,7 +114,7 @@ struct ModelPickCardView: View {
                             Text(factorText(sig))
                                 .fixedSize(horizontal: false, vertical: true)
                         }
-                        .font(.system(size: 10, design: .monospaced))
+                        .scaledFont(size: 10, design: .monospaced)
                         .foregroundColor(.brandTextDim)
                     }
                 }
@@ -133,7 +133,7 @@ struct ModelPickCardView: View {
                     showLogPick = true
                 } label: {
                     Image(systemName: "plus.circle.fill")
-                        .font(.system(size: 20))
+                        .scaledFont(size: 20)
                         .foregroundColor(.brandGreen)
                         .padding(.trailing, 14)
                         .padding(.vertical, 8)
@@ -194,15 +194,15 @@ struct ModelPickCardView: View {
                 Text(chip.book)
                     .foregroundColor(.brandText)
             }
-            .font(.system(size: 10, weight: .bold, design: .monospaced))
+            .scaledFont(size: 10, weight: .bold, design: .monospaced)
 
             Text(chip.line.map(fmt) ?? "—")
-                .font(.system(size: 11, weight: .semibold, design: .monospaced))
+                .scaledFont(size: 11, weight: .semibold, design: .monospaced)
                 .foregroundColor(.brandText)
 
             if let odds = chip.odds {
                 Text(odds)
-                    .font(.system(size: 9, design: .monospaced))
+                    .scaledFont(size: 9, design: .monospaced)
                     .foregroundColor(.brandTextMuted)
             }
         }
@@ -216,11 +216,11 @@ struct ModelPickCardView: View {
     private func projectionBadge(_ value: Double) -> some View {
         VStack(spacing: 2) {
             Text("PROJECTION")
-                .font(.system(size: 8, weight: .bold, design: .monospaced))
+                .scaledFont(size: 8, weight: .bold, design: .monospaced)
                 .foregroundColor(.brandTextDim)
                 .kerning(0.5)
             Text("Est. \(fmt(value))")
-                .font(.system(size: 11, weight: .bold, design: .monospaced))
+                .scaledFont(size: 11, weight: .bold, design: .monospaced)
                 .foregroundColor(.brandAmber)
         }
         .frame(width: 64)
@@ -243,7 +243,7 @@ struct ModelPickCardView: View {
 
     private func badge(_ text: String, color: Color) -> some View {
         Text(text)
-            .font(.system(size: 8, weight: .bold, design: .monospaced))
+            .scaledFont(size: 8, weight: .bold, design: .monospaced)
             .foregroundColor(color)
             .padding(.horizontal, 6)
             .padding(.vertical, 3)

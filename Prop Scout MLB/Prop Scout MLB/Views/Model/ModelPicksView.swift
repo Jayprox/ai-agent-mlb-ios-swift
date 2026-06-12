@@ -54,12 +54,12 @@ struct ModelPicksView: View {
         VStack(alignment: .leading, spacing: 4) {
             HStack {
                 Text("— MODEL PICKS")
-                    .font(.system(size: 10, weight: .bold, design: .monospaced))
+                    .scaledFont(size: 10, weight: .bold, design: .monospaced)
                     .foregroundColor(.brandTextDim)
                     .kerning(1)
 
                 Text("ALGORITHMIC")
-                    .font(.system(size: 8, weight: .bold, design: .monospaced))
+                    .scaledFont(size: 8, weight: .bold, design: .monospaced)
                     .foregroundColor(.brandCyan)
                     .padding(.horizontal, 6)
                     .padding(.vertical, 3)
@@ -72,18 +72,18 @@ struct ModelPicksView: View {
                 let stats = vm.hitStats
                 if stats.total > 0 {
                     Text("\(stats.hits)/\(stats.total) hit")
-                        .font(.system(size: 10, weight: .bold, design: .monospaced))
+                        .scaledFont(size: 10, weight: .bold, design: .monospaced)
                         .foregroundColor(.brandGreen)
                 }
 
                 Text("\(vm.modelPicks.count) picks")
-                    .font(.system(size: 10, design: .monospaced))
+                    .scaledFont(size: 10, design: .monospaced)
                     .foregroundColor(.brandTextDim)
             }
 
             if !vm.generatedAtLabel.isEmpty {
                 Text("Snapshot \(vm.generatedAtLabel)")
-                    .font(.system(size: 10, design: .monospaced))
+                    .scaledFont(size: 10, design: .monospaced)
                     .foregroundColor(.brandTextDim)
             }
         }
@@ -95,7 +95,7 @@ struct ModelPicksView: View {
     private func confidenceSection(_ tier: ModelConfidenceTier, picks: [AIBoardEdge]) -> some View {
         VStack(alignment: .leading, spacing: 10) {
             Text(tier.rawValue)
-                .font(.system(size: 10, weight: .bold, design: .monospaced))
+                .scaledFont(size: 10, weight: .bold, design: .monospaced)
                 .foregroundColor(tierColor(tier))
                 .kerning(1)
                 .padding(.horizontal, 16)
@@ -121,14 +121,14 @@ struct ModelPicksView: View {
     private var emptyState: some View {
         VStack(spacing: 12) {
             Image(systemName: "cpu")
-                .font(.system(size: 32))
+                .scaledFont(size: 32)
                 .foregroundColor(.brandTextDim)
                 .padding(.top, 40)
             Text("No model picks today")
-                .font(.system(size: 13, design: .monospaced))
+                .scaledFont(size: 13, design: .monospaced)
                 .foregroundColor(.brandTextMuted)
             Text("Snapshot runs at 10 AM HI daily")
-                .font(.system(size: 11, design: .monospaced))
+                .scaledFont(size: 11, design: .monospaced)
                 .foregroundColor(.brandTextDim)
         }
         .frame(maxWidth: .infinity)
@@ -140,7 +140,7 @@ struct ModelPicksView: View {
             Spacer()
             ProgressView().tint(.brandGreen).scaleEffect(1.2)
             Text("Loading model picks…")
-                .font(.system(size: 13, design: .monospaced))
+                .scaledFont(size: 13, design: .monospaced)
                 .foregroundColor(.brandTextMuted)
             Spacer()
         }
@@ -150,15 +150,15 @@ struct ModelPicksView: View {
         VStack(spacing: 12) {
             Spacer()
             Image(systemName: "exclamationmark.triangle")
-                .font(.system(size: 32))
+                .scaledFont(size: 32)
                 .foregroundColor(.brandAmber)
             Text(msg)
-                .font(.system(size: 12, design: .monospaced))
+                .scaledFont(size: 12, design: .monospaced)
                 .foregroundColor(.brandTextMuted)
                 .multilineTextAlignment(.center)
                 .padding(.horizontal, 32)
             Button("Retry") { Task { await vm.load() } }
-                .font(.system(size: 13, weight: .semibold, design: .monospaced))
+                .scaledFont(size: 13, weight: .semibold, design: .monospaced)
                 .foregroundColor(.brandGreen)
             Spacer()
         }
@@ -170,10 +170,10 @@ struct ModelPicksView: View {
             ToolbarItem(placement: .principal) {
                 HStack(spacing: 6) {
                     Image(systemName: "cpu")
-                        .font(.system(size: 14))
+                        .scaledFont(size: 14)
                         .foregroundColor(.brandCyan)
                     Text("Model")
-                        .font(.system(size: 17, weight: .bold, design: .monospaced))
+                        .scaledFont(size: 17, weight: .bold, design: .monospaced)
                         .foregroundColor(.brandText)
                 }
             }
@@ -181,7 +181,7 @@ struct ModelPicksView: View {
                 let stats = vm.hitStats
                 if stats.total > 0 {
                     Text("\(stats.hits)/\(stats.total) hit")
-                        .font(.system(size: 11, weight: .bold, design: .monospaced))
+                        .scaledFont(size: 11, weight: .bold, design: .monospaced)
                         .foregroundColor(.brandGreen)
                         .padding(.horizontal, 8)
                         .padding(.vertical, 4)

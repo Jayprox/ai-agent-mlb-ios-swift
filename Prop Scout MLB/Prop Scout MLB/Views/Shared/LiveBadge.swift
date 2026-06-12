@@ -11,7 +11,7 @@ struct LiveBadge: View {
                 .opacity(pulsing ? 0.4 : 1.0)
                 .animation(.easeInOut(duration: 0.8).repeatForever(), value: pulsing)
             Text("LIVE")
-                .font(.system(size: 10, weight: .bold, design: .monospaced))
+                .scaledFont(size: 10, weight: .bold, design: .monospaced)
                 .foregroundColor(.brandRed)
         }
         .padding(.horizontal, 7)
@@ -25,7 +25,7 @@ struct LiveBadge: View {
 struct FinalBadge: View {
     var body: some View {
         Text("FINAL")
-            .font(.system(size: 10, weight: .bold, design: .monospaced))
+            .scaledFont(size: 10, weight: .bold, design: .monospaced)
             .foregroundColor(.brandTextMuted)
             .padding(.horizontal, 7)
             .padding(.vertical, 3)
@@ -37,7 +37,7 @@ struct FinalBadge: View {
 struct PPDBadge: View {
     var body: some View {
         Text("PPD")
-            .font(.system(size: 10, weight: .bold, design: .monospaced))
+            .scaledFont(size: 10, weight: .bold, design: .monospaced)
             .foregroundColor(.brandAmber)
             .padding(.horizontal, 7)
             .padding(.vertical, 3)

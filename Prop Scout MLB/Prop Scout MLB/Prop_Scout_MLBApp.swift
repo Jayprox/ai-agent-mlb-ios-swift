@@ -15,6 +15,10 @@ struct Prop_Scout_MLBApp: App {
             }
             .environmentObject(auth)
             .preferredColorScheme(.dark)
+            // Allow Dynamic Type to scale text for readability, but cap at the
+            // largest non-accessibility size so dense data tables/cards
+            // (Boxscore, Lineup, Board, etc.) don't break their layouts.
+            .dynamicTypeSize(...DynamicTypeSize.xxxLarge)
         }
     }
 }

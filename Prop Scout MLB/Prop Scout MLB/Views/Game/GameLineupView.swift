@@ -13,7 +13,7 @@ struct GameLineupView: View {
 
                 if vm.currentLineup.isEmpty {
                     Text(vm.lineup == nil ? "Loading lineups…" : "Lineup not yet confirmed")
-                        .font(.system(size: 12, design: .monospaced))
+                        .scaledFont(size: 12, design: .monospaced)
                         .foregroundColor(.brandTextDim)
                         .frame(maxWidth: .infinity)
                         .padding(24)
@@ -27,7 +27,7 @@ struct GameLineupView: View {
 
                     HStack {
                         Text("VS \(pitcher?.name.components(separatedBy: " ").last?.uppercased() ?? "SP")")
-                            .font(.system(size: 10, weight: .bold, design: .monospaced))
+                            .scaledFont(size: 10, weight: .bold, design: .monospaced)
                             .foregroundColor(.brandTextDim)
                             .kerning(1.2)
                         Spacer()
@@ -64,7 +64,7 @@ struct GameLineupView: View {
     private func sideButton(_ label: String, side: GameDetailViewModel.SPSide) -> some View {
         Button { vm.lineupSide = side } label: {
             Text(label)
-                .font(.system(size: 11, weight: .semibold, design: .monospaced))
+                .scaledFont(size: 11, weight: .semibold, design: .monospaced)
                 .foregroundColor(vm.lineupSide == side ? .brandBackground : .brandTextMuted)
                 .frame(maxWidth: .infinity)
                 .padding(.vertical, 9)
@@ -102,14 +102,14 @@ struct ExpandableBatterRowView: View {
             } label: {
                 HStack(spacing: 12) {
                     Text("\(order)")
-                        .font(.system(size: 12, weight: .bold, design: .monospaced))
+                        .scaledFont(size: 12, weight: .bold, design: .monospaced)
                         .foregroundColor(.brandTextDim)
                         .frame(width: 16)
 
                     VStack(alignment: .leading, spacing: 2) {
                         HStack(spacing: 6) {
                             Text(batter.name ?? "—")
-                                .font(.system(size: 13, weight: .semibold, design: .monospaced))
+                                .scaledFont(size: 13, weight: .semibold, design: .monospaced)
                                 .foregroundColor(.brandText)
                             if isInjured {
                                 ILBadge()
@@ -118,14 +118,14 @@ struct ExpandableBatterRowView: View {
                         HStack(spacing: 4) {
                             if let pos = batter.position {
                                 Text(pos)
-                                    .font(.system(size: 10, design: .monospaced))
+                                    .scaledFont(size: 10, design: .monospaced)
                                     .foregroundColor(.brandTextDim)
                             }
                             if let side = batter.batSide {
                                 Text("·")
                                     .foregroundColor(.brandTextDim)
                                 Text("\(side)H")
-                                    .font(.system(size: 10, design: .monospaced))
+                                    .scaledFont(size: 10, design: .monospaced)
                                     .foregroundColor(.brandTextDim)
                             }
                         }
@@ -135,12 +135,12 @@ struct ExpandableBatterRowView: View {
 
                     if let avg = batter.avg {
                         Text(avg)
-                            .font(.system(size: 12, weight: .semibold, design: .monospaced))
+                            .scaledFont(size: 12, weight: .semibold, design: .monospaced)
                             .foregroundColor(.brandTextMuted)
                     }
 
                     Image(systemName: isExpanded ? "chevron.up" : "chevron.down")
-                        .font(.system(size: 10))
+                        .scaledFont(size: 10)
                         .foregroundColor(.brandTextDim)
                 }
                 .padding(.horizontal, 14)
@@ -168,7 +168,7 @@ struct ExpandableBatterRowView: View {
                         if h.atBats > 0 {
                             VStack(alignment: .leading, spacing: 6) {
                                 Text("CAREER VS PITCHER")
-                                    .font(.system(size: 9, weight: .bold, design: .monospaced))
+                                    .scaledFont(size: 9, weight: .bold, design: .monospaced)
                                     .foregroundColor(.brandTextDim)
                                     .kerning(1.2)
                                 HStack(spacing: 8) {
@@ -180,12 +180,12 @@ struct ExpandableBatterRowView: View {
                             }
                         } else {
                             Text("No career history vs this pitcher")
-                                .font(.system(size: 10, design: .monospaced))
+                                .scaledFont(size: 10, design: .monospaced)
                                 .foregroundColor(.brandTextDim)
                         }
                     } else if pitcherId != nil && !loadedOnce {
                         Text("Loading…")
-                            .font(.system(size: 10, design: .monospaced))
+                            .scaledFont(size: 10, design: .monospaced)
                             .foregroundColor(.brandTextDim)
                     }
 
@@ -194,7 +194,7 @@ struct ExpandableBatterRowView: View {
                     if let vsL = lr?.vsLeft, let vsR = lr?.vsRight {
                         VStack(alignment: .leading, spacing: 6) {
                             Text("VS L / VS R")
-                                .font(.system(size: 9, weight: .bold, design: .monospaced))
+                                .scaledFont(size: 9, weight: .bold, design: .monospaced)
                                 .foregroundColor(.brandTextDim)
                                 .kerning(1.2)
                             HStack(spacing: 8) {
@@ -208,7 +208,7 @@ struct ExpandableBatterRowView: View {
                     if let home = splits?.home, let away = splits?.away {
                         VStack(alignment: .leading, spacing: 6) {
                             Text("HOME / AWAY")
-                                .font(.system(size: 9, weight: .bold, design: .monospaced))
+                                .scaledFont(size: 9, weight: .bold, design: .monospaced)
                                 .foregroundColor(.brandTextDim)
                                 .kerning(1.2)
                             HStack(spacing: 8) {
@@ -222,29 +222,29 @@ struct ExpandableBatterRowView: View {
                     if let games = gamelog?.games, !games.isEmpty {
                         VStack(alignment: .leading, spacing: 6) {
                             Text("LAST 5 GAMES")
-                                .font(.system(size: 9, weight: .bold, design: .monospaced))
+                                .scaledFont(size: 9, weight: .bold, design: .monospaced)
                                 .foregroundColor(.brandTextDim)
                                 .kerning(1.2)
                             VStack(spacing: 4) {
                                 ForEach(games.prefix(5)) { g in
                                     HStack {
                                         Text(g.opponent ?? g.date ?? "—")
-                                            .font(.system(size: 10, design: .monospaced))
+                                            .scaledFont(size: 10, design: .monospaced)
                                             .foregroundColor(.brandTextMuted)
                                         Spacer()
                                         if let ab = g.ab, let h = g.h {
                                             Text("\(h)-\(ab)")
-                                                .font(.system(size: 10, weight: .semibold, design: .monospaced))
+                                                .scaledFont(size: 10, weight: .semibold, design: .monospaced)
                                                 .foregroundColor(.brandText)
                                         }
                                         if let hr = g.hr, hr > 0 {
                                             Text("\(hr) HR")
-                                                .font(.system(size: 9, weight: .bold, design: .monospaced))
+                                                .scaledFont(size: 9, weight: .bold, design: .monospaced)
                                                 .foregroundColor(.brandAmber)
                                         }
                                         if let rbi = g.rbi, rbi > 0 {
                                             Text("\(rbi) RBI")
-                                                .font(.system(size: 9, design: .monospaced))
+                                                .scaledFont(size: 9, design: .monospaced)
                                                 .foregroundColor(.brandTextDim)
                                         }
                                     }
@@ -257,7 +257,7 @@ struct ExpandableBatterRowView: View {
                     if let rbiCtx = rbiContext {
                         VStack(alignment: .leading, spacing: 6) {
                             Text("RBI CONTEXT")
-                                .font(.system(size: 9, weight: .bold, design: .monospaced))
+                                .scaledFont(size: 9, weight: .bold, design: .monospaced)
                                 .foregroundColor(.brandTextDim)
                                 .kerning(1.2)
                             HStack(spacing: 8) {
@@ -332,7 +332,7 @@ struct ExpandableBatterRowView: View {
     private func splitColumn(label: String, line: StatSplitLine) -> some View {
         VStack(alignment: .leading, spacing: 4) {
             Text(label)
-                .font(.system(size: 8, design: .monospaced))
+                .scaledFont(size: 8, design: .monospaced)
                 .foregroundColor(.brandTextDim)
             HStack(spacing: 6) {
                 if let avg = line.avg { miniStat("AVG", avg) }
@@ -349,10 +349,10 @@ struct ExpandableBatterRowView: View {
     private func miniStat(_ label: String, _ value: String) -> some View {
         VStack(spacing: 1) {
             Text(value)
-                .font(.system(size: 11, weight: .semibold, design: .monospaced))
+                .scaledFont(size: 11, weight: .semibold, design: .monospaced)
                 .foregroundColor(.brandText)
             Text(label)
-                .font(.system(size: 7, design: .monospaced))
+                .scaledFont(size: 7, design: .monospaced)
                 .foregroundColor(.brandTextDim)
         }
     }
@@ -360,10 +360,10 @@ struct ExpandableBatterRowView: View {
     private func statChip(_ label: String, _ value: String) -> some View {
         VStack(spacing: 2) {
             Text(value)
-                .font(.system(size: 12, weight: .bold, design: .monospaced))
+                .scaledFont(size: 12, weight: .bold, design: .monospaced)
                 .foregroundColor(.brandText)
             Text(label)
-                .font(.system(size: 8, design: .monospaced))
+                .scaledFont(size: 8, design: .monospaced)
                 .foregroundColor(.brandTextDim)
         }
         .padding(.horizontal, 10)

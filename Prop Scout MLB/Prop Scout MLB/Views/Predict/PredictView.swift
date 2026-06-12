@@ -53,22 +53,22 @@ struct PredictView: View {
         VStack(alignment: .leading, spacing: 6) {
             HStack(spacing: 6) {
                 Text("⚡ PREDICT")
-                    .font(.system(size: 13, weight: .bold, design: .monospaced))
+                    .scaledFont(size: 13, weight: .bold, design: .monospaced)
                     .foregroundColor(.brandAmber)
                     .kerning(1)
                 Spacer()
                 Text("\(vm.predictPicks.count) picks")
-                    .font(.system(size: 10, design: .monospaced))
+                    .scaledFont(size: 10, design: .monospaced)
                     .foregroundColor(.brandTextDim)
             }
 
             Text("Edge plays — model probability exceeds book implied · sorted by edge")
-                .font(.system(size: 11, design: .monospaced))
+                .scaledFont(size: 11, design: .monospaced)
                 .foregroundColor(.brandTextMuted)
                 .fixedSize(horizontal: false, vertical: true)
 
             Text("⊘ LOCKED · IN PLAY / FINAL")
-                .font(.system(size: 9, weight: .bold, design: .monospaced))
+                .scaledFont(size: 9, weight: .bold, design: .monospaced)
                 .foregroundColor(.brandPurple)
                 .padding(.horizontal, 6)
                 .padding(.vertical, 3)
@@ -78,7 +78,7 @@ struct PredictView: View {
 
             if !vm.generatedAtLabel.isEmpty {
                 Text("Snapshot \(vm.generatedAtLabel)")
-                    .font(.system(size: 10, design: .monospaced))
+                    .scaledFont(size: 10, design: .monospaced)
                     .foregroundColor(.brandTextDim)
             }
         }
@@ -90,14 +90,14 @@ struct PredictView: View {
     private var emptyState: some View {
         VStack(spacing: 12) {
             Image(systemName: "bolt.fill")
-                .font(.system(size: 32))
+                .scaledFont(size: 32)
                 .foregroundColor(.brandTextDim)
                 .padding(.top, 40)
             Text("No edge plays today")
-                .font(.system(size: 13, design: .monospaced))
+                .scaledFont(size: 13, design: .monospaced)
                 .foregroundColor(.brandTextMuted)
             Text("Snapshot runs at 10 AM HI daily")
-                .font(.system(size: 11, design: .monospaced))
+                .scaledFont(size: 11, design: .monospaced)
                 .foregroundColor(.brandTextDim)
         }
         .frame(maxWidth: .infinity)
@@ -109,7 +109,7 @@ struct PredictView: View {
             Spacer()
             ProgressView().tint(.brandGreen).scaleEffect(1.2)
             Text("Loading edge plays…")
-                .font(.system(size: 13, design: .monospaced))
+                .scaledFont(size: 13, design: .monospaced)
                 .foregroundColor(.brandTextMuted)
             Spacer()
         }
@@ -119,15 +119,15 @@ struct PredictView: View {
         VStack(spacing: 12) {
             Spacer()
             Image(systemName: "exclamationmark.triangle")
-                .font(.system(size: 32))
+                .scaledFont(size: 32)
                 .foregroundColor(.brandAmber)
             Text(msg)
-                .font(.system(size: 12, design: .monospaced))
+                .scaledFont(size: 12, design: .monospaced)
                 .foregroundColor(.brandTextMuted)
                 .multilineTextAlignment(.center)
                 .padding(.horizontal, 32)
             Button("Retry") { Task { await vm.load() } }
-                .font(.system(size: 13, weight: .semibold, design: .monospaced))
+                .scaledFont(size: 13, weight: .semibold, design: .monospaced)
                 .foregroundColor(.brandGreen)
             Spacer()
         }
@@ -138,10 +138,10 @@ struct PredictView: View {
         ToolbarItem(placement: .principal) {
             HStack(spacing: 6) {
                 Image(systemName: "bolt.fill")
-                    .font(.system(size: 14))
+                    .scaledFont(size: 14)
                     .foregroundColor(.brandAmber)
                 Text("Predict")
-                    .font(.system(size: 17, weight: .bold, design: .monospaced))
+                    .scaledFont(size: 17, weight: .bold, design: .monospaced)
                     .foregroundColor(.brandText)
             }
         }

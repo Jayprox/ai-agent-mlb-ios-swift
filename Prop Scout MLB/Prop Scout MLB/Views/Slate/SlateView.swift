@@ -40,13 +40,13 @@ struct SlateView: View {
                 // Header
                 HStack {
                     Text("TODAY'S SLATE")
-                        .font(.system(size: 11, weight: .bold, design: .monospaced))
+                        .scaledFont(size: 11, weight: .bold, design: .monospaced)
                         .foregroundColor(.brandTextDim)
                         .kerning(1.5)
                     Text("·")
                         .foregroundColor(.brandTextDim)
                     Text("\(vm.gameCount) GAMES")
-                        .font(.system(size: 11, weight: .bold, design: .monospaced))
+                        .scaledFont(size: 11, weight: .bold, design: .monospaced)
                         .foregroundColor(.brandTextDim)
                     if vm.liveCount > 0 {
                         Text("·")
@@ -92,7 +92,7 @@ struct SlateView: View {
         VStack(alignment: .leading, spacing: 10) {
             HStack {
                 Text("— MODEL PICKS")
-                    .font(.system(size: 11, weight: .bold, design: .monospaced))
+                    .scaledFont(size: 11, weight: .bold, design: .monospaced)
                     .foregroundColor(.brandTextDim)
                     .kerning(1)
                 Spacer()
@@ -103,9 +103,9 @@ struct SlateView: View {
                     HStack(spacing: 2) {
                         Text("VIEW ALL")
                         Image(systemName: "arrow.right")
-                            .font(.system(size: 9, weight: .bold))
+                            .scaledFont(size: 9, weight: .bold)
                     }
-                    .font(.system(size: 10, weight: .bold, design: .monospaced))
+                    .scaledFont(size: 10, weight: .bold, design: .monospaced)
                     .foregroundColor(.brandGreen)
                 }
             }
@@ -126,20 +126,20 @@ struct SlateView: View {
     private func modelPickRow(rank: Int, edge: AIBoardEdge) -> some View {
         HStack(alignment: .center, spacing: 10) {
             Text("\(rank)")
-                .font(.system(size: 11, weight: .bold, design: .monospaced))
+                .scaledFont(size: 11, weight: .bold, design: .monospaced)
                 .foregroundColor(.brandTextDim)
                 .frame(width: 14)
 
             VStack(alignment: .leading, spacing: 3) {
                 Text(modelPickTitle(edge))
-                    .font(.system(size: 13, weight: .bold, design: .monospaced))
+                    .scaledFont(size: 13, weight: .bold, design: .monospaced)
                     .foregroundColor(.brandText)
                 HStack(spacing: 6) {
                     Text(edge.displayGameLabel)
-                        .font(.system(size: 10, design: .monospaced))
+                        .scaledFont(size: 10, design: .monospaced)
                         .foregroundColor(.brandTextDim)
                     Text("✓ LINEUP")
-                        .font(.system(size: 8, weight: .bold, design: .monospaced))
+                        .scaledFont(size: 8, weight: .bold, design: .monospaced)
                         .foregroundColor(.brandGreen)
                         .padding(.horizontal, 5)
                         .padding(.vertical, 2)
@@ -153,7 +153,7 @@ struct SlateView: View {
             VStack(alignment: .trailing, spacing: 3) {
                 let lean = (edge.lean ?? "OVER").uppercased()
                 Text(lean)
-                    .font(.system(size: 10, weight: .bold, design: .monospaced))
+                    .scaledFont(size: 10, weight: .bold, design: .monospaced)
                     .foregroundColor(lean == "OVER" ? .brandGreen : .brandRed)
                     .padding(.horizontal, 6)
                     .padding(.vertical, 2)
@@ -161,7 +161,7 @@ struct SlateView: View {
                     .cornerRadius(4)
                 if let sim = edge.simConfidence {
                     Text("\(sim)%")
-                        .font(.system(size: 11, weight: .bold, design: .monospaced))
+                        .scaledFont(size: 11, weight: .bold, design: .monospaced)
                         .foregroundColor(.brandPurple)
                 }
             }
@@ -180,15 +180,15 @@ struct SlateView: View {
     private func errorView(_ message: String) -> some View {
         VStack(spacing: 12) {
             Image(systemName: "exclamationmark.triangle")
-                .font(.system(size: 32))
+                .scaledFont(size: 32)
                 .foregroundColor(.brandAmber)
             Text(message)
-                .font(.system(size: 13, design: .monospaced))
+                .scaledFont(size: 13, design: .monospaced)
                 .foregroundColor(.brandTextMuted)
                 .multilineTextAlignment(.center)
                 .padding(.horizontal, 32)
             Button("Retry") { Task { await vm.load() } }
-                .font(.system(size: 13, weight: .semibold, design: .monospaced))
+                .scaledFont(size: 13, weight: .semibold, design: .monospaced)
                 .foregroundColor(.brandGreen)
         }
     }
@@ -198,9 +198,9 @@ struct SlateView: View {
         ToolbarItem(placement: .principal) {
             HStack(spacing: 6) {
                 Text("⚾")
-                    .font(.system(size: 16))
+                    .scaledFont(size: 16)
                 Text("Prop Scout")
-                    .font(.system(size: 17, weight: .bold, design: .monospaced))
+                    .scaledFont(size: 17, weight: .bold, design: .monospaced)
                     .foregroundColor(.brandText)
             }
         }

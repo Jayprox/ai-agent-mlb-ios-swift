@@ -25,7 +25,7 @@ struct GameBoxscoreView: View {
                         .padding(.horizontal, 16)
                 } else if vm.isLoading {
                     Text("Loading boxscore…")
-                        .font(.system(size: 12, design: .monospaced))
+                        .scaledFont(size: 12, design: .monospaced)
                         .foregroundColor(.brandTextDim)
                         .frame(maxWidth: .infinity)
                         .padding(24)
@@ -35,7 +35,7 @@ struct GameBoxscoreView: View {
                         .padding(.top, 12)
                 } else {
                     Text("Boxscore not yet available")
-                        .font(.system(size: 12, design: .monospaced))
+                        .scaledFont(size: 12, design: .monospaced)
                         .foregroundColor(.brandTextDim)
                         .frame(maxWidth: .infinity)
                         .padding(24)
@@ -66,7 +66,7 @@ struct GameBoxscoreView: View {
     private func sideButton(_ label: String, side: GameDetailViewModel.SPSide) -> some View {
         Button { self.side = side } label: {
             Text(label)
-                .font(.system(size: 10, weight: .bold, design: .monospaced))
+                .scaledFont(size: 10, weight: .bold, design: .monospaced)
                 .foregroundColor(self.side == side ? .brandBackground : .brandTextMuted)
                 .padding(.horizontal, 12)
                 .padding(.vertical, 5)
@@ -84,12 +84,12 @@ struct GameBoxscoreView: View {
             // Header: "Linescore" + status badge
             HStack {
                 Text("LINESCORE")
-                    .font(.system(size: 10, weight: .bold, design: .monospaced))
+                    .scaledFont(size: 10, weight: .bold, design: .monospaced)
                     .foregroundColor(.brandTextDim)
                     .kerning(1.0)
                 Spacer()
                 Text(game.status.uppercased())
-                    .font(.system(size: 9, weight: .bold, design: .monospaced))
+                    .scaledFont(size: 9, weight: .bold, design: .monospaced)
                     .foregroundColor(game.isLive ? .brandGreen : .brandTextDim)
                     .kerning(1.0)
             }
@@ -109,7 +109,7 @@ struct GameBoxscoreView: View {
                 Text("H").frame(width: 26)
                 Text("E").frame(width: 26)
             }
-            .font(.system(size: 9, weight: .bold, design: .monospaced))
+            .scaledFont(size: 9, weight: .bold, design: .monospaced)
             .foregroundColor(.brandTextDim)
             .padding(.vertical, 8)
 
@@ -137,7 +137,7 @@ struct GameBoxscoreView: View {
     ) -> some View {
         HStack(spacing: 0) {
             Text(label)
-                .font(.system(size: 11, weight: .bold, design: .monospaced))
+                .scaledFont(size: 11, weight: .bold, design: .monospaced)
                 .foregroundColor(.brandText)
                 .frame(width: 44, alignment: .leading)
 
@@ -155,7 +155,7 @@ struct GameBoxscoreView: View {
             Text("\(totals?.hits ?? 0)").frame(width: 26)
             Text("\(totals?.errors ?? 0)").frame(width: 26)
         }
-        .font(.system(size: 11, design: .monospaced))
+        .scaledFont(size: 11, design: .monospaced)
         .foregroundColor(.brandText)
         .padding(.vertical, 9)
     }
@@ -166,7 +166,7 @@ struct GameBoxscoreView: View {
             // Card header: "Batting" + away/home toggle
             HStack {
                 Text("BATTING")
-                    .font(.system(size: 10, weight: .bold, design: .monospaced))
+                    .scaledFont(size: 10, weight: .bold, design: .monospaced)
                     .foregroundColor(.brandTextDim)
                     .kerning(1.0)
                 Spacer()
@@ -190,7 +190,7 @@ struct GameBoxscoreView: View {
                 Text("K").frame(width: 22)
                 Text("AVG").frame(width: 38)
             }
-            .font(.system(size: 9, weight: .bold, design: .monospaced))
+            .scaledFont(size: 9, weight: .bold, design: .monospaced)
             .foregroundColor(.brandTextDim)
             .kerning(1.0)
             .padding(.horizontal, 12)
@@ -200,7 +200,7 @@ struct GameBoxscoreView: View {
 
             if players.isEmpty {
                 Text("No batting data")
-                    .font(.system(size: 11, design: .monospaced))
+                    .scaledFont(size: 11, design: .monospaced)
                     .foregroundColor(.brandTextDim)
                     .frame(maxWidth: .infinity, alignment: .leading)
                     .padding(12)
@@ -212,12 +212,12 @@ struct GameBoxscoreView: View {
                     HStack(spacing: 0) {
                         VStack(alignment: .leading, spacing: 1) {
                             Text(p.name ?? "—")
-                                .font(.system(size: 12, weight: .semibold, design: .monospaced))
+                                .scaledFont(size: 12, weight: .semibold, design: .monospaced)
                                 .foregroundColor(.brandText)
                                 .lineLimit(1)
                             if let pos = p.pos {
                                 Text(pos)
-                                    .font(.system(size: 9, design: .monospaced))
+                                    .scaledFont(size: 9, design: .monospaced)
                                     .foregroundColor(.brandTextDim)
                             }
                         }
@@ -238,7 +238,7 @@ struct GameBoxscoreView: View {
                             .foregroundColor(.brandTextMuted)
                             .frame(width: 38)
                     }
-                    .font(.system(size: 11, design: .monospaced))
+                    .scaledFont(size: 11, design: .monospaced)
                     .padding(.horizontal, 12)
                     .padding(.vertical, 8)
                 }
@@ -255,7 +255,7 @@ struct GameBoxscoreView: View {
     private func statCell(_ value: Int?, width: CGFloat, color: Color, bold: Bool = false) -> some View {
         let v = value ?? 0
         return Text("\(v)")
-            .font(.system(size: 11, weight: (v > 0 && bold) ? .bold : .regular, design: .monospaced))
+            .scaledFont(size: 11, weight: (v > 0 && bold) ? .bold : .regular, design: .monospaced)
             .foregroundColor(v > 0 ? color : .brandTextMuted)
             .frame(width: width)
     }
@@ -265,7 +265,7 @@ struct GameBoxscoreView: View {
         VStack(spacing: 0) {
             HStack {
                 Text("PITCHING · \(teamAbbr)")
-                    .font(.system(size: 10, weight: .bold, design: .monospaced))
+                    .scaledFont(size: 10, weight: .bold, design: .monospaced)
                     .foregroundColor(.brandTextDim)
                     .kerning(1.0)
                 Spacer()
@@ -287,7 +287,7 @@ struct GameBoxscoreView: View {
                 Text("PC").frame(width: 28)
                 Text("ERA").frame(width: 38)
             }
-            .font(.system(size: 9, weight: .bold, design: .monospaced))
+            .scaledFont(size: 9, weight: .bold, design: .monospaced)
             .foregroundColor(.brandTextDim)
             .kerning(1.0)
             .padding(.horizontal, 12)
@@ -297,7 +297,7 @@ struct GameBoxscoreView: View {
 
             if players.isEmpty {
                 Text("No pitching data")
-                    .font(.system(size: 11, design: .monospaced))
+                    .scaledFont(size: 11, design: .monospaced)
                     .foregroundColor(.brandTextDim)
                     .frame(maxWidth: .infinity, alignment: .leading)
                     .padding(12)
@@ -309,12 +309,12 @@ struct GameBoxscoreView: View {
                     HStack(spacing: 0) {
                         VStack(alignment: .leading, spacing: 1) {
                             Text(p.name ?? "—")
-                                .font(.system(size: 12, weight: .semibold, design: .monospaced))
+                                .scaledFont(size: 12, weight: .semibold, design: .monospaced)
                                 .foregroundColor(.brandText)
                                 .lineLimit(1)
                             if let pos = p.pos {
                                 Text(pos)
-                                    .font(.system(size: 9, design: .monospaced))
+                                    .scaledFont(size: 9, design: .monospaced)
                                     .foregroundColor(.brandTextDim)
                             }
                         }
@@ -339,7 +339,7 @@ struct GameBoxscoreView: View {
                             .foregroundColor(.brandTextMuted)
                             .frame(width: 38)
                     }
-                    .font(.system(size: 11, design: .monospaced))
+                    .scaledFont(size: 11, design: .monospaced)
                     .padding(.horizontal, 12)
                     .padding(.vertical, 8)
                 }

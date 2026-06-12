@@ -35,17 +35,17 @@ struct SettingsView: View {
                                         HStack {
                                             VStack(alignment: .leading, spacing: 2) {
                                                 Text(bookNames[book] ?? book)
-                                                    .font(.system(size: 14, weight: .medium, design: .monospaced))
+                                                    .scaledFont(size: 14, weight: .medium, design: .monospaced)
                                                     .foregroundColor(.brandText)
                                                 Text(book)
-                                                    .font(.system(size: 11, design: .monospaced))
+                                                    .scaledFont(size: 11, design: .monospaced)
                                                     .foregroundColor(.brandTextDim)
                                             }
                                             Spacer()
                                             if auth.preferredBook == book {
                                                 Image(systemName: "checkmark.circle.fill")
                                                     .foregroundColor(.brandGreen)
-                                                    .font(.system(size: 18))
+                                                    .scaledFont(size: 18)
                                             } else {
                                                 Circle()
                                                     .stroke(Color.brandBorder2, lineWidth: 1.5)
@@ -89,7 +89,7 @@ struct SettingsView: View {
 
                         // MARK: - Disclaimer
                         Text("Prop Scout MLB is an informational research tool. Picks, odds, and AI-generated analysis are for entertainment purposes only and do not constitute gambling, financial, or betting advice. Must be 21+ to use sportsbook-related features. If you or someone you know has a gambling problem, call 1-800-GAMBLER.")
-                            .font(.system(size: 10, design: .monospaced))
+                            .scaledFont(size: 10, design: .monospaced)
                             .foregroundColor(.brandTextDim)
                             .multilineTextAlignment(.center)
                             .padding(.horizontal, 32)
@@ -100,7 +100,7 @@ struct SettingsView: View {
                             showSignOutConfirm = true
                         } label: {
                             Text("Sign Out")
-                                .font(.system(size: 14, weight: .semibold, design: .monospaced))
+                                .scaledFont(size: 14, weight: .semibold, design: .monospaced)
                                 .foregroundColor(.brandRed)
                                 .frame(maxWidth: .infinity)
                                 .frame(height: 48)
@@ -118,7 +118,7 @@ struct SettingsView: View {
                         }
 
                         Text("⚡ Full live mode — weather · odds · MLB stats · Savant")
-                            .font(.system(size: 10, design: .monospaced))
+                            .scaledFont(size: 10, design: .monospaced)
                             .foregroundColor(.brandTextDim)
                             .multilineTextAlignment(.center)
                             .padding(.bottom, 8)
@@ -132,10 +132,10 @@ struct SettingsView: View {
                 ToolbarItem(placement: .principal) {
                     HStack(spacing: 6) {
                         Image(systemName: "gearshape.fill")
-                            .font(.system(size: 14))
+                            .scaledFont(size: 14)
                             .foregroundColor(.brandTextMuted)
                         Text("Settings")
-                            .font(.system(size: 17, weight: .bold, design: .monospaced))
+                            .scaledFont(size: 17, weight: .bold, design: .monospaced)
                             .foregroundColor(.brandText)
                     }
                 }
@@ -152,15 +152,15 @@ struct SettingsView: View {
                     .fill(Color.brandGreen.opacity(0.15))
                     .frame(width: 48, height: 48)
                 Text(auth.username.prefix(1).uppercased())
-                    .font(.system(size: 20, weight: .bold, design: .monospaced))
+                    .scaledFont(size: 20, weight: .bold, design: .monospaced)
                     .foregroundColor(.brandGreen)
             }
             VStack(alignment: .leading, spacing: 3) {
                 Text(auth.username.isEmpty ? "leadoffkaiba" : auth.username)
-                    .font(.system(size: 15, weight: .bold, design: .monospaced))
+                    .scaledFont(size: 15, weight: .bold, design: .monospaced)
                     .foregroundColor(.brandText)
                 Text("Prop Scout MLB")
-                    .font(.system(size: 11, design: .monospaced))
+                    .scaledFont(size: 11, design: .monospaced)
                     .foregroundColor(.brandTextDim)
             }
             Spacer()
@@ -176,7 +176,7 @@ struct SettingsView: View {
     private func sectionCard<Content: View>(title: String, @ViewBuilder content: () -> Content) -> some View {
         VStack(alignment: .leading, spacing: 0) {
             Text(title)
-                .font(.system(size: 10, weight: .bold, design: .monospaced))
+                .scaledFont(size: 10, weight: .bold, design: .monospaced)
                 .foregroundColor(.brandTextDim)
                 .kerning(1.5)
                 .padding(.horizontal, 16)
@@ -197,11 +197,11 @@ struct SettingsView: View {
         NavigationLink(destination: destination()) {
             HStack {
                 Text(label)
-                    .font(.system(size: 13, design: .monospaced))
+                    .scaledFont(size: 13, design: .monospaced)
                     .foregroundColor(.brandText)
                 Spacer()
                 Image(systemName: "chevron.right")
-                    .font(.system(size: 11))
+                    .scaledFont(size: 11)
                     .foregroundColor(.brandTextDim)
             }
             .padding(.horizontal, 16)
@@ -215,11 +215,11 @@ struct SettingsView: View {
     private func infoRow(label: String, value: String) -> some View {
         HStack {
             Text(label)
-                .font(.system(size: 13, design: .monospaced))
+                .scaledFont(size: 13, design: .monospaced)
                 .foregroundColor(.brandTextMuted)
             Spacer()
             Text(value)
-                .font(.system(size: 13, design: .monospaced))
+                .scaledFont(size: 13, design: .monospaced)
                 .foregroundColor(.brandTextDim)
         }
         .padding(.horizontal, 16)

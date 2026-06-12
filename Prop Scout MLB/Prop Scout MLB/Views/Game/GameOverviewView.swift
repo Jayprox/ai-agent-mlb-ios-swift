@@ -56,7 +56,7 @@ struct GameOverviewView: View {
             vm.selectedSPSide = side
         } label: {
             Text(label)
-                .font(.system(size: 12, weight: .semibold, design: .monospaced))
+                .scaledFont(size: 12, weight: .semibold, design: .monospaced)
                 .foregroundColor(vm.selectedSPSide == side ? .brandBackground : .brandTextMuted)
                 .frame(maxWidth: .infinity)
                 .padding(.vertical, 9)
@@ -79,20 +79,20 @@ struct GameOverviewView: View {
                 VStack(alignment: .leading, spacing: 3) {
                     HStack(spacing: 8) {
                         Text(stats.name ?? pitcher?.name ?? "—")
-                            .font(.system(size: 16, weight: .bold, design: .monospaced))
+                            .scaledFont(size: 16, weight: .bold, design: .monospaced)
                             .foregroundColor(.brandText)
                         if let pid = pitcher?.id, vm.injuredIds.contains(pid) || pitcher?.isIL == true {
                             ILBadge()
                         }
                         if let hand = pitcher?.hand {
                             Text("\(stats.team ?? "") · SP · \(hand)HP")
-                                .font(.system(size: 10, design: .monospaced))
+                                .scaledFont(size: 10, design: .monospaced)
                                 .foregroundColor(.brandTextMuted)
                         }
                     }
                     let opp = vm.selectedSPSide == .away ? "vs \(game.home.abbr)" : "vs \(game.away.abbr)"
                     Text(opp)
-                        .font(.system(size: 11, design: .monospaced))
+                        .scaledFont(size: 11, design: .monospaced)
                         .foregroundColor(.brandTextDim)
                 }
                 Spacer()
@@ -111,12 +111,12 @@ struct GameOverviewView: View {
             if let w = stats.wins, let l = stats.losses, let k = stats.k {
                 HStack(spacing: 12) {
                     Text("\(w)W–\(l)L")
-                        .font(.system(size: 11, design: .monospaced))
+                        .scaledFont(size: 11, design: .monospaced)
                         .foregroundColor(.brandTextMuted)
                     Text("·")
                         .foregroundColor(.brandTextDim)
                     Text("\(k)K")
-                        .font(.system(size: 11, design: .monospaced))
+                        .scaledFont(size: 11, design: .monospaced)
                         .foregroundColor(.brandTextMuted)
                 }
             }
@@ -147,7 +147,7 @@ struct GameOverviewView: View {
                 sectionLabel("RECENT STARTS")
                 Spacer()
                 Text("\(cleanCount)/\(games.count) clean")
-                    .font(.system(size: 10, design: .monospaced))
+                    .scaledFont(size: 10, design: .monospaced)
                     .foregroundColor(cleanCount > 0 ? .brandGreen : .brandTextDim)
             }
 
@@ -159,7 +159,7 @@ struct GameOverviewView: View {
                         .fill(er == 0 ? Color.brandGreen : er <= 2 ? Color.brandAmber : Color.brandRed)
                         .frame(width: 10, height: 10)
                     Text("\(er)ER")
-                        .font(.system(size: 9, design: .monospaced))
+                        .scaledFont(size: 9, design: .monospaced)
                         .foregroundColor(.brandTextDim)
                 }
             }
@@ -170,34 +170,34 @@ struct GameOverviewView: View {
             ForEach(games) { g in
                 HStack {
                     Text(g.opponent ?? "—")
-                        .font(.system(size: 11, weight: .semibold, design: .monospaced))
+                        .scaledFont(size: 11, weight: .semibold, design: .monospaced)
                         .foregroundColor(.brandText)
                         .frame(width: 40, alignment: .leading)
                     Text(formatGameDate(g.date))
-                        .font(.system(size: 10, design: .monospaced))
+                        .scaledFont(size: 10, design: .monospaced)
                         .foregroundColor(.brandTextDim)
                         .frame(width: 44, alignment: .leading)
                     Spacer()
                     Text("\(g.ip ?? "—") IP")
-                        .font(.system(size: 10, design: .monospaced))
+                        .scaledFont(size: 10, design: .monospaced)
                         .foregroundColor(.brandTextMuted)
                     Text("\(g.k ?? 0)K")
-                        .font(.system(size: 10, design: .monospaced))
+                        .scaledFont(size: 10, design: .monospaced)
                         .foregroundColor(.brandCyan)
                         .frame(width: 30)
                     Text("\(g.er ?? 0)ER")
-                        .font(.system(size: 10, design: .monospaced))
+                        .scaledFont(size: 10, design: .monospaced)
                         .foregroundColor((g.er ?? 0) == 0 ? .brandGreen : (g.er ?? 0) <= 2 ? .brandAmber : .brandRed)
                         .frame(width: 30)
                     if let res = g.result {
                         Text(res)
-                            .font(.system(size: 10, weight: .bold, design: .monospaced))
+                            .scaledFont(size: 10, weight: .bold, design: .monospaced)
                             .foregroundColor(res == "W" ? .brandGreen : res == "L" ? .brandRed : .brandTextDim)
                             .frame(width: 20)
                     }
                     if let pc = g.pc {
                         Text("\(pc)p")
-                            .font(.system(size: 10, design: .monospaced))
+                            .scaledFont(size: 10, design: .monospaced)
                             .foregroundColor(.brandTextDim)
                             .frame(width: 32, alignment: .trailing)
                     }
@@ -209,7 +209,7 @@ struct GameOverviewView: View {
             if let last3 = last3ERA, let seasonEra = log.seasonEra {
                 Divider().background(Color.brandBorder)
                 Text("Last 3 ERA: \(last3) vs season \(seasonEra)")
-                    .font(.system(size: 10, design: .monospaced))
+                    .scaledFont(size: 10, design: .monospaced)
                     .foregroundColor(.brandTextMuted)
             }
         }
@@ -270,19 +270,19 @@ struct GameOverviewView: View {
     private func nrfiTeamBlock(abbr: String, data: NRFIDetail.NRFITeamData?) -> some View {
         VStack(alignment: .leading, spacing: 4) {
             Text("\(abbr) 1ST INN")
-                .font(.system(size: 10, weight: .bold, design: .monospaced))
+                .scaledFont(size: 10, weight: .bold, design: .monospaced)
                 .foregroundColor(.brandTextDim)
             if let pct = data?.scoredPct {
                 Text("\(Int((pct * 100).rounded()))%")
-                    .font(.system(size: 20, weight: .bold, design: .monospaced))
+                    .scaledFont(size: 20, weight: .bold, design: .monospaced)
                     .foregroundColor(.brandText)
                 Text("scored")
-                    .font(.system(size: 10, design: .monospaced))
+                    .scaledFont(size: 10, design: .monospaced)
                     .foregroundColor(.brandTextDim)
             }
             if let tendency = data?.tendency {
                 Text(tendency)
-                    .font(.system(size: 10, design: .monospaced))
+                    .scaledFont(size: 10, design: .monospaced)
                     .foregroundColor(.brandTextMuted)
             }
         }
@@ -298,10 +298,10 @@ struct GameOverviewView: View {
             ForEach(items, id: \.0) { label, value in
                 VStack(spacing: 3) {
                     Text(value)
-                        .font(.system(size: 15, weight: .bold, design: .monospaced))
+                        .scaledFont(size: 15, weight: .bold, design: .monospaced)
                         .foregroundColor(.brandText)
                     Text(label)
-                        .font(.system(size: 9, design: .monospaced))
+                        .scaledFont(size: 9, design: .monospaced)
                         .foregroundColor(.brandTextDim)
                 }
                 .frame(maxWidth: .infinity)
@@ -315,10 +315,10 @@ struct GameOverviewView: View {
     private func splitBlock(label: String, avg: String?, k9: String?) -> some View {
         VStack(alignment: .leading, spacing: 3) {
             Text(label)
-                .font(.system(size: 9, weight: .bold, design: .monospaced))
+                .scaledFont(size: 9, weight: .bold, design: .monospaced)
                 .foregroundColor(.brandTextDim)
-            if let avg { Text("\(avg) AVG").font(.system(size: 11, design: .monospaced)).foregroundColor(.brandTextMuted) }
-            if let k9  { Text("\(k9) K/9").font(.system(size: 11, design: .monospaced)).foregroundColor(.brandCyan) }
+            if let avg { Text("\(avg) AVG").scaledFont(size: 11, design: .monospaced).foregroundColor(.brandTextMuted) }
+            if let k9  { Text("\(k9) K/9").scaledFont(size: 11, design: .monospaced).foregroundColor(.brandCyan) }
         }
         .frame(maxWidth: .infinity, alignment: .leading)
         .padding(8)
@@ -328,14 +328,14 @@ struct GameOverviewView: View {
 
     private func sectionLabel(_ text: String) -> some View {
         Text(text)
-            .font(.system(size: 10, weight: .bold, design: .monospaced))
+            .scaledFont(size: 10, weight: .bold, design: .monospaced)
             .foregroundColor(.brandTextDim)
             .kerning(1.2)
     }
 
     private func noDataCard(_ msg: String) -> some View {
         Text(msg)
-            .font(.system(size: 12, design: .monospaced))
+            .scaledFont(size: 12, design: .monospaced)
             .foregroundColor(.brandTextDim)
             .frame(maxWidth: .infinity)
             .padding(20)

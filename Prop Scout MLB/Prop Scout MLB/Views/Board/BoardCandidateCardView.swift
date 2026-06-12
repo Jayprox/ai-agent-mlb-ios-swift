@@ -14,13 +14,13 @@ struct BoardCandidateCardView: View {
             HStack(alignment: .center, spacing: 10) {
                 // Rank
                 Text("\(rank)")
-                    .font(.system(size: 11, weight: .bold, design: .monospaced))
+                    .scaledFont(size: 11, weight: .bold, design: .monospaced)
                     .foregroundColor(.brandTextDim)
                     .frame(width: 20)
 
                 // Score bubble
                 Text("\(candidate.score)")
-                    .font(.system(size: 13, weight: .bold, design: .monospaced))
+                    .scaledFont(size: 13, weight: .bold, design: .monospaced)
                     .foregroundColor(candidate.scoreColor)
                     .frame(width: 32, height: 32)
                     .background(candidate.scoreColor.opacity(0.12))
@@ -29,10 +29,10 @@ struct BoardCandidateCardView: View {
                 // SIM
                 if let sim = candidate.simConfidence {
                     Text("\(sim)%")
-                        .font(.system(size: 10, design: .monospaced))
+                        .scaledFont(size: 10, design: .monospaced)
                         .foregroundColor(.brandPurple)
                         + Text(" SIM")
-                        .font(.system(size: 9, design: .monospaced))
+                        .scaledFont(size: 9, design: .monospaced)
                         .foregroundColor(.brandTextDim)
                 }
 
@@ -47,17 +47,17 @@ struct BoardCandidateCardView: View {
             // MARK: - Name + market + team + handedness
             HStack(spacing: 6) {
                 Text(candidate.displayName)
-                    .font(.system(size: 14, weight: .bold, design: .monospaced))
+                    .scaledFont(size: 14, weight: .bold, design: .monospaced)
                     .foregroundColor(.brandText)
                 MarketBadge(market: candidate.market)
                 if let team = candidate.team {
                     Text(team)
-                        .font(.system(size: 11, design: .monospaced))
+                        .scaledFont(size: 11, design: .monospaced)
                         .foregroundColor(.brandTextMuted)
                 }
                 if let hand = candidate.handLabel {
                     Text(hand)
-                        .font(.system(size: 9, weight: .medium, design: .monospaced))
+                        .scaledFont(size: 9, weight: .medium, design: .monospaced)
                         .foregroundColor(.brandTextDim)
                 }
             }
@@ -67,7 +67,7 @@ struct BoardCandidateCardView: View {
             // MARK: - Game label (skip if same as displayName to avoid duplication)
             if candidate.displayGameLabel != candidate.displayName {
                 Text(candidate.displayGameLabel)
-                    .font(.system(size: 11, design: .monospaced))
+                    .scaledFont(size: 11, design: .monospaced)
                     .foregroundColor(.brandTextDim)
                     .padding(.horizontal, 14)
                     .padding(.top, 2)
@@ -76,7 +76,7 @@ struct BoardCandidateCardView: View {
             // MARK: - Weather / park-factor badge (game markets only)
             if let weatherParkLabel = candidate.weatherParkLabel {
                 Text(weatherParkLabel)
-                    .font(.system(size: 10, weight: .semibold, design: .monospaced))
+                    .scaledFont(size: 10, weight: .semibold, design: .monospaced)
                     .foregroundColor(candidate.weatherParkColor)
                     .padding(.horizontal, 14)
                     .padding(.top, 4)
@@ -85,7 +85,7 @@ struct BoardCandidateCardView: View {
             // MARK: - Reason snippet (2-line preview of boardSummary)
             if let summary = candidate.boardSummary, !summary.isEmpty {
                 Text(summary)
-                    .font(.system(size: 11, design: .monospaced))
+                    .scaledFont(size: 11, design: .monospaced)
                     .foregroundColor(.brandTextMuted)
                     .lineLimit(2)
                     .padding(.horizontal, 14)
@@ -105,7 +105,7 @@ struct BoardCandidateCardView: View {
                     HStack(spacing: 6) {
                         ForEach(signals, id: \.self) { signal in
                             Text(signal)
-                                .font(.system(size: 9, weight: .medium, design: .monospaced))
+                                .scaledFont(size: 9, weight: .medium, design: .monospaced)
                                 .foregroundColor(.brandTextMuted)
                                 .padding(.horizontal, 6)
                                 .padding(.vertical, 3)
@@ -134,7 +134,7 @@ struct BoardCandidateCardView: View {
                 // Lean
                 if !candidate.displayLean.isEmpty {
                     Text(candidate.displayLean)
-                        .font(.system(size: 12, weight: .bold, design: .monospaced))
+                        .scaledFont(size: 12, weight: .bold, design: .monospaced)
                         .foregroundColor(leanColor(candidate.leanColorBasis))
                         .padding(.leading, 14)
                 }
@@ -143,14 +143,14 @@ struct BoardCandidateCardView: View {
                     // Line (Spread/Total/F5 RL — nil for ML/F5 ML/NRFI)
                     if let line = candidate.gameDisplayLine {
                         Text(" \(line)")
-                            .font(.system(size: 12, weight: .semibold, design: .monospaced))
+                            .scaledFont(size: 12, weight: .semibold, design: .monospaced)
                             .foregroundColor(.brandText)
                     }
 
                     // Odds (lean side, best book)
                     if let o = candidate.gameDisplayOdds {
                         Text(" (\(o))")
-                            .font(.system(size: 11, design: .monospaced))
+                            .scaledFont(size: 11, design: .monospaced)
                             .foregroundColor(.brandTextDim)
                     }
 
@@ -159,14 +159,14 @@ struct BoardCandidateCardView: View {
                     if let book = candidate.gameBestBook,
                        candidate.gameDisplayLine != nil || candidate.gameDisplayOdds != nil {
                         Text(" · \(book)")
-                            .font(.system(size: 9, weight: .medium, design: .monospaced))
+                            .scaledFont(size: 9, weight: .medium, design: .monospaced)
                             .foregroundColor(.brandTextDim)
                     }
                 } else {
                     // Book line
                     if let line = candidate.bookLine {
                         Text(" \(line == line.rounded() ? "\(Int(line))" : String(format: "%.1f", line))")
-                            .font(.system(size: 12, weight: .semibold, design: .monospaced))
+                            .scaledFont(size: 12, weight: .semibold, design: .monospaced)
                             .foregroundColor(.brandText)
                     }
 
@@ -174,14 +174,14 @@ struct BoardCandidateCardView: View {
                     let odds = candidate.displayLean.uppercased() == "UNDER" ? candidate.underOdds : candidate.overOdds
                     if let o = odds {
                         Text(" (\(o))")
-                            .font(.system(size: 11, design: .monospaced))
+                            .scaledFont(size: 11, design: .monospaced)
                             .foregroundColor(.brandTextDim)
                     }
 
                     // Book
                     if let book = candidate.bestBook {
                         Text(" · \(book)")
-                            .font(.system(size: 9, weight: .medium, design: .monospaced))
+                            .scaledFont(size: 9, weight: .medium, design: .monospaced)
                             .foregroundColor(.brandTextDim)
                     }
                 }
@@ -195,10 +195,10 @@ struct BoardCandidateCardView: View {
                 } label: {
                     HStack(spacing: 4) {
                         Text("why?")
-                            .font(.system(size: 11, design: .monospaced))
+                            .scaledFont(size: 11, design: .monospaced)
                             .foregroundColor(.brandTextDim)
                         Image(systemName: "chevron.right")
-                            .font(.system(size: 9))
+                            .scaledFont(size: 9)
                             .foregroundColor(.brandTextDim)
                     }
                     .padding(.horizontal, 14)
@@ -211,7 +211,7 @@ struct BoardCandidateCardView: View {
                     showLogPick = true
                 } label: {
                     Image(systemName: "plus.circle.fill")
-                        .font(.system(size: 20))
+                        .scaledFont(size: 20)
                         .foregroundColor(.brandGreen)
                         .padding(.trailing, 14)
                         .padding(.vertical, 8)
@@ -301,7 +301,7 @@ struct BoardCandidateCardView: View {
             if let hr = candidate.hitRate {
                 HStack(spacing: 3) {
                     Text("L5")
-                        .font(.system(size: 9, design: .monospaced))
+                        .scaledFont(size: 9, design: .monospaced)
                         .foregroundColor(.brandTextDim)
                     ForEach(Array(hr.prefix(5).enumerated()), id: \.offset) { _, val in
                         Circle()
@@ -334,14 +334,14 @@ struct BoardCandidateCardView: View {
                         HStack(spacing: 3) {
                             if isPreferred {
                                 Text("★")
-                                    .font(.system(size: 8))
+                                    .scaledFont(size: 8)
                                     .foregroundColor(.brandAmber)
                             }
                             Text(chip.code)
-                                .font(.system(size: 9, weight: .bold, design: .monospaced))
+                                .scaledFont(size: 9, weight: .bold, design: .monospaced)
                                 .foregroundColor(.brandTextDim)
                             Text(chip.text)
-                                .font(.system(size: 10, weight: .semibold, design: .monospaced))
+                                .scaledFont(size: 10, weight: .semibold, design: .monospaced)
                                 .foregroundColor(.brandText)
                         }
                         .padding(.horizontal, 7)
@@ -396,10 +396,10 @@ struct BoardCandidateCardView: View {
     private func statPill(_ label: String, _ value: String) -> some View {
         VStack(spacing: 1) {
             Text(value)
-                .font(.system(size: 12, weight: .semibold, design: .monospaced))
+                .scaledFont(size: 12, weight: .semibold, design: .monospaced)
                 .foregroundColor(.brandText)
             Text(label)
-                .font(.system(size: 9, design: .monospaced))
+                .scaledFont(size: 9, design: .monospaced)
                 .foregroundColor(.brandTextDim)
         }
     }
@@ -426,7 +426,7 @@ struct BoardCandidateCardView: View {
     private var resultBadge: some View {
         if let gradeStatus = candidate.gradeStatus {
             Text(gradeStatus.uppercased())
-                .font(.system(size: 9, weight: .bold, design: .monospaced))
+                .scaledFont(size: 9, weight: .bold, design: .monospaced)
                 .foregroundColor(.brandAmber)
                 .padding(.horizontal, 6)
                 .padding(.vertical, 3)
@@ -434,7 +434,7 @@ struct BoardCandidateCardView: View {
                 .cornerRadius(4)
         } else if let hit = candidate.resultHit {
             Text(hit ? "HIT ✓" : "MISS ✗")
-                .font(.system(size: 9, weight: .bold, design: .monospaced))
+                .scaledFont(size: 9, weight: .bold, design: .monospaced)
                 .foregroundColor(hit ? .brandGreen : .brandRed)
                 .padding(.horizontal, 6)
                 .padding(.vertical, 3)
