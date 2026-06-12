@@ -4,7 +4,6 @@ struct PicksView: View {
     @EnvironmentObject var auth: AuthViewModel
     @EnvironmentObject var vm: PicksViewModel
     @State private var showLogSheet = false
-    @State private var showSettings = false
 
     private let dayOptions: [(label: String, days: Int)] = [
         ("ALL", 0), ("7D", 7), ("30D", 30)
@@ -32,9 +31,6 @@ struct PicksView: View {
         .sheet(isPresented: $showLogSheet) {
             LogPickSheet(vm: vm)
                 .presentationDetents([.large])
-        }
-        .sheet(isPresented: $showSettings) {
-            SettingsView()
         }
         .colorScheme(.dark)
     }
@@ -228,13 +224,6 @@ struct PicksView: View {
                         Image(systemName: "plus")
                             .font(.system(size: 16, weight: .semibold))
                             .foregroundColor(.brandGreen)
-                    }
-                    Button {
-                        showSettings = true
-                    } label: {
-                        Image(systemName: "gearshape")
-                            .font(.system(size: 16))
-                            .foregroundColor(.brandTextMuted)
                     }
                 }
             }

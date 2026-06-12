@@ -4,7 +4,6 @@ struct MainTabView: View {
     @EnvironmentObject var auth: AuthViewModel
     @StateObject private var picksVM = PicksViewModel()
     @StateObject private var router = TabRouter()
-    @State private var showSettings = false
 
     var body: some View {
         TabView(selection: $router.selectedTab) {
@@ -47,9 +46,12 @@ struct MainTabView: View {
                 .environmentObject(picksVM)
                 .tabItem { Label("Picks", systemImage: "note.text") }
                 .tag(7)
+
+            SettingsView()
+                .tabItem { Label("Settings", systemImage: "gearshape.fill") }
+                .tag(8)
         }
         .accentColor(.brandGreen)
         .colorScheme(.dark)
-        // Settings accessible via gear icon in Picks/other nav bars
     }
 }

@@ -124,10 +124,17 @@ struct LoginView: View {
                 Spacer()
 
                 // Footer
-                Text("⚡ Full live mode")
-                    .font(.system(size: 11, design: .monospaced))
-                    .foregroundColor(.brandTextDim)
-                    .padding(.bottom, 24)
+                VStack(spacing: 6) {
+                    Text("Accounts are provisioned by your administrator")
+                        .font(.system(size: 11, design: .monospaced))
+                        .foregroundColor(.brandTextDim)
+                        .multilineTextAlignment(.center)
+                    Text("⚡ Full live mode")
+                        .font(.system(size: 11, design: .monospaced))
+                        .foregroundColor(.brandTextDim)
+                }
+                .padding(.horizontal, 24)
+                .padding(.bottom, 24)
             }
         }
         .colorScheme(.dark)

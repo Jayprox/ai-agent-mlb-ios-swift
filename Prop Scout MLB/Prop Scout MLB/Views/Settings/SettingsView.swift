@@ -4,6 +4,9 @@ struct SettingsView: View {
     @EnvironmentObject var auth: AuthViewModel
     @State private var showSignOutConfirm = false
 
+    static let privacyPolicyURL = URL(string: "https://jayprox.github.io/ai-agent-mlb-ios-swift/privacy.html")!
+    static let termsOfServiceURL = URL(string: "https://jayprox.github.io/ai-agent-mlb-ios-swift/terms.html")!
+
     private let books = ["DK", "FD", "CZR", "MGM", "BOV"]
     private let bookNames = [
         "DK":  "DraftKings",
@@ -67,12 +70,29 @@ struct SettingsView: View {
 
                         // MARK: - App info
                         sectionCard(title: "APP") {
-                            infoRow(label: "Version", value: "1.0.0 MVP")
+                            infoRow(label: "Version", value: "1.0.0")
                             Divider().background(Color.brandBorder).padding(.leading, 16)
                             infoRow(label: "Backend", value: "Railway ✓")
                             Divider().background(Color.brandBorder).padding(.leading, 16)
                             infoRow(label: "Board", value: "Refreshes 10 AM HI")
                         }
+
+                        // MARK: - Legal
+                        sectionCard(title: "LEGAL") {
+                            VStack(spacing: 0) {
+                                linkRow(label: "Privacy Policy", url: SettingsView.privacyPolicyURL)
+                                Divider().background(Color.brandBorder).padding(.leading, 16)
+                                linkRow(label: "Terms of Service", url: SettingsView.termsOfServiceURL)
+                            }
+                        }
+
+                        // MARK: - Disclaimer
+                        Text("Prop Scout MLB is an informational research tool. Picks, odds, and AI-generated analysis are for entertainment purposes only and do not constitute gambling, financial, or betting advice. Must be 21+ to use sportsbook-related features. If you or someone you know has a gambling problem, call 1-800-GAMBLER.")
+                            .font(.system(size: 10, design: .monospaced))
+                            .foregroundColor(.brandTextDim)
+                            .multilineTextAlignment(.center)
+                            .padding(.horizontal, 32)
+                            .padding(.top, 4)
 
                         // MARK: - Sign out
                         Button {
@@ -169,6 +189,25 @@ struct SettingsView: View {
             .overlay(RoundedRectangle(cornerRadius: 10).stroke(Color.brandBorder, lineWidth: 1))
         }
         .padding(.horizontal, 16)
+    }
+
+    // MARK: - Link row
+    private func linkRow(label: String, url: URL) -> some View {
+        Link(destination: url) {
+            HStack {
+                Text(label)
+                    .font(.system(size: 13, design: .monospaced))
+                    .foregroundColor(.brandText)
+                Spacer()
+                Image(systemName: "arrow.up.right")
+                    .font(.system(size: 11))
+                    .foregroundColor(.brandTextDim)
+            }
+            .padding(.horizontal, 16)
+            .padding(.vertical, 12)
+            .frame(minHeight: 44)
+            .contentShape(Rectangle())
+        }
     }
 
     // MARK: - Info row
