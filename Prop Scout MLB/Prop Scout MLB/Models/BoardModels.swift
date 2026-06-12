@@ -26,6 +26,33 @@ enum FlexibleValue: Decodable {
     }
 }
 
+/// Stat fields like season HR count may arrive as `"12"` or `12` from
+/// `computeBatterBoard` vs snapshot persistence.
+enum FlexibleString: Decodable {
+    case string(String)
+    case int(Int)
+    case double(Double)
+
+    init(from decoder: Decoder) throws {
+        let c = try decoder.singleValueContainer()
+        if let s = try? c.decode(String.self) { self = .string(s); return }
+        if let i = try? c.decode(Int.self) { self = .int(i); return }
+        if let d = try? c.decode(Double.self) { self = .double(d); return }
+        throw DecodingError.typeMismatch(
+            FlexibleString.self,
+            .init(codingPath: decoder.codingPath, debugDescription: "Expected String, Int, or Double")
+        )
+    }
+
+    var stringValue: String {
+        switch self {
+        case .string(let s): return s
+        case .int(let i):    return String(i)
+        case .double(let d): return d == d.rounded() ? "\(Int(d))" : String(format: "%.1f", d)
+        }
+    }
+}
+
 // MARK: - Lossy array
 /// Decodes an array of `T`, silently skipping any elements that fail to
 /// decode instead of failing the entire array (and, by extension, the whole
@@ -274,7 +301,7 @@ struct BoardCandidate: Decodable, Identifiable {
     let ops: String?
     let slg: String?
     let hitRate: [Int?]?
-    let hrTotal: String?      // season HR count — JSON key "hr"
+    let hrTotal: FlexibleString?  // season HR count — JSON key "hr" (String or Int)
     let windFav: Bool?
     let order: Int?
 

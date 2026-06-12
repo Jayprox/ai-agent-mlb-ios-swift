@@ -1,5 +1,8 @@
 # Prop Scout MLB — Codex Task Handoff
 
+> **Latest review session:** Board HR/Hits empty tabs — fixed (backend + iOS decode).  
+> Read **`COWORK-CODEX-REVIEW-HANDOFF.md`** first before touching Board code.
+
 ## Project context
 
 iOS app in Swift/SwiftUI (MVP + Phase 2 in progress). Backend is a live Railway

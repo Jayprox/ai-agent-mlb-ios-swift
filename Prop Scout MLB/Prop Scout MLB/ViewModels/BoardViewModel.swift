@@ -9,11 +9,11 @@ final class BoardViewModel: ObservableObject {
     @Published var selectedMarket: BoardMarket = .k
     @Published var selectedGameMarket: BoardMarket = .nrfi
 
-    /// How long to wait between passive re-fetches while any market is still
-    /// empty for today. A plain `GET /api/board/snapshot` recomputes any `[]`
-    /// market for today (subject to a ~10-minute negative cache), so this
-    /// just needs to be a reasonable "keep checking" cadence (60-90s).
-    private static let pollIntervalNanos: UInt64 = 75 * 1_000_000_000
+    /// How long to wait between re-fetches while any market is still empty for
+    /// today. Matches web Board polling (~90s). While markets are `[]`, each
+    /// poll uses `&refresh=1` to force server-side recompute (iOS has no local
+    /// `computeBatterBoard` fallback like the web client).
+    private static let pollIntervalNanos: UInt64 = 90 * 1_000_000_000
 
     private var slateDate: String {
         let f = DateFormatter()
@@ -95,15 +95,16 @@ final class BoardViewModel: ObservableObject {
         }
     }
 
-    /// Initial load, followed by periodic passive re-fetches while today's
-    /// snapshot still has an empty (`[]`) market — the backend self-heals
-    /// these on request, so re-polling the same endpoint is enough to pick
-    /// up candidates once lineups post / lines populate. Stops
-    /// automatically when the surrounding `.task` is cancelled (e.g. the
-    /// view disappears), once every market has data, or if the snapshot's
-    /// `date` is no longer today.
+    /// Initial load, then — if any market is present-but-empty (`[]`) for
+    /// today — an immediate `&refresh=1` recompute plus periodic refresh
+    /// polls every 90s (mirrors web `refreshBoardSnapshot` + empty-market
+    /// polling). Stops when the view task is cancelled, all markets have
+    /// data, or the snapshot date is no longer today.
     func loadAndPollIfNeeded() async {
         await load()
+        if shouldKeepPolling {
+            await load(refresh: true)
+        }
         while !Task.isCancelled && shouldKeepPolling {
             do {
                 try await Task.sleep(nanoseconds: Self.pollIntervalNanos)
@@ -111,7 +112,7 @@ final class BoardViewModel: ObservableObject {
                 break
             }
             if Task.isCancelled { break }
-            await load()
+            await load(refresh: true)
         }
     }
 

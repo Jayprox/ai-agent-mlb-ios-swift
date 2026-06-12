@@ -244,7 +244,7 @@ enum WhyFactorsBuilder {
         }
 
         // 2. HR pace  (max 15)
-        if let raw = c.hrTotal, let hr = Int(raw) {
+        if let raw = c.hrTotal?.stringValue, let hr = Int(raw) {
             let pts = min(15, Int(Double(hr) * 0.7))
             let detail: String = {
                 if hr >= 20 { return "High HR pace — proven power" }
