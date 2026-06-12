@@ -73,7 +73,10 @@ struct PickCardView: View {
                                 .frame(width: 28, height: 28)
                                 .background(Color.brandGreen.opacity(0.12))
                                 .cornerRadius(6)
+                                .frame(width: 44, height: 44)
+                                .contentShape(Rectangle())
                         }
+                        .accessibilityLabel("Mark pick as hit")
                         Button {
                             HapticManager.error()
                             onGrade(false)
@@ -84,19 +87,25 @@ struct PickCardView: View {
                                 .frame(width: 28, height: 28)
                                 .background(Color.brandRed.opacity(0.12))
                                 .cornerRadius(6)
+                                .frame(width: 44, height: 44)
+                                .contentShape(Rectangle())
                         }
+                        .accessibilityLabel("Mark pick as miss")
                         Button {
                             HapticManager.warning()
                             onVoid()
                         } label: {
                             Text("void")
                                 .font(.system(size: 9, design: .monospaced))
-                                .foregroundColor(.brandTextDim)
+                                .foregroundColor(.brandTextMuted)
                                 .padding(.horizontal, 6)
                                 .padding(.vertical, 4)
                                 .background(Color.brandSurface2)
                                 .cornerRadius(4)
+                                .frame(minWidth: 44, minHeight: 44)
+                                .contentShape(Rectangle())
                         }
+                        .accessibilityLabel("Void pick")
                     }
                 }
             }

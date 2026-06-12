@@ -57,7 +57,10 @@ struct WhyModalView: View {
                                     .frame(width: 26, height: 26)
                                     .background(Color.brandSurface2)
                                     .clipShape(Circle())
+                                    .frame(width: 44, height: 44)
+                                    .contentShape(Rectangle())
                             }
+                            .accessibilityLabel("Close")
                             // Score badge
                             VStack(spacing: 2) {
                                 Text("\(candidate.score)")

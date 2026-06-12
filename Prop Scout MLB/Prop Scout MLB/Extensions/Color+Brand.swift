@@ -33,7 +33,7 @@ extension Color {
     static let brandBorder2     = Color(hex: "#2d3148")
     static let brandText        = Color(hex: "#f9fafb")
     static let brandTextMuted   = Color(hex: "#9ca3af")
-    static let brandTextDim     = Color(hex: "#6b7280")
+    static let brandTextDim     = Color(hex: "#7d8694")
     static let brandGreen       = Color(hex: "#22c55e")
     static let brandAmber       = Color(hex: "#fbbf24")
     static let brandRed         = Color(hex: "#ef4444")

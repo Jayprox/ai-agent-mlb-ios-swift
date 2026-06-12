@@ -215,7 +215,10 @@ struct BoardCandidateCardView: View {
                         .foregroundColor(.brandGreen)
                         .padding(.trailing, 14)
                         .padding(.vertical, 8)
+                        .frame(minWidth: 44, minHeight: 44, alignment: .trailing)
+                        .contentShape(Rectangle())
                 }
+                .accessibilityLabel("Add to Picks")
             }
             .padding(.bottom, 2)
         }

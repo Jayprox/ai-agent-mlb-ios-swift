@@ -214,9 +214,12 @@ struct PicksView: View {
                                 Image(systemName: "checkmark.circle")
                                     .font(.system(size: 16))
                                     .foregroundColor(.brandAmber)
+                                    .frame(minWidth: 44, minHeight: 44)
+                                    .contentShape(Rectangle())
                             }
                         }
                         .disabled(vm.isGrading)
+                        .accessibilityLabel("Auto-grade pending picks")
                     }
                     Button {
                         showLogSheet = true
@@ -224,7 +227,10 @@ struct PicksView: View {
                         Image(systemName: "plus")
                             .font(.system(size: 16, weight: .semibold))
                             .foregroundColor(.brandGreen)
+                            .frame(minWidth: 44, minHeight: 44)
+                            .contentShape(Rectangle())
                     }
+                    .accessibilityLabel("Log a pick")
                 }
             }
         }

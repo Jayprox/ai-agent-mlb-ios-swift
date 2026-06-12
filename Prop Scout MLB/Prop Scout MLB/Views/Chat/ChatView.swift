@@ -182,8 +182,11 @@ struct ChatView: View {
                     Image(systemName: "arrow.up.circle.fill")
                         .font(.system(size: 28))
                         .foregroundColor(canSend ? .brandGreen : .brandTextDim)
+                        .frame(minWidth: 44, minHeight: 44)
+                        .contentShape(Rectangle())
                 }
                 .disabled(!canSend)
+                .accessibilityLabel("Send message")
             }
             .padding(.horizontal, 16)
             .padding(.vertical, 10)
