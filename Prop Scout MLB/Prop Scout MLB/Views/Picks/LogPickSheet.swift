@@ -148,10 +148,18 @@ struct LogPickSheet: View {
     }
 
     // MARK: - Helpers
+    /// The backend only requires `playerId`, `market`, `side`, and
+    /// `slateDate` (`POST /api/picks` returns 400 "playerId, market, side,
+    /// slateDate required" if any are missing) — `bookLine`/`odds` are
+    /// optional and stored as `null` when omitted. This is common for
+    /// game-level markets (NRFI/Total/Spread/ML) where no line was available
+    /// at compute time, so don't gate submission on them being filled in.
     private var canSubmit: Bool {
-        !playerName.trimmingCharacters(in: .whitespaces).isEmpty &&
-        !bookLine.isEmpty &&
-        Double(bookLine) != nil
+        guard !playerName.trimmingCharacters(in: .whitespaces).isEmpty else { return false }
+        guard Int(playerIdInput.trimmingCharacters(in: .whitespaces)) != nil else { return false }
+        // If the user did enter a book line, it must be a valid number.
+        if !bookLine.isEmpty && Double(bookLine) == nil { return false }
+        return true
     }
 
     private func applyPrefill() {
@@ -166,8 +174,7 @@ struct LogPickSheet: View {
     }
 
     private func submit() {
-        guard let line = Double(bookLine),
-              let u = Double(units.isEmpty ? "1" : units) else { return }
+        guard let u = Double(units.isEmpty ? "1" : units) else { return }
         isLogging = true
         errorMessage = nil
 
@@ -180,7 +187,8 @@ struct LogPickSheet: View {
             playerName: playerName.trimmingCharacters(in: .whitespaces),
             market: market,
             side: side,
-            bookLine: line,
+            // Optional — left nil (encoded as absent/null) when not entered.
+            bookLine: bookLine.isEmpty ? nil : Double(bookLine),
             odds: odds.isEmpty ? nil : odds,
             units: u,
             slateDate: today.string(from: Date()),

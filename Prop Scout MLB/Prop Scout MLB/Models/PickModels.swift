@@ -92,7 +92,10 @@ struct LogPickRequest: Encodable {
     let playerName: String
     let market: String
     let side: String
-    let bookLine: Double
+    // Optional — the backend only requires playerId/market/side/slateDate and
+    // stores bookLine as `null` when omitted (common for game-level markets
+    // like NRFI/Total/Spread/ML where no line was available at compute time).
+    let bookLine: Double?
     let odds: String?
     let units: Double
     let slateDate: String
