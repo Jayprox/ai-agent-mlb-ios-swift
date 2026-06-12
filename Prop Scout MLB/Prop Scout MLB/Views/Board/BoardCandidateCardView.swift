@@ -371,7 +371,10 @@ struct BoardCandidateCardView: View {
         case "ml":
             return leanIsHome ? b.homeML : b.awayML
         case "f5ml":
-            return leanIsHome ? b.f5HomeML : b.f5AwayML
+            // F5-specific ML odds are currently always null from the odds
+            // provider — fall back to the full-game ML (labeled "F5"),
+            // matching the web app.
+            return (leanIsHome ? b.f5HomeML : b.f5AwayML) ?? (leanIsHome ? b.homeML : b.awayML)
         case "total":
             let oddsValue = leanIsUnder ? b.underOdds : b.overOdds
             guard let lineStr = b.total else { return oddsValue }
@@ -383,8 +386,11 @@ struct BoardCandidateCardView: View {
             if let l = lineStr, let o = oddsStr { return "\(l) \(o)" }
             return lineStr ?? oddsStr
         case "f5spread":
-            let lineStr  = leanIsHome ? b.f5HomeSpread : b.f5AwaySpread
-            let oddsStr  = leanIsHome ? b.f5HomeSpreadOdds : b.f5AwaySpreadOdds
+            // F5-specific run-line odds are currently always null from the
+            // odds provider — fall back to the full-game spread (labeled
+            // "F5"), matching the web app.
+            let lineStr  = (leanIsHome ? b.f5HomeSpread : b.f5AwaySpread) ?? (leanIsHome ? b.homeSpread : b.awaySpread)
+            let oddsStr  = (leanIsHome ? b.f5HomeSpreadOdds : b.f5AwaySpreadOdds) ?? (leanIsHome ? b.homeSpreadOdds : b.awaySpreadOdds)
             if let l = lineStr, let o = oddsStr { return "\(l) \(o)" }
             return lineStr ?? oddsStr
         default:

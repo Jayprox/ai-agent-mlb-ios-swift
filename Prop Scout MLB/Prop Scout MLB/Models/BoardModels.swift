@@ -364,22 +364,40 @@ struct BoardCandidate: Decodable, Identifiable {
 
     /// Numeric line shown for Spread/Total/F5 RL cards (nil for ML/F5 ML/NRFI,
     /// where the "line" IS the moneyline odds, shown via `gameDisplayOdds`).
+    ///
+    /// F5-specific odds (`f5HomeSpread`/`f5AwaySpread`/etc.) are currently
+    /// always `null` from the odds provider. The web app falls back to the
+    /// full-game spread (labeled "F5") in that case, so we mirror that here.
     var gameDisplayLine: String? {
         switch market.lowercased() {
         case "total":    return odds?.total ?? line?.stringValue
         case "spread":   return (leanIsHome ? odds?.homeSpread   : odds?.awaySpread)   ?? line?.stringValue
-        case "f5spread": return  leanIsHome ? odds?.f5HomeSpread : odds?.f5AwaySpread
+        case "f5spread":
+            let f5 = leanIsHome ? odds?.f5HomeSpread : odds?.f5AwaySpread
+            let fullGame = leanIsHome ? odds?.homeSpread : odds?.awaySpread
+            return f5 ?? fullGame ?? line?.stringValue
         default: return nil
         }
     }
 
     /// Odds for the displayed lean side, from the best book.
+    ///
+    /// F5-specific odds (`f5HomeML`/`f5AwayML`/`f5*SpreadOdds`) are currently
+    /// always `null` from the odds provider. The web app falls back to the
+    /// full-game ML/spread odds (labeled "F5") in that case, so we mirror
+    /// that here.
     var gameDisplayOdds: String? {
         switch market.lowercased() {
         case "ml":       return (leanIsHome ? odds?.homeML : odds?.awayML) ?? line?.stringValue
-        case "f5ml":      return  leanIsHome ? odds?.f5HomeML : odds?.f5AwayML
+        case "f5ml":
+            let f5 = leanIsHome ? odds?.f5HomeML : odds?.f5AwayML
+            let fullGame = leanIsHome ? odds?.homeML : odds?.awayML
+            return f5 ?? fullGame ?? line?.stringValue
         case "spread":    return  leanIsHome ? odds?.homeSpreadOdds   : odds?.awaySpreadOdds
-        case "f5spread":  return  leanIsHome ? odds?.f5HomeSpreadOdds : odds?.f5AwaySpreadOdds
+        case "f5spread":
+            let f5 = leanIsHome ? odds?.f5HomeSpreadOdds : odds?.f5AwaySpreadOdds
+            let fullGame = leanIsHome ? odds?.homeSpreadOdds : odds?.awaySpreadOdds
+            return f5 ?? fullGame
         case "total":     return  leanIsUnder ? odds?.underOdds : odds?.overOdds
         default: return nil
         }
