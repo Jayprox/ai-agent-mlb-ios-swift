@@ -4,9 +4,6 @@ struct SettingsView: View {
     @EnvironmentObject var auth: AuthViewModel
     @State private var showSignOutConfirm = false
 
-    static let privacyPolicyURL = URL(string: "https://jayprox.github.io/ai-agent-mlb-ios-swift/privacy.html")!
-    static let termsOfServiceURL = URL(string: "https://jayprox.github.io/ai-agent-mlb-ios-swift/terms.html")!
-
     private let books = ["DK", "FD", "CZR", "MGM", "BOV"]
     private let bookNames = [
         "DK":  "DraftKings",
@@ -80,9 +77,13 @@ struct SettingsView: View {
                         // MARK: - Legal
                         sectionCard(title: "LEGAL") {
                             VStack(spacing: 0) {
-                                linkRow(label: "Privacy Policy", url: SettingsView.privacyPolicyURL)
+                                navRow(label: "Privacy Policy") {
+                                    LegalDocumentView.privacyPolicy
+                                }
                                 Divider().background(Color.brandBorder).padding(.leading, 16)
-                                linkRow(label: "Terms of Service", url: SettingsView.termsOfServiceURL)
+                                navRow(label: "Terms of Service") {
+                                    LegalDocumentView.termsOfService
+                                }
                             }
                         }
 
@@ -191,15 +192,15 @@ struct SettingsView: View {
         .padding(.horizontal, 16)
     }
 
-    // MARK: - Link row
-    private func linkRow(label: String, url: URL) -> some View {
-        Link(destination: url) {
+    // MARK: - Nav row
+    private func navRow<Destination: View>(label: String, @ViewBuilder destination: () -> Destination) -> some View {
+        NavigationLink(destination: destination()) {
             HStack {
                 Text(label)
                     .font(.system(size: 13, design: .monospaced))
                     .foregroundColor(.brandText)
                 Spacer()
-                Image(systemName: "arrow.up.right")
+                Image(systemName: "chevron.right")
                     .font(.system(size: 11))
                     .foregroundColor(.brandTextDim)
             }
