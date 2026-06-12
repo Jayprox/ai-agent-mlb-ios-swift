@@ -73,6 +73,7 @@ final class BoardViewModel: ObservableObject {
             #if DEBUG
             if refresh {
                 await Self.diagnoseHitsAndHR(path: path, decoded: snap)
+                await Self.diagnoseGameMarketOdds(path: path)
             }
             #endif
             DispatchQueue.main.async {
@@ -152,6 +153,35 @@ final class BoardViewModel: ObservableObject {
             }
         } catch {
             print("⚠️ board/snapshot diagnostic raw fetch failed: \(error)")
+        }
+    }
+
+    /// One-shot diagnostic: dumps the raw `lean` and `odds` payload for the
+    /// first `nrfi`, `f5ml`, and `f5spread` candidate in the snapshot. Used to
+    /// confirm whether the API actually returns F5/NRFI odds fields and what
+    /// they're named, since `GameOdds`/`BookLines` (f5HomeML, f5AwaySpread,
+    /// etc.) currently produce blank Book Line/Odds for these markets in both
+    /// the Board card and the Log Pick prefill.
+    private static func diagnoseGameMarketOdds(path: String) async {
+        do {
+            let raw = try await APIClient.shared.getRawData(path: path)
+            guard let json = try JSONSerialization.jsonObject(with: raw) as? [String: Any] else { return }
+            for key in ["nrfi", "f5ml", "f5spread"] {
+                guard let arr = json[key] as? [[String: Any]], let first = arr.first else {
+                    print("📦 board/snapshot[\(key)] missing or empty")
+                    continue
+                }
+                print("📦 board/snapshot[\(key)] first candidate keys = \(first.keys.sorted())")
+                print("📦 board/snapshot[\(key)] first.lean = \(String(describing: first["lean"])), leanAbbr = \(String(describing: first["leanAbbr"]))")
+                print("📦 board/snapshot[\(key)] first.line = \(String(describing: first["line"]))")
+                if let odds = first["odds"] {
+                    print("📦 board/snapshot[\(key)] first.odds = \(odds)")
+                } else {
+                    print("📦 board/snapshot[\(key)] first.odds = <missing>")
+                }
+            }
+        } catch {
+            print("⚠️ board/snapshot game-market odds diagnostic raw fetch failed: \(error)")
         }
     }
     #endif
