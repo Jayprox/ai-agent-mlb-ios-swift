@@ -58,7 +58,7 @@ struct LegalDocumentView: View {
                             .font(.system(size: 10, weight: .bold, design: .monospaced))
                             .foregroundColor(.brandTextDim)
                             .kerning(1.5)
-                        Text("jayprox12@gmail.com")
+                        Text("jdsony1126@gmail.com")
                             .font(.system(size: 13, design: .monospaced))
                             .foregroundColor(.brandGreen)
                     }
