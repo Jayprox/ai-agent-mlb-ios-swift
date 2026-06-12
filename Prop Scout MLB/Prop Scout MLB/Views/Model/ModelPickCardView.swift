@@ -283,7 +283,7 @@ struct ModelPickCardView: View {
             bookLine: edge.pickBookLine ?? edge.bookLine,
             odds: edge.bestBookOdds,
             gameLabel: edge.displayGameLabel,
-            playerId: edge.rawId.flatMap { Int($0) }
+            playerId: edge.playerId
         )
     }
 }

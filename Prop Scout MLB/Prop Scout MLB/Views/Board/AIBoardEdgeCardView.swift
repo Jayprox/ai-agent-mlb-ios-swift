@@ -152,7 +152,7 @@ struct AIBoardEdgeCardView: View {
             bookLine: edge.bookLine,
             odds: nil,
             gameLabel: edge.displayGameLabel,
-            playerId: edge.rawId.flatMap { Int($0) }
+            playerId: edge.playerId
         )
     }
 

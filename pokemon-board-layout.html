@@ -1,0 +1,312 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Pokemon Board Layout</title>
+  <style>
+    :root {
+      --page-bg: #efe4cb;
+      --card-bg: #f6f6f6;
+      --header-bg: #767676;
+      --header-border: #5f5f5f;
+      --ink: #101010;
+      --muted: #d9d9d9;
+      --panel-border: #060606;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      font-family: "Trebuchet MS", Verdana, sans-serif;
+      background: linear-gradient(180deg, #f1e7d0 0%, #eadcbc 100%);
+      color: #fff;
+    }
+
+    .page {
+      padding: 14px;
+      min-height: 100vh;
+    }
+
+    .board {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(280px, 1fr));
+      gap: 12px;
+      align-items: start;
+    }
+
+    .column {
+      display: grid;
+      gap: 14px;
+      align-content: start;
+    }
+
+    .card {
+      background: linear-gradient(180deg, #fafafa 0%, #f2f2f2 100%);
+      border-radius: 7px;
+      padding: 8px 0 10px;
+      box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.75);
+    }
+
+    .header {
+      height: 30px;
+      margin: 0 0 6px;
+      padding: 0 10px 0 8px;
+      display: grid;
+      grid-template-columns: 118px 1fr auto;
+      align-items: center;
+      gap: 10px;
+      background: var(--header-bg);
+      border-top: 1px solid #8a8a8a;
+      border-bottom: 1px solid var(--header-border);
+    }
+
+    .avatar {
+      height: 16px;
+      border: 4px solid #f4f4f4;
+      background: #999;
+      box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.55);
+    }
+
+    .title {
+      font-size: 0.95rem;
+      font-weight: 700;
+      text-align: center;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .actions {
+      display: flex;
+      gap: 6px;
+      align-items: center;
+      color: #fff;
+      font-size: 0.95rem;
+      font-weight: 700;
+      letter-spacing: 0.02em;
+    }
+
+    .action {
+      line-height: 1;
+      opacity: 0.96;
+    }
+
+    .content {
+      margin: 0 12px;
+      background: #fff;
+      border: 5px solid var(--panel-border);
+    }
+
+    .h-xl { height: 154px; }
+    .h-lg { height: 126px; }
+    .h-md { height: 102px; }
+    .h-sm { height: 40px; }
+    .h-xs { height: 22px; width: 66px; }
+    .w-short { width: 74%; }
+
+    .offset-top {
+      margin-top: 44px;
+    }
+
+    @media (max-width: 980px) {
+      .board {
+        grid-template-columns: 1fr;
+      }
+
+      .offset-top {
+        margin-top: 0;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="page">
+    <div class="board">
+      <section class="column">
+        <article class="card">
+          <div class="header">
+            <div class="avatar"></div>
+            <div class="title">Kanto</div>
+            <div class="actions">
+              <span class="action">^</span>
+              <span class="action">/</span>
+              <span class="action">x</span>
+              <span class="action">+</span>
+            </div>
+          </div>
+          <div class="content h-xl"></div>
+        </article>
+
+        <article class="card">
+          <div class="header">
+            <div class="avatar"></div>
+            <div class="title">Pallet</div>
+            <div class="actions">
+              <span class="action">^</span>
+              <span class="action">/</span>
+              <span class="action">x</span>
+              <span class="action">+</span>
+            </div>
+          </div>
+          <div class="content h-sm w-short"></div>
+        </article>
+
+        <article class="card">
+          <div class="header">
+            <div class="avatar"></div>
+            <div class="title">Cerulean</div>
+            <div class="actions">
+              <span class="action">^</span>
+              <span class="action">x</span>
+              <span class="action">+</span>
+            </div>
+          </div>
+          <div class="content h-xs"></div>
+        </article>
+
+        <article class="card">
+          <div class="header">
+            <div class="avatar"></div>
+            <div class="title">Pewter</div>
+            <div class="actions">
+              <span class="action">^</span>
+              <span class="action">x</span>
+              <span class="action">+</span>
+            </div>
+          </div>
+          <div class="content h-md w-short"></div>
+        </article>
+
+        <article class="card">
+          <div class="header">
+            <div class="avatar"></div>
+            <div class="title">Viridian</div>
+            <div class="actions">
+              <span class="action">^</span>
+              <span class="action">x</span>
+              <span class="action">+</span>
+            </div>
+          </div>
+          <div class="content h-sm w-short"></div>
+        </article>
+      </section>
+
+      <section class="column">
+        <article class="card">
+          <div class="header">
+            <div class="avatar"></div>
+            <div class="title">Goldenrod</div>
+            <div class="actions">
+              <span class="action">v</span>
+              <span class="action">/</span>
+              <span class="action">x</span>
+              <span class="action">+</span>
+            </div>
+          </div>
+        </article>
+
+        <article class="card">
+          <div class="header">
+            <div class="avatar"></div>
+            <div class="title">New Bark</div>
+            <div class="actions">
+              <span class="action">v</span>
+              <span class="action">/</span>
+              <span class="action">x</span>
+              <span class="action">+</span>
+            </div>
+          </div>
+        </article>
+
+        <article class="card">
+          <div class="header">
+            <div class="avatar"></div>
+            <div class="title">Violet</div>
+            <div class="actions">
+              <span class="action">^</span>
+              <span class="action">/</span>
+              <span class="action">x</span>
+              <span class="action">+</span>
+            </div>
+          </div>
+          <div class="content h-lg"></div>
+        </article>
+
+        <article class="card">
+          <div class="header">
+            <div class="avatar"></div>
+            <div class="title">Azalea</div>
+            <div class="actions">
+              <span class="action">^</span>
+              <span class="action">/</span>
+              <span class="action">x</span>
+              <span class="action">+</span>
+            </div>
+          </div>
+          <div class="content h-md"></div>
+        </article>
+      </section>
+
+      <section class="column offset-top">
+        <article class="card">
+          <div class="header">
+            <div class="avatar"></div>
+            <div class="title">Slateport</div>
+            <div class="actions">
+              <span class="action">^</span>
+              <span class="action">x</span>
+              <span class="action">+</span>
+            </div>
+          </div>
+          <div class="content h-lg"></div>
+        </article>
+
+        <article class="card">
+          <div class="header">
+            <div class="avatar"></div>
+            <div class="title">Rustboro</div>
+            <div class="actions">
+              <span class="action">^</span>
+              <span class="action">/</span>
+              <span class="action">x</span>
+              <span class="action">+</span>
+            </div>
+          </div>
+          <div class="content h-md"></div>
+        </article>
+
+        <article class="card">
+          <div class="header">
+            <div class="avatar"></div>
+            <div class="title">Lilycove</div>
+            <div class="actions">
+              <span class="action">^</span>
+              <span class="action">x</span>
+              <span class="action">+</span>
+            </div>
+          </div>
+          <div class="content h-sm"></div>
+        </article>
+
+        <article class="card">
+          <div class="header">
+            <div class="avatar"></div>
+            <div class="title">Mossdeep</div>
+            <div class="actions">
+              <span class="action">/</span>
+              <span class="action">x</span>
+              <span class="action">+</span>
+            </div>
+          </div>
+          <div class="content h-xl"></div>
+        </article>
+      </section>
+    </div>
+  </div>
+</body>
+</html>

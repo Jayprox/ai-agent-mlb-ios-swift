@@ -30,6 +30,13 @@ struct AIBoardEdge: Identifiable {
 
     var id: String { rawId ?? "\(market ?? "")-\(gameLabel ?? "")-\(aiScore)" }
 
+    /// MLB player ID for this edge, used when logging a pick. The edge's own
+    /// `rawId` (from the top-level "id" field) is a composite/edge identifier,
+    /// not a player ID — the real MLB player ID lives on the embedded
+    /// `candidate`. Falls back to parsing `rawId` as a number in case it's
+    /// ever a bare numeric player ID (e.g. game-market edges with no candidate).
+    var playerId: Int? { candidate?.rawId ?? rawId.flatMap { Int($0) } }
+
     var displayName: String      { playerName ?? gameLabel ?? "—" }
     var displayGameLabel: String { gameLabel ?? "" }
     var displayMarket: String    { market ?? "—" }
