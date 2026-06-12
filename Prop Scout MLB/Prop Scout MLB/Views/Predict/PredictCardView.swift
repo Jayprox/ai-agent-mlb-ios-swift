@@ -91,11 +91,19 @@ struct PredictCardView: View {
     // MARK: - Derived text
 
     private var leanLabel: String {
-        "\((edge.lean ?? "OVER").uppercased()) —"
+        var text = (edge.lean ?? "OVER").uppercased()
+        if let line = edge.pickBookLine ?? edge.bookLine {
+            text += " \(fmt(line))"
+        }
+        return text
     }
 
     private var simText: String { edge.simPct.map { "\($0)%" } ?? "—" }
     private var bookText: String { edge.bookPct.map { "\($0)%" } ?? "—" }
+
+    private func fmt(_ value: Double) -> String {
+        value == value.rounded() ? "\(Int(value))" : String(format: "%.1f", value)
+    }
 
     // MARK: - Subviews
 
