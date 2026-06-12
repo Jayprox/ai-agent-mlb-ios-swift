@@ -149,8 +149,8 @@ struct AIBoardEdgeCardView: View {
             playerName: edge.displayName,
             market: edge.market ?? "",
             side: edge.lean ?? "OVER",
-            bookLine: edge.bookLine,
-            odds: nil,
+            bookLine: edge.pickBookLine ?? edge.bookLine,
+            odds: edge.bestBookOdds,
             gameLabel: edge.displayGameLabel,
             playerId: edge.playerId
         )
