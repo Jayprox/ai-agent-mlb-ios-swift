@@ -141,4 +141,24 @@ struct LinescoreData: Decodable {
     let innings: [InningLine]?
 
     var isTop: Bool { halfInning == "top" }
+
+    enum CodingKeys: String, CodingKey {
+        case gamePk, inning, halfInning, awayScore, homeScore, outs, innings
+    }
+
+    /// Custom decode: for games that haven't started yet, the API returns
+    /// `inning`/`halfInning`/`awayScore`/`homeScore` as `null` rather than
+    /// `0`/omitted, which fails synthesized `Decodable` (`Int`/`String` can't
+    /// hold `null`). Treat `null` the same as "not started" — inning 0,
+    /// scores 0, half "top".
+    init(from decoder: Decoder) throws {
+        let c = try decoder.container(keyedBy: CodingKeys.self)
+        gamePk     = try c.decode(Int.self, forKey: .gamePk)
+        inning     = (try? c.decode(Int.self, forKey: .inning)) ?? 0
+        halfInning = (try? c.decode(String.self, forKey: .halfInning)) ?? "top"
+        awayScore  = (try? c.decode(Int.self, forKey: .awayScore)) ?? 0
+        homeScore  = (try? c.decode(Int.self, forKey: .homeScore)) ?? 0
+        outs       = try? c.decode(Int.self, forKey: .outs)
+        innings    = try? c.decode([InningLine].self, forKey: .innings)
+    }
 }
