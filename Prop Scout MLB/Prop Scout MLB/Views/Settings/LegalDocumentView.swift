@@ -7,7 +7,12 @@ struct LegalSection: Identifiable {
     let heading: String?
     let body: String
 
-    init(_ heading: String? = nil, _ body: String) {
+    init(_ body: String) {
+        self.heading = nil
+        self.body = body
+    }
+
+    init(_ heading: String, _ body: String) {
         self.heading = heading
         self.body = body
     }
