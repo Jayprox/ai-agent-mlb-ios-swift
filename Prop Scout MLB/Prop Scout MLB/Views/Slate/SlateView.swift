@@ -199,7 +199,7 @@ struct SlateView: View {
             HStack(spacing: 6) {
                 Text("⚾")
                     .scaledFont(size: 16)
-                Text("Prop Scout")
+                Text("Chalk That")
                     .scaledFont(size: 17, weight: .bold, design: .monospaced)
                     .foregroundColor(.brandText)
             }

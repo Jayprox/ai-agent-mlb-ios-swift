@@ -32,9 +32,9 @@ final class SlateViewModel: ObservableObject {
             )
             DispatchQueue.main.async {
                 self.games       = bundle.schedule
-                self.oddsMap     = bundle.oddsMap
-                self.nrfiMap     = bundle.nrfiMap
-                self.weatherMap  = bundle.weatherMap
+                self.oddsMap     = bundle.oddsMap ?? [:]
+                self.nrfiMap     = bundle.nrfiMap ?? [:]
+                self.weatherMap  = bundle.weatherMap ?? [:]
                 self.kHintsMap   = bundle.kHintsMap ?? [:]
                 self.isLoading   = false
                 self.lastUpdated = Date()

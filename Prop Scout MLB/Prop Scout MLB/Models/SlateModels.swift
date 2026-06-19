@@ -3,9 +3,9 @@ import Foundation
 // MARK: - Slate Bundle
 struct SlateBundle: Decodable {
     let schedule: [SlateGame]
-    let oddsMap: [String: OddsData?]
-    let nrfiMap: [String: NRFIData?]
-    let weatherMap: [String: WeatherData?]
+    let oddsMap: [String: OddsData?]?
+    let nrfiMap: [String: NRFIData?]?
+    let weatherMap: [String: WeatherData?]?
     let kHintsMap: [String: String?]?  // gamePk → "Wacha K OVER" hint string
     let fetchedAt: String?
 }

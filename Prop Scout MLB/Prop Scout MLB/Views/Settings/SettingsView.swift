@@ -88,7 +88,7 @@ struct SettingsView: View {
                         }
 
                         // MARK: - Disclaimer
-                        Text("Prop Scout MLB is an informational research tool. Picks, odds, and AI-generated analysis are for entertainment purposes only and do not constitute gambling, financial, or betting advice. Must be 21+ to use sportsbook-related features. If you or someone you know has a gambling problem, call 1-800-GAMBLER.")
+                        Text("Chalk That is an informational research tool. Picks, odds, and AI-generated analysis are for entertainment purposes only and do not constitute gambling, financial, or betting advice. Must be 21+ to use sportsbook-related features. If you or someone you know has a gambling problem, call 1-800-GAMBLER.")
                             .scaledFont(size: 10, design: .monospaced)
                             .foregroundColor(.brandTextDim)
                             .multilineTextAlignment(.center)
@@ -112,7 +112,7 @@ struct SettingsView: View {
                                 )
                         }
                         .padding(.horizontal, 16)
-                        .confirmationDialog("Sign out of Prop Scout?", isPresented: $showSignOutConfirm, titleVisibility: .visible) {
+                        .confirmationDialog("Sign out of Chalk That?", isPresented: $showSignOutConfirm, titleVisibility: .visible) {
                             Button("Sign Out", role: .destructive) { auth.signOut() }
                             Button("Cancel", role: .cancel) {}
                         }
@@ -159,7 +159,7 @@ struct SettingsView: View {
                 Text(auth.username.isEmpty ? "leadoffkaiba" : auth.username)
                     .scaledFont(size: 15, weight: .bold, design: .monospaced)
                     .foregroundColor(.brandText)
-                Text("Prop Scout MLB")
+                Text("Chalk That")
                     .scaledFont(size: 11, design: .monospaced)
                     .foregroundColor(.brandTextDim)
             }

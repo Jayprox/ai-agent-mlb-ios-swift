@@ -18,12 +18,10 @@ struct LoginView: View {
 
                 // MARK: Logo
                 VStack(spacing: 8) {
-                    Text("⚾")
-                        .scaledFont(size: 48)
-                    Text("Prop Scout")
+                    Text("Chalk That")
                         .scaledFont(size: 28, weight: .bold, design: .monospaced)
                         .foregroundColor(.brandText)
-                    Text("MLB RESEARCH")
+                    Text("AI PROPS RESEARCH")
                         .scaledFont(size: 11, weight: .semibold, design: .monospaced)
                         .foregroundColor(.brandTextDim)
                         .kerning(2)

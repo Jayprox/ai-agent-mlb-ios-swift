@@ -163,7 +163,7 @@ struct ChatView: View {
             Divider().background(Color.brandBorder)
             HStack(spacing: 10) {
                 TextField(
-                    vm.isAtLimit ? "Daily limit reached" : "Ask Prop Scout about today's slate...",
+                    vm.isAtLimit ? "Daily limit reached" : "Ask Chalk That about today's slate...",
                     text: $inputText,
                     axis: .vertical
                 )

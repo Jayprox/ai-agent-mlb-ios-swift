@@ -81,7 +81,7 @@ extension LegalDocumentView {
         updated: "Last updated: June 11, 2026",
         sections: [
             LegalSection(
-                "Prop Scout MLB (\"the App\") is a private research and analytics tool for Major League Baseball sportsbook odds, statistics, and pick tracking. Access is provided to authorized users by their organization's administrator — there is no public sign-up. This Privacy Policy explains what information the App collects, how it is used, and how it is protected."
+                "Chalk That (\"the App\") is a private research and analytics tool for Major League Baseball sportsbook odds, statistics, and pick tracking. Access is provided to authorized users by their organization's administrator — there is no public sign-up. This Privacy Policy explains what information the App collects, how it is used, and how it is protected."
             ),
             LegalSection(
                 "1. Information We Collect",
@@ -136,11 +136,11 @@ extension LegalDocumentView {
         updated: "Last updated: June 11, 2026",
         sections: [
             LegalSection(
-                "These Terms of Service (\"Terms\") govern your use of Prop Scout MLB (\"the App\"). By signing in and using the App, you agree to these Terms. If you do not agree, do not use the App."
+                "These Terms of Service (\"Terms\") govern your use of Chalk That (\"the App\"). By signing in and using the App, you agree to these Terms. If you do not agree, do not use the App."
             ),
             LegalSection(
                 "1. Description of Service",
-                "Prop Scout MLB is an informational research tool that displays sportsbook odds and lines, MLB statistics, AI-generated analysis, and lets you maintain a personal log of research \"picks\" graded against publicly available odds. The App does not place bets, hold funds, process payments, or connect to any sportsbook account — it does not facilitate real-money wagering of any kind."
+                "Chalk That is an informational research tool that displays sportsbook odds and lines, MLB statistics, AI-generated analysis, and lets you maintain a personal log of research \"picks\" graded against publicly available odds. The App does not place bets, hold funds, process payments, or connect to any sportsbook account — it does not facilitate real-money wagering of any kind."
             ),
             LegalSection(
                 "2. Eligibility & Accounts",
@@ -162,7 +162,7 @@ extension LegalDocumentView {
             ),
             LegalSection(
                 "4. Informational Use Only — Not Gambling or Financial Advice",
-                "Prop Scout MLB is an informational research tool. Picks, odds, and AI-generated analysis are provided for entertainment and informational purposes only and do not constitute gambling, financial, or betting advice. Any decisions you make based on information in the App are made at your own discretion and risk.\n\nIf you or someone you know has a gambling problem, call 1-800-GAMBLER."
+                "Chalk That is an informational research tool. Picks, odds, and AI-generated analysis are provided for entertainment and informational purposes only and do not constitute gambling, financial, or betting advice. Any decisions you make based on information in the App are made at your own discretion and risk.\n\nIf you or someone you know has a gambling problem, call 1-800-GAMBLER."
             ),
             LegalSection(
                 "5. Third-Party Data",
