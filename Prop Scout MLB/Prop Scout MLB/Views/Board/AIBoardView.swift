@@ -29,6 +29,7 @@ struct AIBoardView: View {
             .navigationBarTitleDisplayMode(.inline)
             .toolbar { titleToolbar }
         }
+        .navigationViewStyle(.stack)
         .task { await vm.load() }
         .colorScheme(.dark)
     }

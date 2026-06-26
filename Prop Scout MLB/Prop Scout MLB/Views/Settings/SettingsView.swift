@@ -141,6 +141,7 @@ struct SettingsView: View {
                 }
             }
         }
+        .navigationViewStyle(.stack)
         .colorScheme(.dark)
     }
 

@@ -49,15 +49,78 @@ struct Pick: Decodable, Identifiable {
     }
 
     var lineDisplay: String {
-        guard let line = bookLine else { return "" }
-        let lineStr = line == line.rounded() ? "\(Int(line))" : String(format: "%.1f", line)
-        let sideStr = side ?? ""
-        return "\(sideStr) \(lineStr)".trimmingCharacters(in: .whitespaces)
+        var parts: [String] = []
+
+        // Add side if present
+        if let s = side {
+            parts.append(displaySide)
+        }
+
+        // Add line if present
+        if let line = bookLine {
+            let lineStr = line == line.rounded() ? "\(Int(line))" : String(format: "%.1f", line)
+            parts.append(lineStr)
+        }
+
+        // Always add market
+        parts.append(market)
+
+        return parts.joined(separator: " ")
+    }
+
+    private var displaySide: String {
+        guard let side else { return "" }
+        let normalized = side.uppercased()
+        guard normalized == "HOME" || normalized == "AWAY",
+              let gameLabel,
+              let teams = parseTeams(from: gameLabel) else {
+            return side
+        }
+        return normalized == "AWAY" ? teams.away : teams.home
+    }
+
+    private func parseTeams(from label: String) -> (away: String, home: String)? {
+        let separators = [" @ ", " vs "]
+        for separator in separators {
+            let parts = label.components(separatedBy: separator)
+            if parts.count == 2 {
+                let away = parts[0].trimmingCharacters(in: .whitespacesAndNewlines)
+                let home = parts[1].trimmingCharacters(in: .whitespacesAndNewlines)
+                if !away.isEmpty && !home.isEmpty {
+                    return (away, home)
+                }
+            }
+        }
+        return nil
     }
 
     var pnlDisplay: String {
         guard let p = pnl else { return "" }
         return p >= 0 ? "+\(String(format: "%.2f", p))u" : "\(String(format: "%.2f", p))u"
+    }
+
+    var actualStatDisplay: String? {
+        guard let actualStat else { return nil }
+
+        let formattedValue: String = {
+            if actualStat == actualStat.rounded() {
+                return "\(Int(actualStat))"
+            }
+            return String(format: "%.1f", actualStat)
+        }()
+
+        switch market.lowercased() {
+        case "k":
+            return "\(formattedValue) K"
+        case "outs":
+            return "\(formattedValue) outs"
+        case "hits":
+            return "\(formattedValue) hits"
+        case "hr":
+            return "\(formattedValue) HR"
+        default:
+            return nil
+        }
     }
 }
 

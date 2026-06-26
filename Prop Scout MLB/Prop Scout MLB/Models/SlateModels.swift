@@ -54,6 +54,32 @@ struct SlateGame: Decodable, Identifiable {
         guard let ls = linescore else { return "" }
         return "\(ls.isTop ? "▲" : "▼")\(ls.inning)"
     }
+
+    enum CodingKeys: String, CodingKey {
+        case gamePk
+        case status
+        case gameTime
+        case away
+        case home
+        case venue
+        case stadium
+        case ballpark
+        case probablePitchers
+    }
+
+    init(from decoder: Decoder) throws {
+        let c = try decoder.container(keyedBy: CodingKeys.self)
+        gamePk = try c.decode(Int.self, forKey: .gamePk)
+        status = try c.decode(String.self, forKey: .status)
+        gameTime = try c.decodeIfPresent(String.self, forKey: .gameTime)
+        away = try c.decode(TeamInfo.self, forKey: .away)
+        home = try c.decode(TeamInfo.self, forKey: .home)
+        probablePitchers = try c.decodeIfPresent(ProbablePitchers.self, forKey: .probablePitchers)
+        venue =
+            try c.decodeIfPresent(String.self, forKey: .venue) ??
+            c.decodeIfPresent(String.self, forKey: .stadium) ??
+            c.decodeIfPresent(String.self, forKey: .ballpark)
+    }
 }
 
 struct TeamInfo: Decodable {
@@ -103,8 +129,8 @@ struct WeatherData: Decodable {
     let winddirection: Double?
     let weathercode: Int?
     let precipitation_probability: Double?
+    let isDome: Bool?  // Backend should provide this explicitly
 
-    var isDome: Bool { temp == nil }
     var relativehumidity: Double? { nil } // returned separately by weather API
 
     var tempString: String {

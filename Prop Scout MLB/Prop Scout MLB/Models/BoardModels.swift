@@ -353,7 +353,15 @@ struct BoardCandidate: Decodable, Identifiable {
     }
 
     // MARK: - Computed
-    var bookLine: Double?  { propLine?.line }
+    var bookLine: Double?  {
+        if let line = propLine?.line { return line }
+        if let line = suggestedLine { return line }
+        if case .double(let value) = line { return value }
+        if case .string(let value) = line {
+            return Double(value.replacingOccurrences(of: "+", with: ""))
+        }
+        return nil
+    }
     var overOdds: String?  { propLine?.overOdds }
     var underOdds: String? { propLine?.underOdds }
     var bestBook: String?  { propLine?.book }
@@ -370,12 +378,12 @@ struct BoardCandidate: Decodable, Identifiable {
     /// full-game spread (labeled "F5") in that case, so we mirror that here.
     var gameDisplayLine: String? {
         switch market.lowercased() {
-        case "total":    return odds?.total ?? line?.stringValue
-        case "spread":   return (leanIsHome ? odds?.homeSpread   : odds?.awaySpread)   ?? line?.stringValue
+        case "total":    return odds?.total ?? fallbackGameLineString
+        case "spread":   return (leanIsHome ? odds?.homeSpread   : odds?.awaySpread)   ?? fallbackGameLineString
         case "f5spread":
             let f5 = leanIsHome ? odds?.f5HomeSpread : odds?.f5AwaySpread
             let fullGame = leanIsHome ? odds?.homeSpread : odds?.awaySpread
-            return f5 ?? fullGame ?? line?.stringValue
+            return f5 ?? fullGame ?? fallbackGameLineString
         default: return nil
         }
     }
@@ -502,6 +510,18 @@ struct BoardCandidate: Decodable, Identifiable {
     /// lookups — kept separate from `displayLean` since Spread/ML/F5 markets
     /// display a team abbreviation but should still color by HOME/AWAY.
     var leanColorBasis: String { lean ?? displayLean }
+
+    private var fallbackGameLineString: String? {
+        if let value = line?.stringValue, !value.isEmpty {
+            return value
+        }
+        if let suggestedLine {
+            return suggestedLine == suggestedLine.rounded()
+                ? "\(Int(suggestedLine))"
+                : String(format: "%.1f", suggestedLine)
+        }
+        return nil
+    }
 }
 
 // MARK: - Market enum

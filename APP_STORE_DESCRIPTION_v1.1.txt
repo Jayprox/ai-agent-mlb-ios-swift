@@ -1,0 +1,38 @@
+CHALK THAT v1.1
+MLB Prop Picker for iPad & iPhone
+
+---
+
+WHAT'S NEW IN v1.1
+
+🎯 iPad Support — Now on all your devices
+Full iPad optimization keeps your workflow seamless. Same great features, native iPad layout.
+
+⚾ Smarter Slate Cards
+- Game time at a glance
+- Pitcher handedness (L/R)
+- Wind direction & speed
+- Dome game indicator
+- NRFI lean badges
+
+✅ Better Picks Tab
+See full prop details with market labels in one view.
+
+🔧 Bug Fixes
+Improved LIVE badge accuracy and data reliability.
+
+---
+
+ABOUT CHALK THAT
+
+Your daily edge for MLB player prop picks. Access the shared daily board, AI-powered model picks, and organize your plays with advanced filtering.
+
+Key Features:
+• Daily Slate — Game-by-game breakdown with weather, odds, and pitcher stats
+• AI Board — Ranked candidates by simulation confidence
+• Model Picks — Top AI recommendations with LINEUP indicator
+• Your Picks — Track all plays, grades, and P&L
+• Scout — Deep dives into player matchups and trends
+• Chat — Discuss picks with the community
+
+Join thousands of sharp bettors using Chalk That.

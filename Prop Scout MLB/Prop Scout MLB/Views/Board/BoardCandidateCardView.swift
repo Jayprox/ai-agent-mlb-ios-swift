@@ -3,6 +3,7 @@ import SwiftUI
 struct BoardCandidateCardView: View {
     let rank: Int
     let candidate: BoardCandidate
+    let fallbackOdds: OddsData?
     @EnvironmentObject var picksVM: PicksViewModel
     @EnvironmentObject var auth: AuthViewModel
     @State private var showWhy = false
@@ -141,14 +142,14 @@ struct BoardCandidateCardView: View {
 
                 if candidate.isGameMarket {
                     // Line (Spread/Total/F5 RL — nil for ML/F5 ML/NRFI)
-                    if let line = candidate.gameDisplayLine {
+                    if let line = gameLineLabel {
                         Text(" \(line)")
                             .scaledFont(size: 12, weight: .semibold, design: .monospaced)
                             .foregroundColor(.brandText)
                     }
 
                     // Odds (lean side, best book)
-                    if let o = candidate.gameDisplayOdds {
+                    if let o = gameOddsLabel {
                         Text(" (\(o))")
                             .scaledFont(size: 11, design: .monospaced)
                             .foregroundColor(.brandTextDim)
@@ -156,16 +157,16 @@ struct BoardCandidateCardView: View {
 
                     // Best book — only shown alongside an actual line/odds value
                     // (e.g. omitted on NRFI, which has neither)
-                    if let book = candidate.gameBestBook,
-                       candidate.gameDisplayLine != nil || candidate.gameDisplayOdds != nil {
+                    if let book = gameBookLabel,
+                       gameLineLabel != nil || gameOddsLabel != nil {
                         Text(" · \(book)")
                             .scaledFont(size: 9, weight: .medium, design: .monospaced)
                             .foregroundColor(.brandTextDim)
                     }
                 } else {
                     // Book line
-                    if let line = candidate.bookLine {
-                        Text(" \(line == line.rounded() ? "\(Int(line))" : String(format: "%.1f", line))")
+                    if let lineLabel = propLineLabel {
+                        Text(" \(lineLabel)")
                             .scaledFont(size: 12, weight: .semibold, design: .monospaced)
                             .foregroundColor(.brandText)
                     }
@@ -363,6 +364,57 @@ struct BoardCandidateCardView: View {
                 .padding(.horizontal, 14)
             }
         )
+    }
+
+    private var gameLineLabel: String? {
+        if let line = candidate.gameDisplayLine, !line.isEmpty, line != "—" {
+            return line
+        }
+        guard let fallbackOdds else { return nil }
+        switch candidate.market.lowercased() {
+        case "total":
+            return fallbackOdds.total
+        case "spread", "f5spread":
+            return candidate.leanIsHome ? fallbackOdds.homeSpread : fallbackOdds.awaySpread
+        default:
+            return nil
+        }
+    }
+
+    private var gameOddsLabel: String? {
+        if let odds = candidate.gameDisplayOdds, !odds.isEmpty, odds != "—" {
+            return odds
+        }
+        guard let fallbackOdds else { return nil }
+        switch candidate.market.lowercased() {
+        case "total":
+            return candidate.leanIsUnder ? fallbackOdds.underOdds : fallbackOdds.overOdds
+        case "spread", "f5spread":
+            return candidate.leanIsHome ? fallbackOdds.homeSpreadOdds : fallbackOdds.awaySpreadOdds
+        default:
+            return nil
+        }
+    }
+
+    private var gameBookLabel: String? {
+        if let book = candidate.gameBestBook, !book.isEmpty {
+            return book
+        }
+        return fallbackOdds?.book
+    }
+
+    private var propLineLabel: String? {
+        guard let line = candidate.bookLine else { return nil }
+        let formattedLine = line == line.rounded() ? "\(Int(line))" : String(format: "%.1f", line)
+
+        switch candidate.market.lowercased() {
+        case "k":
+            return "O/U \(formattedLine)"
+        case "outs":
+            return "O/U \(formattedLine) outs"
+        default:
+            return formattedLine
+        }
     }
 
     /// Builds the chip label for a single book's lines, based on market type

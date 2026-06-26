@@ -7,6 +7,8 @@ struct SlateCardView: View {
     let weather: WeatherData?
     let linescore: LinescoreData?
     var kHint: String? = nil
+    var awayPitcherEra: String? = nil
+    var homePitcherEra: String? = nil
 
     var body: some View {
         VStack(alignment: .leading, spacing: 0) {
@@ -66,13 +68,12 @@ struct SlateCardView: View {
 
             Divider().background(Color.brandBorder)
 
-            // MARK: - Info row: venue + time
-            VStack(alignment: .leading, spacing: 3) {
-                if !venueTimeText.isEmpty {
-                    Text(venueTimeText)
-                        .scaledFont(size: 11, design: .monospaced)
-                        .foregroundColor(.brandTextMuted)
-                }
+            // MARK: - Info row: time + venue
+            VStack(alignment: .leading, spacing: 2) {
+                // Game time + venue
+                Text(venueTimeText)
+                    .scaledFont(size: 10, design: .monospaced)
+                    .foregroundColor(.brandTextMuted)
 
                 // Starting pitchers
                 if let pp = game.probablePitchers {
@@ -82,9 +83,21 @@ struct SlateCardView: View {
                             .foregroundColor(.brandTextDim)
 
                         if let away = pp.away {
-                            Text(away.name.components(separatedBy: " ").last ?? away.name)
-                                .scaledFont(size: 11, design: .monospaced)
-                                .foregroundColor(away.isIL == true ? .brandTextDim : .brandTextMuted)
+                            HStack(spacing: 2) {
+                                Text(away.name.components(separatedBy: " ").last ?? away.name)
+                                    .scaledFont(size: 11, design: .monospaced)
+                                    .foregroundColor(away.isIL == true ? .brandTextDim : .brandTextMuted)
+                                if let hand = away.hand {
+                                    Text(hand)
+                                        .scaledFont(size: 10, weight: .bold, design: .monospaced)
+                                        .foregroundColor(.brandTextDim)
+                                }
+                                if game.isUpcoming, let era = awayPitcherEra, !era.isEmpty {
+                                    Text("ERA \(era)")
+                                        .scaledFont(size: 10, design: .monospaced)
+                                        .foregroundColor(.brandTextDim)
+                                }
+                            }
                             if away.isIL == true {
                                 ILBadge()
                             }
@@ -95,9 +108,21 @@ struct SlateCardView: View {
                             .foregroundColor(.brandTextDim)
 
                         if let home = pp.home {
-                            Text(home.name.components(separatedBy: " ").last ?? home.name)
-                                .scaledFont(size: 11, design: .monospaced)
-                                .foregroundColor(home.isIL == true ? .brandTextDim : .brandTextMuted)
+                            HStack(spacing: 2) {
+                                Text(home.name.components(separatedBy: " ").last ?? home.name)
+                                    .scaledFont(size: 11, design: .monospaced)
+                                    .foregroundColor(home.isIL == true ? .brandTextDim : .brandTextMuted)
+                                if let hand = home.hand {
+                                    Text(hand)
+                                        .scaledFont(size: 10, weight: .bold, design: .monospaced)
+                                        .foregroundColor(.brandTextDim)
+                                }
+                                if game.isUpcoming, let era = homePitcherEra, !era.isEmpty {
+                                    Text("ERA \(era)")
+                                        .scaledFont(size: 10, design: .monospaced)
+                                        .foregroundColor(.brandTextDim)
+                                }
+                            }
                             if home.isIL == true {
                                 ILBadge()
                             }
@@ -128,20 +153,8 @@ struct SlateCardView: View {
                 Divider().background(Color.brandBorder)
 
                 VStack(alignment: .leading, spacing: 6) {
-                    // Row 1: ML | O/U | Weather | NRFI
+                    // Row 1: O/U | ML | Weather | NRFI
                     HStack(spacing: 10) {
-                        // ML label
-                        if let o = odds, let awayML = o.awayML, let homeML = o.homeML {
-                            HStack(spacing: 4) {
-                                Text("ML")
-                                    .scaledFont(size: 9, weight: .bold, design: .monospaced)
-                                    .foregroundColor(.brandTextDim)
-                                Text("\(awayML) / \(homeML)")
-                                    .scaledFont(size: 11, design: .monospaced)
-                                    .foregroundColor(.brandTextMuted)
-                            }
-                        }
-
                         // O/U
                         if let o = odds, let total = o.total {
                             HStack(spacing: 4) {
@@ -151,6 +164,18 @@ struct SlateCardView: View {
                                 Text(total)
                                     .scaledFont(size: 11, weight: .semibold, design: .monospaced)
                                     .foregroundColor(.brandText)
+                            }
+                        }
+
+                        // ML label
+                        if let o = odds, let awayML = o.awayML, let homeML = o.homeML {
+                            HStack(spacing: 4) {
+                                Text("ML")
+                                    .scaledFont(size: 9, weight: .bold, design: .monospaced)
+                                    .foregroundColor(.brandTextDim)
+                                Text("\(awayML) / \(homeML)")
+                                    .scaledFont(size: 11, design: .monospaced)
+                                    .foregroundColor(.brandTextMuted)
                             }
                         }
 
@@ -171,15 +196,26 @@ struct SlateCardView: View {
 
                         Spacer()
 
-                        // Weather
-                        if let w = weather, !w.isDome {
-                            Text(w.tempString)
-                                .scaledFont(size: 11, design: .monospaced)
-                                .foregroundColor(.brandTextMuted)
-                        } else if weather?.isDome == true {
-                            Text("DOME")
-                                .scaledFont(size: 10, weight: .semibold, design: .monospaced)
-                                .foregroundColor(.brandTextDim)
+                        // Weather + Wind
+                        if let w = weather {
+                            if w.isDome == true {
+                                Text("DOME")
+                                    .scaledFont(size: 10, weight: .semibold, design: .monospaced)
+                                    .foregroundColor(.brandTextDim)
+                            } else {
+                                VStack(alignment: .trailing, spacing: 1) {
+                                    Text(w.tempString)
+                                        .scaledFont(size: 11, design: .monospaced)
+                                        .foregroundColor(.brandTextMuted)
+                                    if let speed = w.windspeed, let dir = w.winddirection {
+                                        let windDir = compassLabel(for: dir)
+                                        Text("\(Int(speed))mph \(windDir)")
+                                            .scaledFont(size: 8, design: .monospaced)
+                                            .foregroundColor(.brandTextDim)
+                                            .lineLimit(1)
+                                    }
+                                }
+                            }
                         }
 
                         // NRFI lean
@@ -244,18 +280,16 @@ struct SlateCardView: View {
 
     // MARK: - Venue + time helper
     private var venueTimeText: String {
-        let v = game.venue ?? ""
-        if game.isUpcoming {
-            let t = game.formattedTime
-            return t.isEmpty ? v : "\(t) · \(v)"
-        }
-        return v
+        let parts = [game.formattedTime, game.venue]
+            .map { ($0 ?? "").trimmingCharacters(in: .whitespacesAndNewlines) }
+            .filter { !$0.isEmpty }
+        return parts.joined(separator: " · ")
     }
 
     // MARK: - Status badge
     @ViewBuilder
     private var statusBadge: some View {
-        if game.isLive || (linescore?.inning ?? 0) > 0 && !game.isFinal {
+        if game.isLive && (linescore?.inning ?? 0) > 0 {
             LiveBadge()
         } else if game.isFinal {
             FinalBadge()
@@ -263,4 +297,13 @@ struct SlateCardView: View {
             PPDBadge()
         }
     }
+
+    // MARK: - Compass direction (shortened to 1 letter)
+    private func compassLabel(for degrees: Double) -> String {
+        let dirs = ["N","NNE","NE","ENE","E","ESE","SE","SSE","S","SSW","SW","WSW","W","WNW","NW","NNW"]
+        let index = Int((degrees / 22.5).rounded()) % 16
+        let fullDir = dirs[max(0, min(15, index))]
+        return String(fullDir.first ?? "N")  // Return just first letter
+    }
+
 }

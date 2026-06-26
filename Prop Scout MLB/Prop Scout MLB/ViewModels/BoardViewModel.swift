@@ -3,6 +3,7 @@ import Combine
 
 final class BoardViewModel: ObservableObject {
     @Published var snapshot: BoardSnapshot? = nil
+    @Published var slateOddsByGamePk: [Int: OddsData] = [:]
     @Published var isLoading = false
     @Published var isRefreshing = false
     @Published var errorMessage: String? = nil
@@ -69,14 +70,22 @@ final class BoardViewModel: ObservableObject {
         do {
             var path = "\(Endpoints.boardSnapshot)?date=\(slateDate)"
             if refresh { path += "&refresh=1" }
-            let snap: BoardSnapshot = try await APIClient.shared.get(path: path)
+            async let snapshotTask: BoardSnapshot = APIClient.shared.get(path: path)
+            async let slateBundleTask: SlateBundle = APIClient.shared.get(
+                path: "\(Endpoints.slateBundle)?date=\(slateDate)"
+            )
+
+            let (snap, bundle) = try await (snapshotTask, slateBundleTask)
             #if DEBUG
             if refresh {
                 await Self.diagnoseHitsAndHR(path: path, decoded: snap)
             }
             #endif
+
+            let oddsByGamePk = Self.buildOddsByGamePk(from: bundle)
             DispatchQueue.main.async {
                 self.snapshot = snap
+                self.slateOddsByGamePk = oddsByGamePk
                 self.isLoading = false
                 self.isRefreshing = false
             }
@@ -114,6 +123,20 @@ final class BoardViewModel: ObservableObject {
             if Task.isCancelled { break }
             await load(refresh: true)
         }
+    }
+
+    func fallbackOdds(for gamePk: Int?) -> OddsData? {
+        guard let gamePk else { return nil }
+        return slateOddsByGamePk[gamePk]
+    }
+
+    private static func buildOddsByGamePk(from bundle: SlateBundle) -> [Int: OddsData] {
+        var result: [Int: OddsData] = [:]
+        for game in bundle.schedule {
+            guard let odds = bundle.oddsMap?[game.oddsKey] ?? nil else { continue }
+            result[game.gamePk] = odds
+        }
+        return result
     }
 
     #if DEBUG

@@ -37,6 +37,7 @@ struct BoardView: View {
             .navigationBarTitleDisplayMode(.inline)
             .toolbar { titleToolbar }
         }
+        .navigationViewStyle(.stack)
         .task { await vm.loadAndPollIfNeeded() }
         .colorScheme(.dark)
     }
@@ -103,7 +104,11 @@ struct BoardView: View {
                     emptyState(for: activeMarket)
                 } else {
                     ForEach(Array(candidates.enumerated()), id: \.element.id) { index, candidate in
-                        BoardCandidateCardView(rank: index + 1, candidate: candidate)
+                        BoardCandidateCardView(
+                            rank: index + 1,
+                            candidate: candidate,
+                            fallbackOdds: vm.fallbackOdds(for: candidate.gamePk)
+                        )
                             .padding(.horizontal, 16)
                     }
                 }
@@ -221,13 +226,9 @@ struct BoardView: View {
     // MARK: - Toolbar
     private var titleToolbar: some ToolbarContent {
         ToolbarItem(placement: .principal) {
-            HStack(spacing: 6) {
-                Text("⚾")
-                    .scaledFont(size: 16)
-                Text("Board")
-                    .scaledFont(size: 17, weight: .bold, design: .monospaced)
-                    .foregroundColor(.brandText)
-            }
+            Text("Board")
+                .scaledFont(size: 17, weight: .bold, design: .monospaced)
+                .foregroundColor(.brandText)
         }
     }
 }

@@ -49,6 +49,7 @@ struct ChatView: View {
             .navigationBarTitleDisplayMode(.inline)
             .toolbar { titleToolbar }
         }
+        .navigationViewStyle(.stack)
         .colorScheme(.dark)
     }
 
@@ -90,36 +91,36 @@ struct ChatView: View {
     private var emptyState: some View {
         ScrollView {
             VStack(spacing: 20) {
-                Spacer(minLength: 20)
+                    Spacer(minLength: 20)
 
-                Text(vm.persona == "lotto"
-                     ? "Parlay builder — finds high-upside multi-leg combinations"
-                     : "Smart slate assistant with injury, odds, props, and web context")
-                    .scaledFont(size: 12, design: .monospaced)
-                    .foregroundColor(.brandTextDim)
-                    .multilineTextAlignment(.center)
-                    .padding(.horizontal, 32)
-                    .animation(.easeInOut(duration: 0.2), value: vm.persona)
+                    Text(vm.persona == "lotto"
+                         ? "Parlay builder — finds high-upside multi-leg combinations"
+                         : "Smart slate assistant with injury, odds, props, and web context")
+                        .scaledFont(size: 12, design: .monospaced)
+                        .foregroundColor(.brandTextDim)
+                        .multilineTextAlignment(.center)
+                        .padding(.horizontal, 32)
+                        .animation(.easeInOut(duration: 0.2), value: vm.persona)
 
-                ChipFlowView(
-                    chips: suggestions,
-                    disabled: vm.isAtLimit
-                ) { prompt in
-                    HapticManager.light()
-                    inputText = prompt
-                    Task { await sendMessage() }
-                }
-                .padding(.horizontal, 16)
+                    ChipFlowView(
+                        chips: suggestions,
+                        disabled: vm.isAtLimit
+                    ) { prompt in
+                        HapticManager.light()
+                        inputText = prompt
+                        Task { await sendMessage() }
+                    }
+                    .padding(.horizontal, 16)
 
-                Spacer()
+                    Spacer()
 
-                Text("Ask about today's slate, top K props, line movement, injury impact, or a specific pitcher/game.")
-                    .scaledFont(size: 12, design: .monospaced)
-                    .foregroundColor(.brandTextDim)
-                    .multilineTextAlignment(.center)
-                    .padding(.horizontal, 40)
+                    Text("Ask about today's slate, top K props, line movement, injury impact, or a specific pitcher/game.")
+                        .scaledFont(size: 12, design: .monospaced)
+                        .foregroundColor(.brandTextDim)
+                        .multilineTextAlignment(.center)
+                        .padding(.horizontal, 40)
 
-                Spacer(minLength: 20)
+                    Spacer(minLength: 20)
             }
         }
     }
@@ -129,17 +130,17 @@ struct ChatView: View {
         ScrollViewReader { proxy in
             ScrollView {
                 LazyVStack(spacing: 12) {
-                    ForEach(vm.messages) { msg in
-                        MessageBubble(message: msg)
-                            .id(msg.id)
+                        ForEach(vm.messages) { msg in
+                            MessageBubble(message: msg)
+                                .id(msg.id)
+                        }
+                        if vm.isSending {
+                            TypingIndicator()
+                                .id("typing")
+                        }
                     }
-                    if vm.isSending {
-                        TypingIndicator()
-                            .id("typing")
-                    }
-                }
-                .padding(.horizontal, 16)
-                .padding(.vertical, 12)
+                    .padding(.horizontal, 16)
+                    .padding(.vertical, 12)
             }
             .onAppear { scrollProxy = proxy }
             .onChange(of: vm.messages.count) { _ in scrollToBottom(proxy: proxy) }

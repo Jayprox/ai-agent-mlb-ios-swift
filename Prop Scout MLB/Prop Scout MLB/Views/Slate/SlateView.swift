@@ -21,6 +21,7 @@ struct SlateView: View {
             .navigationBarTitleDisplayMode(.inline)
             .toolbar { titleToolbar }
         }
+        .navigationViewStyle(.stack)
         .task { await vm.load() }
         .onDisappear { vm.stopPolling() }
         .colorScheme(.dark)
@@ -74,7 +75,9 @@ struct SlateView: View {
                             nrfi: vm.nrfi(for: game),
                             weather: vm.weather(for: game),
                             linescore: vm.linescore(for: game),
-                            kHint: vm.kHint(for: game)
+                            kHint: vm.kHint(for: game),
+                            awayPitcherEra: vm.pitcherStats(for: game.probablePitchers?.away?.id)?.era,
+                            homePitcherEra: vm.pitcherStats(for: game.probablePitchers?.home?.id)?.era
                         )
                         .padding(.horizontal, 16)
                     }
@@ -196,13 +199,9 @@ struct SlateView: View {
     // MARK: - Toolbar
     private var titleToolbar: some ToolbarContent {
         ToolbarItem(placement: .principal) {
-            HStack(spacing: 6) {
-                Text("⚾")
-                    .scaledFont(size: 16)
-                Text("Chalk That")
-                    .scaledFont(size: 17, weight: .bold, design: .monospaced)
-                    .foregroundColor(.brandText)
-            }
+            Text("Chalk That")
+                .scaledFont(size: 17, weight: .bold, design: .monospaced)
+                .foregroundColor(.brandText)
         }
     }
 }

@@ -24,6 +24,7 @@ struct PicksView: View {
             .navigationBarTitleDisplayMode(.inline)
             .toolbar { titleToolbar }
         }
+        .navigationViewStyle(.stack)
         .task {
             await vm.load()
             await vm.autoGrade()
@@ -39,39 +40,34 @@ struct PicksView: View {
     private var mainContent: some View {
         ScrollView {
             LazyVStack(spacing: 12, pinnedViews: []) {
-                // Header
-                header
-                    .padding(.horizontal, 16)
-                    .padding(.top, 8)
-
-                // Filter tabs
-                filterTabs
-                    .padding(.horizontal, 16)
-
-                // Stats tiles
-                if let stats = vm.stats {
-                    statsTiles(stats)
+                    // Filter tabs
+                    filterTabs
                         .padding(.horizontal, 16)
-                }
 
-                // Error
-                if let error = vm.errorMessage {
-                    Text(error)
-                        .scaledFont(size: 12, design: .monospaced)
-                        .foregroundColor(.brandRed)
-                        .padding(.horizontal, 16)
-                }
-
-                // Picks grouped by date
-                if vm.picks.isEmpty && !vm.isLoading {
-                    emptyState
-                } else {
-                    ForEach(vm.groupedPicks, id: \.date) { group in
-                        dateSection(group)
+                    // Stats tiles
+                    if let stats = vm.stats {
+                        statsTiles(stats)
+                            .padding(.horizontal, 16)
                     }
-                }
 
-                Spacer(minLength: 20)
+                    // Error
+                    if let error = vm.errorMessage {
+                        Text(error)
+                            .scaledFont(size: 12, design: .monospaced)
+                            .foregroundColor(.brandRed)
+                            .padding(.horizontal, 16)
+                    }
+
+                    // Picks grouped by date
+                    if vm.picks.isEmpty && !vm.isLoading {
+                        emptyState
+                    } else {
+                        ForEach(vm.groupedPicks, id: \.date) { group in
+                            dateSection(group)
+                        }
+                    }
+
+                    Spacer(minLength: 20)
             }
         }
         .refreshable { await vm.load() }
@@ -193,13 +189,9 @@ struct PicksView: View {
     private var titleToolbar: some ToolbarContent {
         Group {
             ToolbarItem(placement: .principal) {
-                HStack(spacing: 6) {
-                    Text("🗒️")
-                        .scaledFont(size: 14)
-                    Text("Picks")
-                        .scaledFont(size: 17, weight: .bold, design: .monospaced)
-                        .foregroundColor(.brandText)
-                }
+                Text("Picks")
+                    .scaledFont(size: 17, weight: .bold, design: .monospaced)
+                    .foregroundColor(.brandText)
             }
             ToolbarItem(placement: .navigationBarTrailing) {
                 HStack(spacing: 14) {

@@ -24,7 +24,7 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
-		26793CF72FD5D9B000677174 /* Prop Scout MLB.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "Prop Scout MLB.app"; sourceTree = BUILT_PRODUCTS_DIR; };
+		26793CF72FD5D9B000677174 /* Chalk That.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "Chalk That.app"; sourceTree = BUILT_PRODUCTS_DIR; };
 		26793D042FD5D9B100677174 /* Prop Scout MLBTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = "Prop Scout MLBTests.xctest"; sourceTree = BUILT_PRODUCTS_DIR; };
 		26793D0E2FD5D9B100677174 /* Prop Scout MLBUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = "Prop Scout MLBUITests.xctest"; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
@@ -85,7 +85,7 @@
 		26793CF82FD5D9B000677174 /* Products */ = {
 			isa = PBXGroup;
 			children = (
-				26793CF72FD5D9B000677174 /* Prop Scout MLB.app */,
+				26793CF72FD5D9B000677174 /* Chalk That.app */,
 				26793D042FD5D9B100677174 /* Prop Scout MLBTests.xctest */,
 				26793D0E2FD5D9B100677174 /* Prop Scout MLBUITests.xctest */,
 			);
@@ -95,9 +95,9 @@
 /* End PBXGroup section */
 
 /* Begin PBXNativeTarget section */
-		26793CF62FD5D9B000677174 /* Prop Scout MLB */ = {
+		26793CF62FD5D9B000677174 /* Chalk That */ = {
 			isa = PBXNativeTarget;
-			buildConfigurationList = 26793D182FD5D9B100677174 /* Build configuration list for PBXNativeTarget "Prop Scout MLB" */;
+			buildConfigurationList = 26793D182FD5D9B100677174 /* Build configuration list for PBXNativeTarget "Chalk That" */;
 			buildPhases = (
 				26793CF32FD5D9B000677174 /* Sources */,
 				26793CF42FD5D9B000677174 /* Frameworks */,
@@ -110,11 +110,11 @@
 			fileSystemSynchronizedGroups = (
 				26793CF92FD5D9B000677174 /* Prop Scout MLB */,
 			);
-			name = "Prop Scout MLB";
+			name = "Chalk That";
 			packageProductDependencies = (
 			);
 			productName = "Prop Scout MLB";
-			productReference = 26793CF72FD5D9B000677174 /* Prop Scout MLB.app */;
+			productReference = 26793CF72FD5D9B000677174 /* Chalk That.app */;
 			productType = "com.apple.product-type.application";
 		};
 		26793D032FD5D9B100677174 /* Prop Scout MLBTests */ = {
@@ -200,7 +200,7 @@
 			projectDirPath = "";
 			projectRoot = "";
 			targets = (
-				26793CF62FD5D9B000677174 /* Prop Scout MLB */,
+				26793CF62FD5D9B000677174 /* Chalk That */,
 				26793D032FD5D9B100677174 /* Prop Scout MLBTests */,
 				26793D0D2FD5D9B100677174 /* Prop Scout MLBUITests */,
 			);
@@ -258,12 +258,12 @@
 /* Begin PBXTargetDependency section */
 		26793D062FD5D9B100677174 /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
-			target = 26793CF62FD5D9B000677174 /* Prop Scout MLB */;
+			target = 26793CF62FD5D9B000677174 /* Chalk That */;
 			targetProxy = 26793D052FD5D9B100677174 /* PBXContainerItemProxy */;
 		};
 		26793D102FD5D9B100677174 /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
-			target = 26793CF62FD5D9B000677174 /* Prop Scout MLB */;
+			target = 26793CF62FD5D9B000677174 /* Chalk That */;
 			targetProxy = 26793D0F2FD5D9B100677174 /* PBXContainerItemProxy */;
 		};
 /* End PBXTargetDependency section */
@@ -554,7 +554,7 @@
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
 		};
-		26793D182FD5D9B100677174 /* Build configuration list for PBXNativeTarget "Prop Scout MLB" */ = {
+		26793D182FD5D9B100677174 /* Build configuration list for PBXNativeTarget "Chalk That" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				26793D192FD5D9B100677174 /* Debug */,

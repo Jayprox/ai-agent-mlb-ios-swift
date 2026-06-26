@@ -7,6 +7,7 @@ final class SlateViewModel: ObservableObject {
     @Published var nrfiMap: [String: NRFIData?] = [:]
     @Published var weatherMap: [String: WeatherData?] = [:]
     @Published var kHintsMap: [String: String?] = [:]
+    @Published var pitcherStatsMap: [Int: PitcherStats] = [:]
     @Published var liveScores: [Int: LinescoreData] = [:]
     @Published var isLoading = false
     @Published var errorMessage: String? = nil
@@ -38,7 +39,16 @@ final class SlateViewModel: ObservableObject {
                 self.kHintsMap   = bundle.kHintsMap ?? [:]
                 self.isLoading   = false
                 self.lastUpdated = Date()
+
+                // Debug: check what data we have
+                if let firstGame = bundle.schedule.first {
+                    print("DEBUG - Venue: \(firstGame.venue ?? "nil")")
+                    print("DEBUG - Away Pitcher: \(firstGame.probablePitchers?.away?.name ?? "nil")")
+                    print("DEBUG - Home Pitcher: \(firstGame.probablePitchers?.home?.name ?? "nil")")
+                    print("DEBUG - Odds Map count: \(bundle.oddsMap?.count ?? 0)")
+                }
             }
+            await loadProbablePitcherStats(for: bundle.schedule)
             startPolling()
         } catch let e as APIError {
             DispatchQueue.main.async { self.errorMessage = e.errorDescription; self.isLoading = false }
@@ -47,6 +57,40 @@ final class SlateViewModel: ObservableObject {
         }
 
         await loadModelPicksPreview()
+    }
+
+    private func loadProbablePitcherStats(for slateGames: [SlateGame]) async {
+        let pitcherIds = Set(
+            slateGames.flatMap { game in
+                [game.probablePitchers?.away?.id, game.probablePitchers?.home?.id].compactMap { $0 }
+            }
+        )
+
+        let missingIds = pitcherIds.filter { pitcherStatsMap[$0] == nil }
+        guard !missingIds.isEmpty else { return }
+
+        await withTaskGroup(of: (Int, PitcherStats?).self) { group in
+            for pitcherId in missingIds {
+                group.addTask {
+                    let stats: PitcherStats? = try? await APIClient.shared.get(
+                        path: "/api/players/\(pitcherId)/stats?group=pitching"
+                    )
+                    return (pitcherId, stats)
+                }
+            }
+
+            var fetched: [Int: PitcherStats] = [:]
+            for await (pitcherId, stats) in group {
+                if let stats {
+                    fetched[pitcherId] = stats
+                }
+            }
+
+            guard !fetched.isEmpty else { return }
+            DispatchQueue.main.async {
+                self.pitcherStatsMap.merge(fetched) { _, new in new }
+            }
+        }
     }
 
     /// Fetches the AI Board edges feed and surfaces the top 3 player-prop
@@ -131,6 +175,11 @@ final class SlateViewModel: ObservableObject {
 
     func linescore(for game: SlateGame) -> LinescoreData? {
         liveScores[game.gamePk]
+    }
+
+    func pitcherStats(for pitcherId: Int?) -> PitcherStats? {
+        guard let pitcherId else { return nil }
+        return pitcherStatsMap[pitcherId]
     }
 
     var liveCount: Int { games.filter { $0.isLive }.count }

@@ -190,7 +190,7 @@ struct GameIntelView: View {
         VStack(alignment: .leading, spacing: 10) {
             sectionLabel("WEATHER · \(game.venue?.uppercased() ?? "")")
 
-            if w.isDome {
+            if w.isDome == true {
                 HStack(spacing: 6) {
                     Image(systemName: "building.2")
                         .foregroundColor(.brandTextDim)

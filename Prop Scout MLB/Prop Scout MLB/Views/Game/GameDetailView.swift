@@ -96,9 +96,15 @@ struct GameDetailView: View {
                                 .scaledFont(size: 22, weight: .bold, design: .monospaced)
                                 .foregroundColor(.brandText)
                         }
-                        Text(game.isLive ? "\(ls.isTop ? "▲" : "▼")\(ls.inning)" : "FINAL")
-                            .scaledFont(size: 11, weight: .bold, design: .monospaced)
-                            .foregroundColor(game.isLive ? .brandRed : .brandTextMuted)
+                        if game.isLive {
+                            Text("\(ls.isTop ? "▲" : "▼")\(ls.inning)")
+                                .scaledFont(size: 11, weight: .bold, design: .monospaced)
+                                .foregroundColor(.brandRed)
+                        } else if game.isFinal {
+                            Text("FINAL")
+                                .scaledFont(size: 11, weight: .bold, design: .monospaced)
+                                .foregroundColor(.brandTextMuted)
+                        }
                     } else {
                         Text("@")
                             .scaledFont(size: 16, weight: .medium)
@@ -134,7 +140,7 @@ struct GameDetailView: View {
                 HStack(spacing: 8) {
                     // Weather badge
                     if let w = weather ?? vm.weather {
-                        if w.isDome {
+                        if w.isDome == true {
                             badge("DOME", color: .brandTextDim)
                         } else if let temp = w.tempString as String? {
                             badge(temp, color: .brandCyan)

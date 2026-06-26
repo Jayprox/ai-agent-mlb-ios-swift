@@ -46,6 +46,11 @@ struct PickCardView: View {
                             .scaledFont(size: 10, design: .monospaced)
                             .foregroundColor(.brandTextDim)
                     }
+                    if let actualStat = pick.actualStatDisplay {
+                        Text(actualStat)
+                            .scaledFont(size: 10, design: .monospaced)
+                            .foregroundColor(.brandTextMuted)
+                    }
                     if !pick.pnlDisplay.isEmpty {
                         Text(pick.pnlDisplay)
                             .scaledFont(size: 10, weight: .semibold, design: .monospaced)
