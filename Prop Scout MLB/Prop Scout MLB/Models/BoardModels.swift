@@ -484,6 +484,25 @@ struct BoardCandidate: Decodable, Identifiable {
         return f.string(from: date)
     }
 
+    var isLive: Bool {
+        guard let gt = gameTime,
+              let gameDate = ISO8601DateFormatter().date(from: gt) else { return false }
+        let now = Date()
+        // Game is live if it started (now >= gameDate) and within 4 hours
+        let fourHoursLater = gameDate.addingTimeInterval(4 * 3600)
+        return now >= gameDate && now <= fourHoursLater
+    }
+
+    var isFinished: Bool {
+        resultHit != nil || gradeStatus != nil
+    }
+
+    var isUpcoming: Bool {
+        guard let gt = gameTime,
+              let gameDate = ISO8601DateFormatter().date(from: gt) else { return false }
+        return Date() < gameDate
+    }
+
     var scoreColor: Color {
         switch score {
         case 80...: return .brandGreen

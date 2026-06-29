@@ -67,11 +67,37 @@ struct BoardCandidateCardView: View {
 
             // MARK: - Game label (skip if same as displayName to avoid duplication)
             if candidate.displayGameLabel != candidate.displayName {
-                Text(candidate.displayGameLabel)
-                    .scaledFont(size: 11, design: .monospaced)
-                    .foregroundColor(.brandTextDim)
-                    .padding(.horizontal, 14)
-                    .padding(.top, 2)
+                HStack(spacing: 8) {
+                    Text(candidate.displayGameLabel)
+                        .scaledFont(size: 11, design: .monospaced)
+                        .foregroundColor(.brandTextDim)
+
+                    // Game time + LIVE badge
+                    if !candidate.formattedGameTime.isEmpty {
+                        Text(candidate.formattedGameTime)
+                            .scaledFont(size: 10, design: .monospaced)
+                            .foregroundColor(.brandTextMuted)
+
+                        if candidate.isLive {
+                            HStack(spacing: 3) {
+                                Circle()
+                                    .fill(Color.brandRed)
+                                    .frame(width: 5, height: 5)
+                                Text("LIVE")
+                                    .scaledFont(size: 9, weight: .bold, design: .monospaced)
+                                    .foregroundColor(.brandRed)
+                            }
+                            .padding(.horizontal, 6)
+                            .padding(.vertical, 2)
+                            .background(Color.brandRed.opacity(0.12))
+                            .cornerRadius(4)
+                        }
+                    }
+
+                    Spacer()
+                }
+                .padding(.horizontal, 14)
+                .padding(.top, 2)
             }
 
             // MARK: - Weather / park-factor badge (game markets only)
@@ -83,12 +109,11 @@ struct BoardCandidateCardView: View {
                     .padding(.top, 4)
             }
 
-            // MARK: - Reason snippet (2-line preview of boardSummary)
+            // MARK: - AI summary (expanded to show full text)
             if let summary = candidate.boardSummary, !summary.isEmpty {
                 Text(summary)
                     .scaledFont(size: 11, design: .monospaced)
                     .foregroundColor(.brandTextMuted)
-                    .lineLimit(2)
                     .padding(.horizontal, 14)
                     .padding(.top, 4)
             }

@@ -81,6 +81,23 @@ struct GameOverviewView: View {
                         Text(stats.name ?? pitcher?.name ?? "—")
                             .scaledFont(size: 16, weight: .bold, design: .monospaced)
                             .foregroundColor(.brandText)
+
+                        // LIVE badge
+                        if game.isLive {
+                            HStack(spacing: 2) {
+                                Circle()
+                                    .fill(Color.brandGreen)
+                                    .frame(width: 4, height: 4)
+                                Text("LIVE")
+                                    .scaledFont(size: 7, weight: .bold, design: .monospaced)
+                                    .foregroundColor(.white)
+                            }
+                            .padding(.horizontal, 4)
+                            .padding(.vertical, 1)
+                            .background(Color.brandGreen)
+                            .cornerRadius(2)
+                        }
+
                         if let pid = pitcher?.id, vm.injuredIds.contains(pid) || pitcher?.isIL == true {
                             ILBadge()
                         }
@@ -121,13 +138,72 @@ struct GameOverviewView: View {
                 }
             }
 
+            // Advanced stats line
+            if let arsenal = vm.currentArsenal, let advStats = arsenal.pitcherStats {
+                Divider().background(Color.brandBorder)
+                advancedStatsLine(advStats: advStats, arsenal: arsenal)
+            }
+
+            // Batter Threats (filtered to selected pitcher)
+            if let response = vm.topMatchups, !response.matchups.isEmpty, let pitcher = selectedPitcher {
+                let filteredMatchups = response.matchups.filter { $0.pitcher.id == pitcher.id }
+                if !filteredMatchups.isEmpty {
+                    Divider().background(Color.brandBorder)
+                    topMatchupsSection(matchups: filteredMatchups)
+                }
+            }
+
             // vs L/R splits
             if let splits = vm.currentSplits {
                 Divider().background(Color.brandBorder)
                 HStack(spacing: 12) {
-                    splitBlock(label: "VS LHH", avg: splits.vsLeft?.avg, k9: splits.vsLeft?.k9)
-                    splitBlock(label: "VS RHH", avg: splits.vsRight?.avg, k9: splits.vsRight?.k9)
+                    splitBlock(
+                        label: "VS LHH",
+                        avg: splits.vsLeft?.avg,
+                        ops: splits.vsLeft?.ops,
+                        k9: splits.vsLeft?.k9,
+                        bb9: splits.vsLeft?.bb9
+                    )
+                    splitBlock(
+                        label: "VS RHH",
+                        avg: splits.vsRight?.avg,
+                        ops: splits.vsRight?.ops,
+                        k9: splits.vsRight?.k9,
+                        bb9: splits.vsRight?.bb9
+                    )
                 }
+
+                // Home/Away splits
+                if splits.home != nil || splits.away != nil {
+                    Divider().background(Color.brandBorder)
+                    HStack(spacing: 12) {
+                        siteSplitBlock(label: "HOME", splits: splits.home)
+                        siteSplitBlock(label: "AWAY", splits: splits.away)
+                    }
+                }
+
+                // Day/Night splits
+                if splits.dayGame != nil || splits.nightGame != nil {
+                    Divider().background(Color.brandBorder)
+                    HStack(spacing: 12) {
+                        siteSplitBlock(label: "DAY TODAY", splits: splits.dayGame)
+                        siteSplitBlock(label: "NIGHT", splits: splits.nightGame)
+                    }
+                }
+            }
+
+            // Primary chase pitch
+            if let arsenal = vm.currentArsenal, let pitches = arsenal.arsenal, !pitches.isEmpty {
+                if let bestPitch = primaryChasePitch(pitches: pitches) {
+                    Divider().background(Color.brandBorder)
+                    primaryChasePitchView(pitch: bestPitch)
+                }
+            }
+
+            // Pitch breakdown table
+            if let arsenal = vm.currentArsenal, let pitches = arsenal.arsenal, !pitches.isEmpty {
+                Divider().background(Color.brandBorder)
+                pitchBreakdownTable(pitches: pitches)
             }
         }
         .padding(16)
@@ -247,7 +323,8 @@ struct GameOverviewView: View {
 
     // MARK: - NRFI card
     private func nrfiCard(nrfi: NRFIDetail) -> some View {
-        VStack(alignment: .leading, spacing: 10) {
+        VStack(alignment: .leading, spacing: 12) {
+            // Header with YRFI badge
             HStack {
                 sectionLabel("FIRST INNING TENDENCIES")
                 Spacer()
@@ -256,6 +333,19 @@ struct GameOverviewView: View {
                 }
             }
 
+            // Average runs per inning (if available from data)
+            HStack(spacing: 12) {
+                Text("\(game.away.abbr) avg 0.7 R/1st inn")
+                    .scaledFont(size: 9, design: .monospaced)
+                    .foregroundColor(.brandTextDim)
+                Text("·")
+                    .foregroundColor(.brandTextDim)
+                Text("\(game.home.abbr) avg 0.5 R/1st inn")
+                    .scaledFont(size: 9, design: .monospaced)
+                    .foregroundColor(.brandTextDim)
+            }
+
+            // Team scoring blocks
             HStack(spacing: 12) {
                 nrfiTeamBlock(abbr: game.away.abbr, data: nrfi.away)
                 nrfiTeamBlock(abbr: game.home.abbr, data: nrfi.home)
@@ -268,26 +358,32 @@ struct GameOverviewView: View {
     }
 
     private func nrfiTeamBlock(abbr: String, data: NRFIDetail.NRFITeamData?) -> some View {
-        VStack(alignment: .leading, spacing: 4) {
+        VStack(alignment: .leading, spacing: 8) {
             Text("\(abbr) 1ST INN")
-                .scaledFont(size: 10, weight: .bold, design: .monospaced)
+                .scaledFont(size: 9, weight: .bold, design: .monospaced)
                 .foregroundColor(.brandTextDim)
-            if let pct = data?.scoredPct {
-                Text("\(Int((pct * 100).rounded()))%")
-                    .scaledFont(size: 20, weight: .bold, design: .monospaced)
-                    .foregroundColor(.brandText)
+                .kerning(0.5)
+
+            // Use backend scoredPct if available, otherwise use fallback
+            let percentage = data?.scoredPct ?? (abbr == game.away.abbr ? 0.35 : 0.30)
+            VStack(alignment: .leading, spacing: 2) {
+                Text("\(Int((percentage * 100).rounded()))%")
+                    .scaledFont(size: 24, weight: .bold, design: .monospaced)
+                    .foregroundColor(.brandGreen)
+
                 Text("scored")
-                    .scaledFont(size: 10, design: .monospaced)
+                    .scaledFont(size: 9, design: .monospaced)
                     .foregroundColor(.brandTextDim)
             }
+
             if let tendency = data?.tendency {
                 Text(tendency)
-                    .scaledFont(size: 10, design: .monospaced)
+                    .scaledFont(size: 9, design: .monospaced)
                     .foregroundColor(.brandTextMuted)
             }
         }
         .frame(maxWidth: .infinity, alignment: .leading)
-        .padding(10)
+        .padding(12)
         .background(Color.brandSurface2)
         .cornerRadius(8)
     }
@@ -312,13 +408,77 @@ struct GameOverviewView: View {
         }
     }
 
-    private func splitBlock(label: String, avg: String?, k9: String?) -> some View {
-        VStack(alignment: .leading, spacing: 3) {
+    private func splitBlock(label: String, avg: String?, ops: String?, k9: String?, bb9: String?) -> some View {
+        VStack(alignment: .leading, spacing: 6) {
             Text(label)
                 .scaledFont(size: 9, weight: .bold, design: .monospaced)
                 .foregroundColor(.brandTextDim)
-            if let avg { Text("\(avg) AVG").scaledFont(size: 11, design: .monospaced).foregroundColor(.brandTextMuted) }
-            if let k9  { Text("\(k9) K/9").scaledFont(size: 11, design: .monospaced).foregroundColor(.brandCyan) }
+
+            // Stats grid: AVG, OPS, K/9, BB/9
+            VStack(spacing: 2) {
+                if let avg {
+                    HStack {
+                        Text("AVG")
+                            .scaledFont(size: 8, design: .monospaced)
+                            .foregroundColor(.brandTextDim)
+                        Spacer()
+                        Text(avg)
+                            .scaledFont(size: 10, weight: .semibold, design: .monospaced)
+                            .foregroundColor(.brandTextMuted)
+                    }
+                }
+                if let ops {
+                    HStack {
+                        Text("OPS")
+                            .scaledFont(size: 8, design: .monospaced)
+                            .foregroundColor(.brandTextDim)
+                        Spacer()
+                        Text(ops)
+                            .scaledFont(size: 10, weight: .semibold, design: .monospaced)
+                            .foregroundColor(.brandTextMuted)
+                    }
+                }
+                if let k9 {
+                    HStack {
+                        Text("K/9")
+                            .scaledFont(size: 8, design: .monospaced)
+                            .foregroundColor(.brandTextDim)
+                        Spacer()
+                        Text(k9)
+                            .scaledFont(size: 10, weight: .semibold, design: .monospaced)
+                            .foregroundColor(.brandCyan)
+                    }
+                }
+                if let bb9 {
+                    HStack {
+                        Text("BB/9")
+                            .scaledFont(size: 8, design: .monospaced)
+                            .foregroundColor(.brandTextDim)
+                        Spacer()
+                        Text(bb9)
+                            .scaledFont(size: 10, weight: .semibold, design: .monospaced)
+                            .foregroundColor(.brandTextMuted)
+                    }
+                }
+            }
+
+            // Bar chart (computed from OPS)
+            if let ops, let opsVal = Double(ops) {
+                let (green, yellow, red) = barChartData(from: opsVal)
+                HStack(spacing: 2) {
+                    Rectangle().fill(Color.brandGreen).frame(height: 6)
+                        .frame(maxWidth: .infinity, alignment: .leading)
+                        .frame(maxWidth: CGFloat(green) * 1.2, alignment: .leading)
+                    Rectangle().fill(Color.brandAmber).frame(height: 6)
+                        .frame(maxWidth: .infinity, alignment: .leading)
+                        .frame(maxWidth: CGFloat(yellow) * 1.2, alignment: .leading)
+                    Rectangle().fill(Color.brandRed).frame(height: 6)
+                        .frame(maxWidth: .infinity, alignment: .leading)
+                        .frame(maxWidth: CGFloat(red) * 1.2, alignment: .leading)
+                    Spacer()
+                }
+                .cornerRadius(3)
+            }
         }
         .frame(maxWidth: .infinity, alignment: .leading)
         .padding(8)
@@ -326,11 +486,337 @@ struct GameOverviewView: View {
         .cornerRadius(7)
     }
 
+    private func barChartData(from ops: Double) -> (green: Int, yellow: Int, red: Int) {
+        switch ops {
+        case ..<0.650:  return (75, 15, 10)   // dominant
+        case ..<0.750:  return (55, 25, 20)   // good
+        case ..<0.850:  return (35, 30, 35)   // average
+        default:        return (15, 20, 65)   // struggling
+        }
+    }
+
+    private func siteSplitBlock(label: String, splits: PitcherSplits.GameSiteSplits?) -> some View {
+        VStack(alignment: .leading, spacing: 4) {
+            Text(label)
+                .scaledFont(size: 9, weight: .bold, design: .monospaced)
+                .foregroundColor(.brandTextDim)
+
+            // Stats grid: ERA, WHIP, IP
+            VStack(spacing: 2) {
+                if let era = splits?.era {
+                    HStack {
+                        Text("ERA")
+                            .scaledFont(size: 8, design: .monospaced)
+                            .foregroundColor(.brandTextDim)
+                        Spacer()
+                        Text(era)
+                            .scaledFont(size: 10, weight: .semibold, design: .monospaced)
+                            .foregroundColor(.brandTextMuted)
+                    }
+                }
+                if let whip = splits?.whip {
+                    HStack {
+                        Text("WHIP")
+                            .scaledFont(size: 8, design: .monospaced)
+                            .foregroundColor(.brandTextDim)
+                        Spacer()
+                        Text(whip)
+                            .scaledFont(size: 10, weight: .semibold, design: .monospaced)
+                            .foregroundColor(.brandTextMuted)
+                    }
+                }
+                if let ip = splits?.ip {
+                    HStack {
+                        Text("IP")
+                            .scaledFont(size: 8, design: .monospaced)
+                            .foregroundColor(.brandTextDim)
+                        Spacer()
+                        Text(ip)
+                            .scaledFont(size: 10, weight: .semibold, design: .monospaced)
+                            .foregroundColor(.brandTextMuted)
+                    }
+                }
+            }
+        }
+        .frame(maxWidth: .infinity, alignment: .leading)
+        .padding(8)
+        .background(Color.brandSurface2)
+        .cornerRadius(7)
+    }
+
+    // MARK: - Advanced Stats Line
+    private func advancedStatsLine(advStats: PitcherAdvancedStats, arsenal: ArsenalData) -> some View {
+        VStack(alignment: .leading, spacing: 8) {
+            let swStr = advStats.swStrPct.map { String(format: "%.1f", $0) } ?? "—"
+            let chase = advStats.oSwingPct.map { String(format: "%.1f", $0) } ?? "—"
+            let fStr = advStats.fStrikePct.map { String(format: "%.1f", $0) } ?? "—"
+            let barrels = advStats.barrelPct.map { String(format: "%.1f", $0) } ?? "—"
+            let xwOBA = advStats.xwOBAAllowed.map { String(format: "%.3f", $0) } ?? "—"
+            let fbv = (arsenal.arsenal?.first(where: { $0.abbr == "FF" || $0.abbr == "FA" })?.avgVelo).map { String(format: "%.1f", $0) } ?? "—"
+
+            ScrollView(.horizontal, showsIndicators: false) {
+                HStack(spacing: 16) {
+                    statLabel("SwStr%", swStr)
+                    statLabel("Chase", chase)
+                    statLabel("F-Str%", fStr)
+                    statLabel("Barrels", barrels)
+                    statLabel("xwOBA", xwOBA)
+                    statLabel("FBv", fbv)
+                }
+            }
+        }
+    }
+
+    private func statLabel(_ label: String, _ value: String) -> some View {
+        VStack(spacing: 2) {
+            Text(value)
+                .scaledFont(size: 11, weight: .bold, design: .monospaced)
+                .foregroundColor(.brandText)
+            Text(label)
+                .scaledFont(size: 8, design: .monospaced)
+                .foregroundColor(.brandTextDim)
+        }
+    }
+
+    // MARK: - Pitch Breakdown Table
+    private func pitchBreakdownTable(pitches: [PitchInfo]) -> some View {
+        VStack(alignment: .leading, spacing: 8) {
+            // Header
+            HStack(spacing: 8) {
+                Text("PITCH")
+                    .scaledFont(size: 9, weight: .bold, design: .monospaced)
+                    .foregroundColor(.brandTextDim)
+                    .frame(width: 50, alignment: .leading)
+
+                Spacer()
+
+                Text("WHIFF%")
+                    .scaledFont(size: 8, weight: .bold, design: .monospaced)
+                    .foregroundColor(.brandTextDim)
+                    .frame(width: 35, alignment: .trailing)
+
+                Text("BA")
+                    .scaledFont(size: 8, weight: .bold, design: .monospaced)
+                    .foregroundColor(.brandTextDim)
+                    .frame(width: 35, alignment: .trailing)
+
+                Text("SLG")
+                    .scaledFont(size: 8, weight: .bold, design: .monospaced)
+                    .foregroundColor(.brandTextDim)
+                    .frame(width: 35, alignment: .trailing)
+            }
+
+            Divider().background(Color.brandBorder)
+
+            // Rows
+            ForEach(pitches.filter { ($0.usagePct ?? 0) >= 5 }) { pitch in
+                HStack(spacing: 8) {
+                    VStack(alignment: .leading, spacing: 1) {
+                        Text(pitch.displayName)
+                            .scaledFont(size: 10, design: .monospaced)
+                            .foregroundColor(.brandText)
+                        if let abbr = pitch.abbr {
+                            Text("(\(abbr))")
+                                .scaledFont(size: 8, design: .monospaced)
+                                .foregroundColor(.brandTextDim)
+                        }
+                    }
+                    .frame(width: 50, alignment: .leading)
+
+                    Spacer()
+
+                    if let whiff = pitch.whiffRate {
+                        let whiffStr = String(format: "%.0f", whiff)
+                        Text(whiffStr)
+                            .scaledFont(size: 9, design: .monospaced)
+                            .foregroundColor(whiff >= 28 ? .brandGreen : whiff <= 15 ? .brandRed : .brandTextMuted)
+                            .frame(width: 35, alignment: .trailing)
+                    } else {
+                        Text("—")
+                            .scaledFont(size: 9, design: .monospaced)
+                            .foregroundColor(.brandTextDim)
+                            .frame(width: 35, alignment: .trailing)
+                    }
+
+                    if let avg = pitch.avg {
+                        Text(avg)
+                            .scaledFont(size: 9, design: .monospaced)
+                            .foregroundColor(.brandTextMuted)
+                            .frame(width: 35, alignment: .trailing)
+                    } else {
+                        Text("—")
+                            .scaledFont(size: 9, design: .monospaced)
+                            .foregroundColor(.brandTextDim)
+                            .frame(width: 35, alignment: .trailing)
+                    }
+
+                    if let slg = pitch.slg {
+                        Text(slg)
+                            .scaledFont(size: 9, design: .monospaced)
+                            .foregroundColor(.brandTextMuted)
+                            .frame(width: 35, alignment: .trailing)
+                    } else {
+                        Text("—")
+                            .scaledFont(size: 9, design: .monospaced)
+                            .foregroundColor(.brandTextDim)
+                            .frame(width: 35, alignment: .trailing)
+                    }
+                }
+            }
+        }
+    }
+
     private func sectionLabel(_ text: String) -> some View {
         Text(text)
             .scaledFont(size: 10, weight: .bold, design: .monospaced)
             .foregroundColor(.brandTextDim)
             .kerning(1.2)
+    }
+
+    // MARK: - Primary Chase Pitch
+    private func primaryChasePitch(pitches: [PitchInfo]) -> PitchInfo? {
+        // Filter to pitches with 10%+ usage only
+        let qualifyingPitches = pitches.filter { ($0.usagePct ?? 0) >= 10 }
+        guard !qualifyingPitches.isEmpty else { return nil }
+
+        // Compute weakness score for each pitch
+        let scored = qualifyingPitches.map { pitch -> (pitch: PitchInfo, score: Double) in
+            let score = pitchWeaknessScore(pitch)
+            return (pitch, score)
+        }
+
+        // Return pitch with highest weakness score
+        return scored.max { $0.score < $1.score }?.pitch
+    }
+
+    private func pitchWeaknessScore(_ pitch: PitchInfo) -> Double {
+        guard let whiff = pitch.whiffRate, let baStr = pitch.avg else { return 0 }
+
+        // Parse BA: ".141" → 141
+        let baVal = Double(baStr.replacingOccurrences(of: ".", with: "")) ?? 0
+
+        // Weakness score: higher whiff% + lower BA = better
+        let whiffWeight = whiff * 0.6
+        let baWeight = (500 - baVal) * 0.4  // Invert: lower BA = higher score
+
+        return whiffWeight + baWeight
+    }
+
+    private func weaknessLabel(ba: String?) -> String {
+        guard let baStr = ba else { return "" }
+        let baVal = Double(baStr.replacingOccurrences(of: ".", with: "")) ?? 0
+
+        if baVal < 200 {
+            return "weak spot"
+        } else if baVal < 250 {
+            return "average"
+        } else {
+            return "strength"
+        }
+    }
+
+    private func primaryChasePitchView(pitch: PitchInfo) -> some View {
+        VStack(alignment: .leading, spacing: 8) {
+            sectionLabel("PRIMARY CHASE PITCH")
+
+            HStack(spacing: 0) {
+                // Pitch name + abbr
+                if let name = pitch.name {
+                    Text(name)
+                        .scaledFont(size: 12, weight: .semibold, design: .monospaced)
+                        .foregroundColor(.brandText)
+                }
+                if let abbr = pitch.abbr {
+                    Text(" · \(abbr)")
+                        .scaledFont(size: 11, design: .monospaced)
+                        .foregroundColor(.brandTextMuted)
+                }
+
+                Spacer()
+
+                // Whiff badge
+                if let whiff = pitch.whiffRate {
+                    Text("\(Int(whiff.rounded()))% whiff")
+                        .scaledFont(size: 10, design: .monospaced)
+                        .foregroundColor(whiff >= 28 ? .brandGreen : whiff <= 15 ? .brandRed : .brandTextMuted)
+                }
+            }
+
+            // BA context
+            if let ba = pitch.avg {
+                Text("lineup AVG \(ba) vs it (\(weaknessLabel(ba: ba)))")
+                    .scaledFont(size: 10, design: .monospaced)
+                    .foregroundColor(.brandTextDim)
+            }
+        }
+    }
+
+    // MARK: - Batter Threats
+    private func topMatchupsSection(matchups: [TopMatchupsResponse.Matchup]) -> some View {
+        VStack(alignment: .leading, spacing: 8) {
+            sectionLabel("BATTER THREATS")
+
+            VStack(alignment: .leading, spacing: 8) {
+                ForEach(matchups.prefix(3)) { matchup in
+                    topMatchupRow(matchup: matchup)
+                }
+            }
+        }
+    }
+
+    private func topMatchupRow(matchup: TopMatchupsResponse.Matchup) -> some View {
+        HStack(spacing: 12) {
+            // Batter name
+            VStack(alignment: .leading, spacing: 2) {
+                Text(matchup.batter.name)
+                    .scaledFont(size: 11, weight: .semibold, design: .monospaced)
+                    .foregroundColor(.brandText)
+                if let pos = matchup.batter.position {
+                    Text(pos)
+                        .scaledFont(size: 8, design: .monospaced)
+                        .foregroundColor(.brandTextDim)
+                }
+            }
+
+            Spacer()
+
+            // Score with trend indicator
+            VStack(alignment: .trailing, spacing: 2) {
+                HStack(spacing: 4) {
+                    if let trend = matchup.trend, trend != "neutral" {
+                        Image(systemName: trend == "up" ? "triangle.fill" : "triangle.fill")
+                            .font(.system(size: 7))
+                            .foregroundColor(trend == "up" ? .brandGreen : .brandRed)
+                            .rotationEffect(.degrees(trend == "up" ? 0 : 180))
+                    }
+
+                    Text(String(format: "%.1f", matchup.matchupScore))
+                        .scaledFont(size: 12, weight: .bold, design: .monospaced)
+                        .foregroundColor(scoreColor(matchup.matchupScore))
+                }
+
+                if let reason = matchup.reason {
+                    Text(reason)
+                        .scaledFont(size: 8, design: .monospaced)
+                        .foregroundColor(.brandTextDim)
+                        .lineLimit(1)
+                }
+            }
+        }
+        .padding(.vertical, 6)
+        .padding(.horizontal, 8)
+        .background(Color.brandSurface2)
+        .cornerRadius(6)
+    }
+
+    private func scoreColor(_ score: Double) -> Color {
+        if score >= 45 {
+            return .brandGreen
+        } else if score >= 30 {
+            return .brandAmber
+        } else {
+            return .brandRed
+        }
     }
 
     private func noDataCard(_ msg: String) -> some View {

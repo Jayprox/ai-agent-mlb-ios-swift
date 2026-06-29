@@ -39,10 +39,48 @@ struct GameLineupView: View {
                             order: idx + 1,
                             batter: batter,
                             pitcherId: pitcher?.id,
-                            isInjured: vm.injuredIds.contains(batter.id)
+                            topMatchups: vm.topMatchups,
+                            isInjured: vm.injuredIds.contains(batter.id),
+                            isLive: game.isLive
                         )
                         .padding(.horizontal, 16)
                     }
+
+                    // Matchup score legend
+                    VStack(alignment: .leading, spacing: 10) {
+                        Divider().background(Color.brandBorder)
+
+                        HStack(spacing: 16) {
+                            VStack(alignment: .leading, spacing: 4) {
+                                HStack(spacing: 6) {
+                                    Circle().fill(Color(red: 0.35, green: 0.85, blue: 0.35)).frame(width: 6, height: 6)
+                                    Text("< 35").scaledFont(size: 9, design: .monospaced).foregroundColor(.brandTextDim)
+                                }
+                                Text("Pitcher Edge").scaledFont(size: 8, design: .monospaced).foregroundColor(.brandTextMuted)
+                            }
+
+                            VStack(alignment: .leading, spacing: 4) {
+                                HStack(spacing: 6) {
+                                    Circle().fill(Color(red: 1.0, green: 0.75, blue: 0.3)).frame(width: 6, height: 6)
+                                    Text("35-54").scaledFont(size: 9, design: .monospaced).foregroundColor(.brandTextDim)
+                                }
+                                Text("Neutral").scaledFont(size: 8, design: .monospaced).foregroundColor(.brandTextMuted)
+                            }
+
+                            VStack(alignment: .leading, spacing: 4) {
+                                HStack(spacing: 6) {
+                                    Circle().fill(Color(red: 0.9, green: 0.35, blue: 0.35)).frame(width: 6, height: 6)
+                                    Text("55+").scaledFont(size: 9, design: .monospaced).foregroundColor(.brandTextDim)
+                                }
+                                Text("Batter Edge").scaledFont(size: 8, design: .monospaced).foregroundColor(.brandTextMuted)
+                            }
+
+                            Spacer()
+                        }
+                        .padding(.horizontal, 12)
+                        .padding(.vertical, 10)
+                    }
+                    .padding(.horizontal, 16)
                 }
 
                 Spacer(minLength: 20)
@@ -79,7 +117,9 @@ struct ExpandableBatterRowView: View {
     let order: Int
     let batter: LineupBatter
     let pitcherId: Int?
+    let topMatchups: TopMatchupsResponse?
     var isInjured: Bool = false
+    var isLive: Bool = false
 
     @State private var isExpanded = false
     @State private var h2h: H2HStats? = nil
@@ -88,6 +128,7 @@ struct ExpandableBatterRowView: View {
     @State private var statSplits: BatterSplits? = nil
     @State private var gamelog: BatterGamelog? = nil
     @State private var rbiContext: RBIContext? = nil
+    @State private var arsenalVsBatter: ArsenalVsBatterResponse? = nil
     @State private var loadedOnce = false
 
     var body: some View {
@@ -106,37 +147,92 @@ struct ExpandableBatterRowView: View {
                         .foregroundColor(.brandTextDim)
                         .frame(width: 16)
 
-                    VStack(alignment: .leading, spacing: 2) {
+                    VStack(alignment: .leading, spacing: 3) {
+                        // Name with LIVE, HOT/COLD and IL badges
                         HStack(spacing: 6) {
                             Text(batter.name ?? "—")
-                                .scaledFont(size: 13, weight: .semibold, design: .monospaced)
+                                .scaledFont(size: 12, weight: .semibold, design: .monospaced)
                                 .foregroundColor(.brandText)
+
+                            // LIVE badge
+                            if isLive {
+                                HStack(spacing: 2) {
+                                    Circle()
+                                        .fill(Color.brandGreen)
+                                        .frame(width: 4, height: 4)
+                                    Text("LIVE")
+                                        .scaledFont(size: 7, weight: .bold, design: .monospaced)
+                                        .foregroundColor(.white)
+                                }
+                                .padding(.horizontal, 4)
+                                .padding(.vertical, 1)
+                                .background(Color.brandGreen)
+                                .cornerRadius(2)
+                            }
+
+                            // HOT/COLD badge
+                            if let hot = batter.recentForm?.hotStreak, hot {
+                                Text("HOT")
+                                    .scaledFont(size: 7, weight: .bold, design: .monospaced)
+                                    .foregroundColor(.black)
+                                    .padding(.horizontal, 4)
+                                    .padding(.vertical, 1)
+                                    .background(Color(red: 0.35, green: 0.85, blue: 0.35))
+                                    .cornerRadius(2)
+                            } else if let cold = batter.recentForm?.coldStreak, cold {
+                                Text("COLD")
+                                    .scaledFont(size: 7, weight: .bold, design: .monospaced)
+                                    .foregroundColor(.black)
+                                    .padding(.horizontal, 4)
+                                    .padding(.vertical, 1)
+                                    .background(Color(red: 0.9, green: 0.35, blue: 0.35))
+                                    .cornerRadius(2)
+                            }
+
                             if isInjured {
                                 ILBadge()
                             }
                         }
-                        HStack(spacing: 4) {
+
+                        // Stats line: POS LH AVG
+                        HStack(spacing: 6) {
                             if let pos = batter.position {
                                 Text(pos)
-                                    .scaledFont(size: 10, design: .monospaced)
+                                    .scaledFont(size: 8, design: .monospaced)
                                     .foregroundColor(.brandTextDim)
                             }
                             if let side = batter.batSide {
-                                Text("·")
-                                    .foregroundColor(.brandTextDim)
                                 Text("\(side)H")
-                                    .scaledFont(size: 10, design: .monospaced)
+                                    .scaledFont(size: 8, design: .monospaced)
                                     .foregroundColor(.brandTextDim)
+                            }
+                            // Always show avg (fallback to dash)
+                            Text(batter.avg ?? "—")
+                                .scaledFont(size: 8, design: .monospaced)
+                                .foregroundColor(.brandTextMuted)
+                        }
+
+                        // Indicator dots
+                        HStack(spacing: 3) {
+                            ForEach(0..<4, id: \.self) { _ in
+                                Circle()
+                                    .fill(Color.brandCyan)
+                                    .frame(width: 3, height: 3)
                             }
                         }
                     }
 
                     Spacer()
 
-                    if let avg = batter.avg {
-                        Text(avg)
-                            .scaledFont(size: 12, weight: .semibold, design: .monospaced)
-                            .foregroundColor(.brandTextMuted)
+                    // Matchup score (colored box)
+                    if let score = matchupScore(for: batter) {
+                        Text(String(format: "%.1f", score))
+                            .scaledFont(size: 12, weight: .bold, design: .monospaced)
+                            .foregroundColor(.black)
+                            .padding(.horizontal, 8)
+                            .padding(.vertical, 4)
+                            .background(matchupScoreBackgroundColor(score))
+                            .cornerRadius(4)
                     }
 
                     Image(systemName: isExpanded ? "chevron.up" : "chevron.down")
@@ -144,7 +240,8 @@ struct ExpandableBatterRowView: View {
                         .foregroundColor(.brandTextDim)
                 }
                 .padding(.horizontal, 14)
-                .padding(.vertical, 11)
+                .padding(.vertical, 12)
+                .contentShape(Rectangle())
             }
             .buttonStyle(.plain)
 
@@ -268,6 +365,32 @@ struct ExpandableBatterRowView: View {
                             }
                         }
                     }
+
+                    // Arsenal vs batter (pitch-by-pitch analysis)
+                    if let arsenal = arsenalVsBatter {
+                        VStack(alignment: .leading, spacing: 10) {
+                            Text("PITCH ANALYSIS")
+                                .scaledFont(size: 9, weight: .bold, design: .monospaced)
+                                .foregroundColor(.brandTextDim)
+                                .kerning(1.2)
+
+                            VStack(spacing: 12) {
+                                ForEach(arsenal.arsenal) { pitch in
+                                    pitchCard(pitch: pitch)
+                                }
+                            }
+                        }
+                    } else if pitcherId != nil && !loadedOnce {
+                        VStack(alignment: .leading, spacing: 6) {
+                            Text("PITCH ANALYSIS")
+                                .scaledFont(size: 9, weight: .bold, design: .monospaced)
+                                .foregroundColor(.brandTextDim)
+                                .kerning(1.2)
+                            Text("Loading…")
+                                .scaledFont(size: 10, design: .monospaced)
+                                .foregroundColor(.brandTextDim)
+                        }
+                    }
                 }
                 .padding(.horizontal, 14)
                 .padding(.bottom, 12)
@@ -307,14 +430,18 @@ struct ExpandableBatterRowView: View {
             async let h2hTask: H2HStats? = try? APIClient.shared.get(
                 path: "/api/players/\(batterId)/vs/\(pitcherId)"
             )
-            let (s, sp, ssp, gl, rbi, h) = await (statsTask, splitsTask, statSplitsTask, gamelogTask, rbiTask, h2hTask)
+            async let arsenalTask: ArsenalVsBatterResponse? = try? APIClient.shared.get(
+                path: "/api/arsenal/\(pitcherId)/vs/\(batterId)"
+            )
+            let (s, sp, ssp, gl, rbi, h, ars) = await (statsTask, splitsTask, statSplitsTask, gamelogTask, rbiTask, h2hTask, arsenalTask)
             DispatchQueue.main.async {
                 self.stats = s
                 self.splits = sp
                 self.statSplits = ssp
                 self.gamelog = gl
                 self.rbiContext = rbi
-                self.h2h   = h
+                self.h2h = h
+                self.arsenalVsBatter = ars
             }
         } else {
             let (s, sp, ssp, gl, rbi) = await (statsTask, splitsTask, statSplitsTask, gamelogTask, rbiTask)
@@ -370,5 +497,188 @@ struct ExpandableBatterRowView: View {
         .padding(.vertical, 6)
         .background(Color.brandSurface2)
         .cornerRadius(6)
+    }
+
+    // MARK: - Pitch card
+    private func pitchCard(pitch: ArsenalVsBatterResponse.PitchCard) -> some View {
+        VStack(alignment: .leading, spacing: 8) {
+            // Header: pitch name, label badge, velo
+            HStack(spacing: 8) {
+                HStack(spacing: 6) {
+                    Text(pitch.abbr)
+                        .scaledFont(size: 9, weight: .bold, design: .monospaced)
+                        .foregroundColor(.white)
+                        .padding(.horizontal, 5)
+                        .padding(.vertical, 2)
+                        .background(pitch.pitchColorValue)
+                        .cornerRadius(3)
+
+                    Text(pitch.type)
+                        .scaledFont(size: 11, weight: .semibold, design: .monospaced)
+                        .foregroundColor(.brandText)
+                }
+
+                Spacer()
+
+                // Label badge
+                Text(pitch.label)
+                    .scaledFont(size: 8, weight: .bold, design: .monospaced)
+                    .foregroundColor(.white)
+                    .padding(.horizontal, 6)
+                    .padding(.vertical, 2)
+                    .background(pitch.labelBackgroundColor)
+                    .cornerRadius(3)
+            }
+
+            // Pitch stats: velo, usage, whiff
+            HStack(spacing: 12) {
+                if let velo = pitch.velo {
+                    HStack(spacing: 4) {
+                        Text(velo)
+                            .scaledFont(size: 10, weight: .semibold, design: .monospaced)
+                            .foregroundColor(.brandText)
+                        Text("mph")
+                            .scaledFont(size: 8, design: .monospaced)
+                            .foregroundColor(.brandTextDim)
+                    }
+                }
+
+                Text("•")
+                    .foregroundColor(.brandTextDim)
+
+                Text("\(pitch.pct)% usage")
+                    .scaledFont(size: 10, design: .monospaced)
+                    .foregroundColor(.brandTextDim)
+
+                if let whiff = pitch.whiffPct {
+                    Text("•")
+                        .foregroundColor(.brandTextDim)
+                    Text("\(whiff)% whiff")
+                        .scaledFont(size: 10, design: .monospaced)
+                        .foregroundColor(.brandTextDim)
+                }
+            }
+
+            // YoY velocity delta
+            if let badge = pitch.velocityBadge {
+                Text(badge)
+                    .scaledFont(size: 9, weight: .semibold, design: .monospaced)
+                    .foregroundColor(pitch.velocityBadgeColor)
+            }
+
+            Divider().background(Color.brandBorder)
+
+            // Usage bar
+            ZStack(alignment: .leading) {
+                RoundedRectangle(cornerRadius: 2)
+                    .fill(Color.brandSurface2)
+                    .frame(height: 4)
+
+                RoundedRectangle(cornerRadius: 2)
+                    .fill(pitch.pitchColorValue)
+                    .frame(width: CGFloat(pitch.pct) / 100 * 200, height: 4)
+            }
+            .frame(maxWidth: 200)
+
+            // Batter vs pitch stats
+            HStack(spacing: 12) {
+                if let avg = pitch.batterAvg {
+                    VStack(spacing: 2) {
+                        Text(avg)
+                            .scaledFont(size: 11, weight: .bold, design: .monospaced)
+                            .foregroundColor(.brandText)
+                        Text("AVG")
+                            .scaledFont(size: 7, design: .monospaced)
+                            .foregroundColor(.brandTextDim)
+                    }
+                }
+
+                if let whiff = pitch.batterWhiff {
+                    VStack(spacing: 2) {
+                        Text(whiff)
+                            .scaledFont(size: 11, weight: .bold, design: .monospaced)
+                            .foregroundColor(.brandText)
+                        Text("WHIFF")
+                            .scaledFont(size: 7, design: .monospaced)
+                            .foregroundColor(.brandTextDim)
+                    }
+                }
+
+                if let slg = pitch.batterSlg {
+                    VStack(spacing: 2) {
+                        Text(slg)
+                            .scaledFont(size: 11, weight: .bold, design: .monospaced)
+                            .foregroundColor(.brandText)
+                        Text("SLG")
+                            .scaledFont(size: 7, design: .monospaced)
+                            .foregroundColor(.brandTextDim)
+                    }
+                }
+
+                Spacer()
+            }
+
+            // Note
+            if let note = pitch.note {
+                Text(note)
+                    .scaledFont(size: 9, design: .monospaced)
+                    .foregroundColor(.brandTextMuted)
+                    .lineLimit(2)
+            }
+
+            // Risk note
+            if let riskNote = pitch.riskNote {
+                HStack(spacing: 6) {
+                    Image(systemName: "exclamationmark.circle.fill")
+                        .scaledFont(size: 10)
+                    Text(riskNote)
+                        .scaledFont(size: 9, design: .monospaced)
+                        .lineLimit(2)
+                }
+                .foregroundColor(pitch.label == "WEAK SPOT" ? Color(red: 0.94, green: 0.26, blue: 0.26) : Color(red: 0.13, green: 0.78, blue: 0.35))
+                .padding(8)
+                .background(pitch.label == "WEAK SPOT" ?
+                    Color(red: 0.94, green: 0.26, blue: 0.26, opacity: 0.1) :
+                    Color(red: 0.13, green: 0.78, blue: 0.35, opacity: 0.1))
+                .cornerRadius(4)
+            }
+        }
+        .padding(10)
+        .background(Color.brandSurface2)
+        .cornerRadius(6)
+    }
+
+    // MARK: - Status Badge helpers
+    private var statusBadgeText: String? {
+        // Use batter's season average
+        guard let avgStr = batter.avg, let avgVal = Double(avgStr) else { return nil }
+
+        if avgVal > 0.300 {
+            return "HOT"
+        } else if avgVal < 0.200 {
+            return "COLD"
+        }
+
+        return nil
+    }
+
+    private var statusBadgeColor: Color? {
+        guard let text = statusBadgeText else { return nil }
+        return text == "HOT" ? Color.brandGreen : text == "COLD" ? Color.brandRed : nil
+    }
+
+    // MARK: - Matchup Score helpers
+    private func matchupScore(for batter: LineupBatter) -> Double? {
+        return batter.matchupScore
+    }
+
+    private func matchupScoreBackgroundColor(_ score: Double) -> Color {
+        if score >= 55 {
+            return Color(red: 0.9, green: 0.35, blue: 0.35)  // Light red - Batter Edge
+        } else if score >= 35 {
+            return Color(red: 1.0, green: 0.75, blue: 0.3)   // Light amber - Neutral
+        } else {
+            return Color(red: 0.35, green: 0.85, blue: 0.35) // Light green - Pitcher Edge
+        }
     }
 }

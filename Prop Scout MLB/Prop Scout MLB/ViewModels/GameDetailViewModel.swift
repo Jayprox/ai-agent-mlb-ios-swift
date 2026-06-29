@@ -22,6 +22,7 @@ final class GameDetailViewModel: ObservableObject {
     @Published var bullpen: BullpenData? = nil
     @Published var linescore: LinescoreData? = nil
     @Published var boxscore: Boxscore? = nil
+    @Published var topMatchups: TopMatchupsResponse? = nil
     @Published var injuredIds: Set<Int> = []
 
     // Intel tab
@@ -77,6 +78,14 @@ final class GameDetailViewModel: ObservableObject {
                     path: "/api/nrfi/\(gamePk)"
                 )
                 await MainActor.run { self.nrfi = d }
+            }
+
+            // Top Matchups
+            group.addTask {
+                let d: TopMatchupsResponse? = try? await APIClient.shared.get(
+                    path: "/api/game/\(gamePk)/matchups?limit=9"
+                )
+                await MainActor.run { self.topMatchups = d }
             }
 
             // Bullpen

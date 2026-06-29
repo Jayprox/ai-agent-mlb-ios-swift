@@ -3,6 +3,7 @@ import SwiftUI
 struct SettingsView: View {
     @EnvironmentObject var auth: AuthViewModel
     @State private var showSignOutConfirm = false
+    @State private var showHelp = false
 
     private let books = ["DK", "FD", "CZR", "MGM", "BOV"]
     private let bookNames = [
@@ -67,11 +68,32 @@ struct SettingsView: View {
 
                         // MARK: - App info
                         sectionCard(title: "APP") {
-                            infoRow(label: "Version", value: "1.0.0")
+                            infoRow(label: "Version", value: "1.1.0")
                             Divider().background(Color.brandBorder).padding(.leading, 16)
                             infoRow(label: "Backend", value: "Railway ✓")
                             Divider().background(Color.brandBorder).padding(.leading, 16)
                             infoRow(label: "Board", value: "Refreshes 10 AM HI")
+                        }
+
+                        // MARK: - Help
+                        sectionCard(title: "HELP") {
+                            Button {
+                                showHelp = true
+                            } label: {
+                                HStack {
+                                    Text("Help & Guide")
+                                        .scaledFont(size: 13, design: .monospaced)
+                                        .foregroundColor(.brandText)
+                                    Spacer()
+                                    Image(systemName: "chevron.right")
+                                        .scaledFont(size: 11)
+                                        .foregroundColor(.brandTextDim)
+                                }
+                                .padding(.horizontal, 16)
+                                .padding(.vertical, 12)
+                                .frame(minHeight: 44)
+                                .contentShape(Rectangle())
+                            }
                         }
 
                         // MARK: - Legal
@@ -143,6 +165,9 @@ struct SettingsView: View {
         }
         .navigationViewStyle(.stack)
         .colorScheme(.dark)
+        .sheet(isPresented: $showHelp) {
+            HelpView()
+        }
     }
 
     // MARK: - User card

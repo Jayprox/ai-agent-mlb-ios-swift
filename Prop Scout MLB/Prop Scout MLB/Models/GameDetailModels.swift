@@ -1,4 +1,5 @@
 import Foundation
+import SwiftUI
 
 // MARK: - Pitcher stats
 struct PitcherStats: Decodable {
@@ -35,17 +36,43 @@ struct PitcherGameEntry: Decodable, Identifiable {
     let result: String?
 }
 
-// MARK: - Pitcher splits (vs L/R)
+// MARK: - Pitcher splits (vs L/R + Home/Away + Day/Night)
 struct PitcherSplits: Decodable {
     let pitcherId: Int?
+    let season: Int?
+
+    // Platoon splits
     let vsLeft: SplitLine?
     let vsRight: SplitLine?
 
+    // Game site splits
+    let home: GameSiteSplits?
+    let away: GameSiteSplits?
+
+    // Time of day splits
+    let dayGame: GameSiteSplits?
+    let nightGame: GameSiteSplits?
+
     struct SplitLine: Decodable {
-        let avg: String?
-        let ops: String?
-        let k9: String?
-        let bb9: String?
+        let avg: String?      // Batting average against
+        let ops: String?      // Opponent OPS
+        let k9: String?       // Strikeouts per 9 innings
+        let bb9: String?      // Walks per 9 innings
+    }
+
+    struct GameSiteSplits: Decodable {
+        let era: String?      // Earned run average
+        let whip: String?     // Walks + hits per IP
+        let ip: String?       // Innings pitched (sample size)
+        let k9: String?       // Strikeouts per 9 innings
+        let bb9: String?      // Walks per 9 innings
+    }
+
+    enum CodingKeys: String, CodingKey {
+        case pitcherId, season
+        case vsLeft = "vsL"    // Backend uses vsL as alias
+        case vsRight = "vsR"   // Backend uses vsR as alias
+        case home, away, dayGame, nightGame
     }
 }
 
@@ -79,17 +106,37 @@ struct LineupBatter: Decodable, Identifiable {
     let position: String?
     let batSide: String?
     let avg: String?
+    let matchupScore: Double?
+    let recentForm: RecentForm?
 
     enum CodingKeys: String, CodingKey {
         case id2 = "id"
-        case name, order, position, batSide, avg
+        case name, order, position, batSide, avg, matchupScore, recentForm
     }
+}
+
+struct RecentForm: Decodable {
+    let hotStreak: Bool?
+    let coldStreak: Bool?
+    let hrLast15: Int?
+    let hrPer15AB: Double?
+    let last15Games: Int?
+}
+
+// MARK: - Advanced Pitcher Stats
+struct PitcherAdvancedStats: Decodable {
+    let swStrPct: Double?        // Swinging strike %
+    let oSwingPct: Double?       // Chase % (outside swing %)
+    let fStrikePct: Double?      // First strike %
+    let barrelPct: Double?       // Barrel %
+    let xwOBAAllowed: Double?    // Expected wOBA
 }
 
 // MARK: - Arsenal (Savant pitch mix)
 struct ArsenalData: Decodable {
     let pitcherId: Int?
     let season: Int?
+    let pitcherStats: PitcherAdvancedStats?
     let arsenal: [PitchInfo]?
 }
 
@@ -296,10 +343,36 @@ struct UmpireData: Decodable {
     }
 
     struct UmpireStats: Decodable {
+        // Basic stats
         let kRate: String?
         let bbRate: String?
         let tendency: String?
         let rating: String?
+
+        // Enhanced metrics
+        let accuracy: String?           // e.g. "94.4%"
+        let vsExp: String?              // e.g. "+1.37%"
+        let consistency: String?        // e.g. "95.5%"
+        let favorPerGame: String?       // e.g. "0.60"
+
+        // Status badges
+        let scorecardLive: Bool?
+        let scoreStatus: String?        // "ACCURATE" | "BIASED" | "NEUTRAL"
+
+        // Current game status
+        let gameStatus: String?         // "Awaiting assignment" | "Active" | etc.
+
+        // Season stats
+        let season: Int?
+        let gamesWorked: Int?
+        let totalCalls: Int?
+
+        enum CodingKeys: String, CodingKey {
+            case kRate, bbRate, tendency, rating
+            case accuracy, vsExp, consistency, favorPerGame
+            case scorecardLive, scoreStatus, gameStatus
+            case season, gamesWorked, totalCalls
+        }
     }
 }
 
@@ -507,6 +580,101 @@ struct ScoutNote: Decodable, Identifiable {
         let f = DateFormatter()
         f.dateFormat = "MMM d"
         return f.string(from: date)
+    }
+}
+
+// MARK: - Top Matchups
+struct TopMatchupsResponse: Decodable {
+    let gamePk: Int
+    let matchups: [Matchup]
+    let note: String?
+
+    struct Matchup: Decodable, Identifiable {
+        var id: String { "\(batter.id)-\(pitcher.id)" }
+
+        let batter: Player
+        let pitcher: Player
+        let matchupScore: Double
+        let trend: String?      // "up" | "down" | "neutral"
+        let reason: String?
+
+        struct Player: Decodable {
+            let id: Int
+            let name: String
+            let position: String?   // only on batter
+        }
+    }
+}
+
+// MARK: - Arsenal vs Batter (pitch-by-pitch analysis)
+struct ArsenalVsBatterResponse: Decodable {
+    let pitcherId: Int
+    let batterId: Int
+    let season: Int
+    let arsenal: [PitchCard]
+    let pitcherStats: PitcherAdvancedStats?
+
+    struct PitchCard: Decodable, Identifiable {
+        var id: String { abbr }
+
+        // Pitcher pitch info
+        let abbr: String
+        let type: String
+        let pct: Int
+        let velo: String?
+        let whiffPct: Int?
+        let color: String
+        let prevVelo: String?
+
+        // Batter vs pitch
+        let batterAvg: String?
+        let batterWhiff: String?
+        let batterSlg: String?
+
+        // Pre-computed labels
+        let label: String              // "HANDLES" | "WEAK SPOT" | "NEUTRAL"
+        let note: String?
+        let riskNote: String?
+
+        /// YoY velocity delta (positive = gained velo)
+        var veloDelta: Double? {
+            guard let cur = Double(velo ?? ""), let prev = Double(prevVelo ?? "") else { return nil }
+            return cur - prev
+        }
+
+        /// Velocity delta badge string
+        var velocityBadge: String? {
+            guard let delta = veloDelta, abs(delta) >= 0.4 else { return nil }
+            if delta >= 1.5 {
+                return "▲ +\(String(format: "%.1f", delta)) mph YoY"
+            } else if delta > 0 {
+                return "▲ +\(String(format: "%.1f", delta)) mph YoY"
+            } else if delta <= -1.5 {
+                return "▼ \(String(format: "%.1f", delta)) mph YoY"
+            } else {
+                return "▼ \(String(format: "%.1f", delta)) mph YoY"
+            }
+        }
+
+        var labelBackgroundColor: Color {
+            switch label {
+            case "HANDLES": return Color(red: 0.13, green: 0.78, blue: 0.35)       // green #22c55e
+            case "WEAK SPOT": return Color(red: 0.94, green: 0.26, blue: 0.26)     // red #ef4444
+            default: return Color(red: 0.96, green: 0.62, blue: 0.07)              // amber #f59e0b
+            }
+        }
+
+        var velocityBadgeColor: Color {
+            guard let delta = veloDelta else { return .gray }
+            if delta >= 0.4 { return Color(red: 0.13, green: 0.78, blue: 0.35) }   // green
+            if delta <= -1.5 { return Color(red: 0.94, green: 0.26, blue: 0.26) }  // red
+            return Color(red: 0.96, green: 0.62, blue: 0.07)                       // amber
+        }
+
+        var pitchColorValue: Color {
+            // color is hex string like "#38bdf8"
+            Color(hex: color)
+        }
     }
 }
 

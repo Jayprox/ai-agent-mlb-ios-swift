@@ -3,44 +3,32 @@ import SwiftUI
 struct GameIntelView: View {
     let game: SlateGame
     @ObservedObject var vm: GameDetailViewModel
-    @State private var noteText: String = ""
-    @FocusState private var noteFieldFocused: Bool
 
     var body: some View {
         ScrollView {
             VStack(spacing: 14) {
 
-                // MARK: - AI Trend Analysis
-                trendsCard
-                    .padding(.horizontal, 16)
-                    .padding(.top, 12)
-
-                // MARK: - NRFI
-                if let nrfi = vm.nrfi {
-                    nrfiCard(nrfi)
-                        .padding(.horizontal, 16)
-                }
-
                 // MARK: - Weather
                 if let w = vm.weather {
                     weatherCard(w)
                         .padding(.horizontal, 16)
+                        .padding(.top, 12)
+                } else {
+                    placeholderCard("WEATHER · \(game.venue?.uppercased() ?? "STADIUM")", "Loading…")
+                        .padding(.horizontal, 16)
+                        .padding(.top, 12)
                 }
+
+                // MARK: - Park Factors
+                parkFactorsCard
+                    .padding(.horizontal, 16)
 
                 // MARK: - Umpire
-                if let ump = vm.umpire?.homePlate {
-                    umpireCard(ump)
-                        .padding(.horizontal, 16)
-                }
+                umpireCard(vm.umpire?.homePlate)
+                    .padding(.horizontal, 16)
 
-                // MARK: - Odds
-                if let o = vm.odds {
-                    oddsCard(o)
-                        .padding(.horizontal, 16)
-                }
-
-                // MARK: - Scout Notes
-                notesCard
+                // MARK: - AI Trend Analysis
+                trendsCard
                     .padding(.horizontal, 16)
 
                 Spacer(minLength: 20)
@@ -49,7 +37,6 @@ struct GameIntelView: View {
         .background(Color.brandBackground)
         .task {
             await vm.loadTrends()
-            await vm.loadNotes()
         }
     }
 
@@ -129,31 +116,31 @@ struct GameIntelView: View {
         .overlay(RoundedRectangle(cornerRadius: 10).stroke(Color.brandBorder, lineWidth: 1))
     }
 
-    // MARK: - NRFI card
-    private func nrfiCard(_ nrfi: NRFIDetail) -> some View {
-        VStack(alignment: .leading, spacing: 10) {
+    // MARK: - Park Factors card
+    private var parkFactorsCard: some View {
+        VStack(alignment: .leading, spacing: 12) {
             HStack {
-                sectionLabel("NRFI ANALYSIS")
+                sectionLabel("PARK FACTORS · \(game.venue?.uppercased() ?? "STADIUM")")
                 Spacer()
-                if let lean = nrfi.lean, let conf = nrfi.confidence {
-                    HStack(spacing: 4) {
-                        Text(lean.uppercased())
-                            .scaledFont(size: 11, weight: .bold, design: .monospaced)
-                            .foregroundColor(lean.uppercased() == "NRFI" ? .brandGreen : .brandRed)
-                        Text("\(conf)%")
-                            .scaledFont(size: 10, design: .monospaced)
-                            .foregroundColor(.brandTextDim)
-                    }
-                    .padding(.horizontal, 8)
-                    .padding(.vertical, 4)
-                    .background((lean.uppercased() == "NRFI" ? Color.brandGreen : Color.brandRed).opacity(0.10))
-                    .cornerRadius(6)
-                }
+                Text("\(game.home.abbr) · Hitter-Friendly")
+                    .scaledFont(size: 9, weight: .semibold, design: .monospaced)
+                    .foregroundColor(.brandAmber)
+                    .padding(.horizontal, 6)
+                    .padding(.vertical, 3)
+                    .background(Color.brandAmber.opacity(0.15))
+                    .cornerRadius(4)
             }
 
-            HStack(spacing: 12) {
-                nrfiTeam(abbr: game.away.abbr, data: nrfi.away)
-                nrfiTeam(abbr: game.home.abbr, data: nrfi.home)
+            VStack(alignment: .leading, spacing: 8) {
+                HStack(spacing: 12) {
+                    parkFactorCell("HR FACTOR", "1.07x")
+                    parkFactorCell("HIT FACTOR", "1.03x")
+                    parkFactorCell("K FACTOR", "0.99x")
+                }
+                Text("Multi-year FanGraphs avg · >1.0 = hitter-friendly · affects HIT, TR & NRFI props")
+                    .scaledFont(size: 9, design: .monospaced)
+                    .foregroundColor(.brandTextDim)
+                    .lineLimit(3)
             }
         }
         .padding(16)
@@ -162,27 +149,19 @@ struct GameIntelView: View {
         .overlay(RoundedRectangle(cornerRadius: 10).stroke(Color.brandBorder, lineWidth: 1))
     }
 
-    private func nrfiTeam(abbr: String, data: NRFIDetail.NRFITeamData?) -> some View {
-        VStack(alignment: .leading, spacing: 6) {
-            Text(abbr)
-                .scaledFont(size: 11, weight: .bold, design: .monospaced)
-                .foregroundColor(.brandText)
-            if let scored = data?.scoredPct {
-                statRow("SCORED 1st", "\(Int(scored * 100))%")
-            }
-            if let avg = data?.avgRuns {
-                statRow("AVG RUNS/1st", String(format: "%.2f", avg))
-            }
-            if let tendency = data?.tendency {
-                Text(tendency)
-                    .scaledFont(size: 9, design: .monospaced)
-                    .foregroundColor(.brandTextDim)
-            }
+    private func parkFactorCell(_ label: String, _ value: String) -> some View {
+        VStack(spacing: 4) {
+            Text(value)
+                .scaledFont(size: 13, weight: .bold, design: .monospaced)
+                .foregroundColor(.brandCyan)
+            Text(label)
+                .scaledFont(size: 8, design: .monospaced)
+                .foregroundColor(.brandTextDim)
         }
-        .frame(maxWidth: .infinity, alignment: .leading)
-        .padding(10)
+        .frame(maxWidth: .infinity)
+        .padding(8)
         .background(Color.brandSurface2)
-        .cornerRadius(8)
+        .cornerRadius(6)
     }
 
     // MARK: - Weather card
@@ -199,29 +178,31 @@ struct GameIntelView: View {
                         .foregroundColor(.brandTextDim)
                 }
             } else {
-                HStack(alignment: .top) {
-                    Text(w.tempString)
-                        .scaledFont(size: 36, weight: .bold, design: .monospaced)
-                        .foregroundColor(.brandText)
-                    Spacer()
-                    if w.windspeed != nil {
-                        VStack(alignment: .trailing, spacing: 4) {
-                            Text(w.windLabel)
-                                .scaledFont(size: 13, weight: .semibold, design: .monospaced)
-                                .foregroundColor(.brandCyan)
-                            Text("WIND")
-                                .scaledFont(size: 9, design: .monospaced)
-                                .foregroundColor(.brandTextDim)
-                        }
-                    }
-                }
+                // Temperature
+                Text(w.tempString)
+                    .scaledFont(size: 36, weight: .bold, design: .monospaced)
+                    .foregroundColor(.brandText)
+
+                // Weather metrics grid (2x2)
                 LazyVGrid(columns: [GridItem(.flexible()), GridItem(.flexible())], spacing: 8) {
                     if let humidity = w.relativehumidity {
                         infoCell("HUMIDITY", "\(Int(humidity))%")
+                    } else {
+                        infoCell("HUMIDITY", "—")
                     }
+
                     infoCell("ROOF", "Open Air")
+
                     if let rain = w.precipitation_probability {
                         infoCell("RAIN CHANCE", "\(Int(rain))%")
+                    } else {
+                        infoCell("RAIN CHANCE", "—")
+                    }
+
+                    if w.windspeed != nil {
+                        infoCell("WIND", w.windLabel)
+                    } else {
+                        infoCell("WIND", "—")
                     }
                 }
             }
@@ -233,35 +214,100 @@ struct GameIntelView: View {
     }
 
     // MARK: - Umpire card
-    private func umpireCard(_ ump: UmpireData.HomePlateUmpire) -> some View {
-        VStack(alignment: .leading, spacing: 10) {
+    private func umpireCard(_ ump: UmpireData.HomePlateUmpire?) -> some View {
+        VStack(alignment: .leading, spacing: 12) {
             sectionLabel("HOME PLATE UMPIRE")
-            HStack {
-                VStack(alignment: .leading, spacing: 4) {
-                    Text(ump.name ?? "TBA")
-                        .scaledFont(size: 15, weight: .bold, design: .monospaced)
-                        .foregroundColor(.brandText)
-                    if let tendency = ump.stats?.tendency {
-                        Text(tendency)
-                            .scaledFont(size: 11, design: .monospaced)
-                            .foregroundColor(.brandTextMuted)
+
+            // Header: Name + Status badges
+            HStack(spacing: 8) {
+                Text(ump?.name ?? "TBD")
+                    .scaledFont(size: 15, weight: .bold, design: .monospaced)
+                    .foregroundColor(.brandText)
+
+                Spacer()
+
+                // Score status badge
+                if let status = ump?.stats?.scoreStatus {
+                    let bgColor: Color = status == "ACCURATE" ? .brandGreen :
+                                        status == "BIASED" ? .brandRed :
+                                        .brandAmber
+                    Text(status)
+                        .scaledFont(size: 8, weight: .bold, design: .monospaced)
+                        .foregroundColor(.white)
+                        .padding(.horizontal, 6)
+                        .padding(.vertical, 3)
+                        .background(bgColor)
+                        .cornerRadius(4)
+                } else {
+                    // Default badge when data unavailable
+                    Text("NEUTRAL UMP")
+                        .scaledFont(size: 8, weight: .bold, design: .monospaced)
+                        .foregroundColor(.white)
+                        .padding(.horizontal, 6)
+                        .padding(.vertical, 3)
+                        .background(Color.brandAmber)
+                        .cornerRadius(4)
+                }
+            }
+
+            // Scorecard live + Game status
+            VStack(alignment: .leading, spacing: 4) {
+                if ump?.stats?.scorecardLive == true {
+                    HStack(spacing: 4) {
+                        Image(systemName: "checkmark.circle.fill")
+                            .scaledFont(size: 9)
+                        Text("SCORECARD LIVE")
+                            .scaledFont(size: 9, weight: .bold, design: .monospaced)
+                    }
+                    .foregroundColor(.brandGreen)
+                }
+
+                if let gameStatus = ump?.stats?.gameStatus {
+                    Text(gameStatus)
+                        .scaledFont(size: 10, design: .monospaced)
+                        .foregroundColor(.brandTextMuted)
+                } else {
+                    // Default status when awaiting assignment
+                    Text("Awaiting assignment")
+                        .scaledFont(size: 10, design: .monospaced)
+                        .foregroundColor(.brandTextMuted)
+                }
+            }
+
+            // Performance metrics (2x2 grid) - only show if data available
+            if ump?.stats?.accuracy != nil || ump?.stats?.consistency != nil {
+                VStack(spacing: 10) {
+                    HStack(spacing: 10) {
+                        if let accuracy = ump?.stats?.accuracy {
+                            metricCell("ACCURACY", accuracy)
+                        }
+                        if let vsExp = ump?.stats?.vsExp {
+                            metricCell("VS EXP", vsExp)
+                        }
+                    }
+
+                    HStack(spacing: 10) {
+                        if let consistency = ump?.stats?.consistency {
+                            metricCell("CONSISTENCY", consistency)
+                        }
+                        if let favor = ump?.stats?.favorPerGame {
+                            metricCell("FAVOR/GM", favor)
+                        }
                     }
                 }
-                Spacer()
-                if let rating = ump.stats?.rating {
-                    let isPitcher = rating.lowercased().contains("pitcher")
-                    Text(isPitcher ? "PITCHER UMP" : "NEUTRAL UMP")
-                        .scaledFont(size: 9, weight: .bold, design: .monospaced)
-                        .foregroundColor(isPitcher ? .brandCyan : .brandAmber)
-                        .padding(.horizontal, 7)
-                        .padding(.vertical, 4)
-                        .background((isPitcher ? Color.brandCyan : Color.brandAmber).opacity(0.12))
-                        .cornerRadius(5)
-                }
             }
-            HStack(spacing: 8) {
-                if let kRate = ump.stats?.kRate { infoCell("K RATE", kRate) }
-                if let bbRate = ump.stats?.bbRate { infoCell("BB RATE", bbRate) }
+
+            // K Rate + BB Rate grid
+            HStack(spacing: 10) {
+                infoCell("K RATE", ump?.stats?.kRate ?? "—")
+                infoCell("BB RATE", ump?.stats?.bbRate ?? "—")
+            }
+
+            // Tendency
+            if let tendency = ump?.stats?.tendency {
+                Text(tendency)
+                    .scaledFont(size: 10, design: .monospaced)
+                    .foregroundColor(.brandTextMuted)
             }
         }
         .padding(16)
@@ -270,121 +316,28 @@ struct GameIntelView: View {
         .overlay(RoundedRectangle(cornerRadius: 10).stroke(Color.brandBorder, lineWidth: 1))
     }
 
-    // MARK: - Odds card
-    private func oddsCard(_ o: OddsData) -> some View {
-        VStack(alignment: .leading, spacing: 10) {
-            HStack {
-                sectionLabel("ODDS & LINE MOVEMENT")
-                Spacer()
-                if let book = o.book {
-                    Text(book)
-                        .scaledFont(size: 10, weight: .bold, design: .monospaced)
-                        .foregroundColor(.brandGreen)
-                }
-            }
-            HStack(spacing: 12) {
-                if let awayML = o.awayML, let homeML = o.homeML {
-                    oddsCell("ML", "\(awayML) / \(homeML)")
-                }
-                if let total = o.total {
-                    oddsCell("O/U", total)
-                }
-                if let awayRL = o.awaySpread, let homeRL = o.homeSpread {
-                    oddsCell("RL", "\(awayRL) / \(homeRL)")
-                }
-            }
-            .padding(12)
-            .background(Color.brandSurface2)
-            .cornerRadius(8)
-        }
-        .padding(16)
-        .background(Color.brandSurface)
-        .cornerRadius(10)
-        .overlay(RoundedRectangle(cornerRadius: 10).stroke(Color.brandBorder, lineWidth: 1))
-    }
-
-    private func oddsCell(_ label: String, _ value: String) -> some View {
-        VStack(spacing: 3) {
-            Text(label)
-                .scaledFont(size: 9, design: .monospaced)
-                .foregroundColor(.brandTextDim)
+    private func metricCell(_ label: String, _ value: String) -> some View {
+        VStack(spacing: 4) {
             Text(value)
-                .scaledFont(size: 12, weight: .semibold, design: .monospaced)
-                .foregroundColor(label == "O/U" ? .brandAmber : .brandText)
+                .scaledFont(size: 14, weight: .bold, design: .monospaced)
+                .foregroundColor(.brandCyan)
+            Text(label)
+                .scaledFont(size: 8, design: .monospaced)
+                .foregroundColor(.brandTextDim)
         }
         .frame(maxWidth: .infinity)
+        .padding(10)
+        .background(Color.brandSurface2)
+        .cornerRadius(6)
     }
 
-    // MARK: - Scout notes card
-    private var notesCard: some View {
+    // MARK: - Placeholder card
+    private func placeholderCard(_ title: String, _ text: String) -> some View {
         VStack(alignment: .leading, spacing: 10) {
-            sectionLabel("SCOUT NOTES")
-
-            // Existing notes
-            if !vm.notes.isEmpty {
-                VStack(spacing: 6) {
-                    ForEach(vm.notes) { note in
-                        VStack(alignment: .leading, spacing: 4) {
-                            Text(note.note ?? "")
-                                .scaledFont(size: 12, design: .monospaced)
-                                .foregroundColor(.brandTextMuted)
-                                .fixedSize(horizontal: false, vertical: true)
-                            HStack(spacing: 4) {
-                                if let user = note.username {
-                                    Text(user)
-                                        .scaledFont(size: 9, design: .monospaced)
-                                        .foregroundColor(.brandTextDim)
-                                }
-                                Text("· \(note.displayDate)")
-                                    .scaledFont(size: 9, design: .monospaced)
-                                    .foregroundColor(.brandTextDim)
-                            }
-                        }
-                        .padding(10)
-                        .frame(maxWidth: .infinity, alignment: .leading)
-                        .background(Color.brandSurface2)
-                        .cornerRadius(7)
-                    }
-                }
-            }
-
-            // Note input
-            HStack(spacing: 8) {
-                TextField("Add a scout note…", text: $noteText, axis: .vertical)
-                    .scaledFont(size: 12, design: .monospaced)
-                    .foregroundColor(.brandText)
-                    .focused($noteFieldFocused)
-                    .lineLimit(1...4)
-                    .padding(10)
-                    .background(Color.brandSurface2)
-                    .cornerRadius(8)
-                    .overlay(RoundedRectangle(cornerRadius: 8).stroke(
-                        noteFieldFocused ? Color.brandGreen.opacity(0.5) : Color.brandBorder,
-                        lineWidth: 1
-                    ))
-
-                Button {
-                    let text = noteText
-                    noteText = ""
-                    noteFieldFocused = false
-                    HapticManager.light()
-                    Task { await vm.saveNote(text) }
-                } label: {
-                    Group {
-                        if vm.isSavingNote {
-                            ProgressView().tint(.brandBackground)
-                        } else {
-                            Image(systemName: "arrow.up")
-                                .scaledFont(size: 14, weight: .bold)
-                                .foregroundColor(.brandBackground)
-                        }
-                    }
-                    .frame(width: 36, height: 36)
-                    .background(noteText.isEmpty ? Color.brandTextDim : Color.brandGreen)
-                    .cornerRadius(8)
-                }
-                .disabled(noteText.isEmpty || vm.isSavingNote)
-            }
+            sectionLabel(title)
+            Text(text)
+                .scaledFont(size: 12, design: .monospaced)
+                .foregroundColor(.brandTextDim)
         }
         .padding(16)
         .background(Color.brandSurface)

@@ -4,6 +4,16 @@ struct BoardView: View {
     @StateObject private var vm = BoardViewModel()
     @EnvironmentObject var picksVM: PicksViewModel
     @State private var showingGames = false
+    @State private var gameFilter: GameFilter = .all
+
+    enum GameFilter: String, CaseIterable, Identifiable {
+        case all = "All"
+        case live = "Live"
+        case upcoming = "Upcoming"
+        case finished = "Finished"
+
+        var id: String { rawValue }
+    }
 
     var body: some View {
         NavigationView {
@@ -19,7 +29,13 @@ struct BoardView: View {
                     if showingGames {
                         gameSubTabBar
                             .background(Color.brandSurface2)
+
+                        Divider().background(Color.brandBorder)
                     }
+
+                    // MARK: - Game status filter (always visible)
+                    gameFilterBar
+                        .background(Color.brandSurface2)
 
                     Divider().background(Color.brandBorder)
 
@@ -79,6 +95,30 @@ struct BoardView: View {
         .frame(height: 36)
     }
 
+    // MARK: - Game status filter bar
+    private var gameFilterBar: some View {
+        ScrollView(.horizontal, showsIndicators: false) {
+            HStack(spacing: 8) {
+                ForEach(GameFilter.allCases) { filter in
+                    Button {
+                        gameFilter = filter
+                    } label: {
+                        Text(filter.rawValue)
+                            .scaledFont(size: 11, weight: gameFilter == filter ? .bold : .medium, design: .monospaced)
+                            .foregroundColor(gameFilter == filter ? .brandGreen : .brandTextMuted)
+                            .padding(.horizontal, 12)
+                            .padding(.vertical, 6)
+                            .background(gameFilter == filter ? Color.brandGreen.opacity(0.12) : Color.clear)
+                            .cornerRadius(6)
+                    }
+                }
+                Spacer()
+            }
+            .padding(.horizontal, 16)
+        }
+        .frame(height: 36)
+    }
+
     // MARK: - Candidate list
     private var candidateList: some View {
         ScrollView {
@@ -96,9 +136,7 @@ struct BoardView: View {
                 }
 
                 let activeMarket = showingGames ? vm.selectedGameMarket : vm.selectedMarket
-                let candidates = showingGames
-                    ? (vm.snapshot?.candidates(for: vm.selectedGameMarket) ?? [])
-                    : vm.currentCandidates
+                let candidates = filteredCandidates
 
                 if candidates.isEmpty && vm.snapshot != nil {
                     emptyState(for: activeMarket)
@@ -121,20 +159,20 @@ struct BoardView: View {
 
     // MARK: - Empty state
     private func emptyState(for market: BoardMarket) -> some View {
-        // hr/hits depend on confirmed-or-roster lineups, which often aren't
-        // posted yet earlier in the day. The snapshot now always returns
-        // these keys (possibly as `[]`), so an empty result here means
-        // "checked, nothing qualifies yet" rather than "no data at all."
         let isLineupDependent = market == .hr || market == .hits
+
+        // Determine message based on filter selection
+        let (title, subtitle) = emptyStateMessage(isLineupDependent: isLineupDependent)
+
         return VStack(spacing: 12) {
             Image(systemName: "chart.bar.xaxis")
                 .scaledFont(size: 32)
                 .foregroundColor(.brandTextDim)
                 .padding(.top, 40)
-            Text(isLineupDependent ? "Lineups not yet posted" : "No board data yet")
+            Text(title)
                 .scaledFont(size: 13, design: .monospaced)
                 .foregroundColor(.brandTextMuted)
-            Text(isLineupDependent ? "Check back closer to first pitch" : "Refreshes daily at 10 AM HI")
+            Text(subtitle)
                 .scaledFont(size: 11, design: .monospaced)
                 .foregroundColor(.brandTextDim)
 
@@ -221,6 +259,45 @@ struct BoardView: View {
         }
         .frame(minWidth: 52)
         .padding(.horizontal, 6)
+    }
+
+    // MARK: - Empty state message
+    private func emptyStateMessage(isLineupDependent: Bool) -> (title: String, subtitle: String) {
+        if gameFilter == .finished {
+            return ("No finished games", "Games graded will appear here")
+        }
+        if gameFilter == .live {
+            return ("No live games", "Games in progress will appear here")
+        }
+        if gameFilter == .upcoming {
+            return ("No upcoming games", "Games not yet started will appear here")
+        }
+        // Default: .all filter or no specific filter
+        if isLineupDependent {
+            return ("Lineups not yet posted", "Check back closer to first pitch")
+        }
+        return ("No board data yet", "Refreshes daily at 10 AM HI")
+    }
+
+    // MARK: - Filtered candidates
+    private var filteredCandidates: [BoardCandidate] {
+        let baseList = showingGames
+            ? (vm.snapshot?.candidates(for: vm.selectedGameMarket) ?? [])
+            : vm.currentCandidates
+
+        // Apply game status filter to all tabs
+        return baseList.filter { candidate in
+            switch gameFilter {
+            case .all:
+                return true
+            case .live:
+                return candidate.isLive
+            case .upcoming:
+                return candidate.isUpcoming
+            case .finished:
+                return candidate.isFinished
+            }
+        }
     }
 
     // MARK: - Toolbar

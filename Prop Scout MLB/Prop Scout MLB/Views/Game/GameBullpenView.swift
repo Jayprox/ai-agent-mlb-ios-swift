@@ -228,42 +228,48 @@ struct GameBullpenView: View {
 
     // MARK: - Reliever row
     private func relieverRow(_ r: BullpenData.Reliever) -> some View {
-        HStack(spacing: 8) {
-            VStack(alignment: .leading, spacing: 2) {
-                HStack(spacing: 4) {
-                    Text(r.name ?? "—")
-                        .scaledFont(size: 12, weight: .semibold, design: .monospaced)
-                        .foregroundColor(.brandText)
-                        .lineLimit(1)
-                    if let role = r.role {
-                        Text(role)
-                            .scaledFont(size: 8, weight: .bold, design: .monospaced)
-                            .foregroundColor(.brandCyan)
-                    }
-                    if let hand = r.hand {
-                        Text(hand)
-                            .scaledFont(size: 8, design: .monospaced)
-                            .foregroundColor(.brandTextDim)
-                    }
+        VStack(alignment: .leading, spacing: 6) {
+            // Name with role and hand
+            HStack(spacing: 4) {
+                Text(r.name ?? "—")
+                    .scaledFont(size: 12, weight: .semibold, design: .monospaced)
+                    .foregroundColor(.brandText)
+                if let role = r.role {
+                    Text(role)
+                        .scaledFont(size: 8, weight: .bold, design: .monospaced)
+                        .foregroundColor(.brandCyan)
                 }
-                HStack(spacing: 6) {
-                    if let lastApp = r.lastApp {
-                        Text(lastApp)
-                            .scaledFont(size: 9, design: .monospaced)
-                            .foregroundColor(.brandTextDim)
-                    }
-                    if let status = r.status {
-                        Text(status)
-                            .scaledFont(size: 8, weight: .bold, design: .monospaced)
-                            .foregroundColor(status.uppercased() == "FRESH" ? .brandGreen : .brandRed)
-                    }
+                if let hand = r.hand {
+                    Text(hand)
+                        .scaledFont(size: 8, design: .monospaced)
+                        .foregroundColor(.brandTextDim)
                 }
+                Spacer()
             }
-            .frame(maxWidth: .infinity, alignment: .leading)
 
-            if let era = r.era { statChip("ERA", era) }
-            if let whip = r.whip { statChip("WHIP", whip) }
-            if let k9 = r.k9 { statChip("K/9", k9) }
+            // Last app and status
+            HStack(spacing: 6) {
+                if let lastApp = r.lastApp {
+                    Text(lastApp)
+                        .scaledFont(size: 9, design: .monospaced)
+                        .foregroundColor(.brandTextDim)
+                }
+                if let status = r.status {
+                    Text(status)
+                        .scaledFont(size: 8, weight: .bold, design: .monospaced)
+                        .foregroundColor(status.uppercased() == "FRESH" ? .brandGreen : .brandRed)
+                }
+                Spacer()
+            }
+
+            // Stats row
+            HStack(spacing: 8) {
+                if let era = r.era { statChip("ERA", era) }
+                if let whip = r.whip { statChip("WHIP", whip) }
+                if let pitches = r.pitches { statChip("PITCHES", "\(pitches)") }
+                if let k9 = r.k9 { statChip("K/9", k9) }
+                if let bb9 = r.bb9 { statChip("BB/9", bb9) }
+            }
         }
         .padding(.horizontal, 12)
         .padding(.vertical, 8)

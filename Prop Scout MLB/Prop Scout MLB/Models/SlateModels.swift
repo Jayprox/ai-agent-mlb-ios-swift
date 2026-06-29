@@ -129,9 +129,8 @@ struct WeatherData: Decodable {
     let winddirection: Double?
     let weathercode: Int?
     let precipitation_probability: Double?
+    let relativehumidity: Double?
     let isDome: Bool?  // Backend should provide this explicitly
-
-    var relativehumidity: Double? { nil } // returned separately by weather API
 
     var tempString: String {
         guard let t = temp else { return "DOME" }
@@ -140,13 +139,41 @@ struct WeatherData: Decodable {
 
     var windLabel: String {
         guard let speed = windspeed, let dir = winddirection else { return "" }
-        return "\(Int(speed)) mph \(compassLabel(for: dir))"
+        return "\(Int(speed)) mph \(fieldWindLabel(for: dir))"
     }
 
-    private func compassLabel(for degrees: Double) -> String {
-        let dirs = ["N","NNE","NE","ENE","E","ESE","SE","SSE","S","SSW","SW","WSW","W","WNW","NW","NNW"]
-        let index = Int((degrees / 22.5).rounded()) % 16
-        return dirs[max(0, min(15, index))]
+    /// Convert wind direction (degrees) to field-relative label
+    /// 0° = N, 90° = E, 180° = S, 270° = W
+    /// Baseball field: Home plate faces toward pitcher's mound in center
+    /// Assume field orientation: LF=90°/East, CF=0°/North, RF=270°/West
+    private func fieldWindLabel(for degrees: Double) -> String {
+        // Normalize to 0-360
+        let normalized = ((degrees.truncatingRemainder(dividingBy: 360)) + 360).truncatingRemainder(dividingBy: 360)
+
+        // Determine field direction and whether wind is blowing OUT (away) or IN (toward)
+        // OUT = wind is blowing toward the field (outfield)
+        // IN = wind is blowing toward home plate (infield)
+
+        switch normalized {
+        case 0..<22.5, 337.5..<360:     // N: toward center field
+            return "OUT to CF"
+        case 22.5..<67.5:                // NE: toward right-center
+            return "OUT to RF"
+        case 67.5..<112.5:               // E: toward right field
+            return "OUT to RF"
+        case 112.5..<157.5:              // SE: toward right field/infield
+            return "IN from RF"
+        case 157.5..<202.5:              // S: toward home/infield
+            return "IN"
+        case 202.5..<247.5:              // SW: toward left field/infield
+            return "IN from LF"
+        case 247.5..<292.5:              // W: toward left field
+            return "OUT to LF"
+        case 292.5..<337.5:              // NW: toward left-center
+            return "OUT to LF"
+        default:
+            return "OUT to CF"
+        }
     }
 }
 
