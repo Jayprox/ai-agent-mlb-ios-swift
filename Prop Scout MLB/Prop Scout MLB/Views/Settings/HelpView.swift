@@ -1,12 +1,9 @@
 import SwiftUI
 
 struct HelpView: View {
-    @Environment(\.dismiss) var dismiss
-
     var body: some View {
-        NavigationView {
-            ScrollView {
-                VStack(alignment: .leading, spacing: 16) {
+        ScrollView {
+            VStack(alignment: .center, spacing: 20) {
                     // MARK: - Section 1: Reading the Slate Card
                     helpSection(
                         title: "Reading the Slate Card",
@@ -110,23 +107,12 @@ struct HelpView: View {
 
                     Spacer(minLength: 20)
                 }
-                .padding(.horizontal, 16)
-                .padding(.vertical, 12)
+                .padding(.horizontal, 14)
+                .padding(.vertical, 16)
             }
             .background(Color.brandBackground)
             .navigationTitle("Help & Guide")
             .navigationBarTitleDisplayMode(.inline)
-            .toolbar {
-                ToolbarItem(placement: .navigationBarTrailing) {
-                    Button(action: { dismiss() }) {
-                        Image(systemName: "xmark.circle.fill")
-                            .scaledFont(size: 18)
-                            .foregroundColor(.brandTextMuted)
-                    }
-                }
-            }
-        }
-        .navigationViewStyle(.stack)
     }
 
     // MARK: - Help Section Component
@@ -135,7 +121,7 @@ struct HelpView: View {
             // Section header
             HStack {
                 Text(title.uppercased())
-                    .scaledFont(size: 10, weight: .bold, design: .monospaced)
+                    .scaledFont(size: 12, weight: .bold, design: .monospaced)
                     .foregroundColor(.brandTextDim)
                     .kerning(1.2)
                 Spacer()
@@ -151,10 +137,10 @@ struct HelpView: View {
                     VStack(alignment: .leading, spacing: 3) {
                         HStack(spacing: 6) {
                             Text(item.0)
-                                .scaledFont(size: 9, weight: .bold, design: .monospaced)
+                                .scaledFont(size: 11, weight: .bold, design: .monospaced)
                                 .foregroundColor(.black)
-                                .padding(.horizontal, 6)
-                                .padding(.vertical, 2)
+                                .padding(.horizontal, 8)
+                                .padding(.vertical, 3)
                                 .background(accentColor)
                                 .cornerRadius(3)
 
@@ -162,9 +148,9 @@ struct HelpView: View {
                         }
 
                         Text(item.1)
-                            .scaledFont(size: 10, design: .monospaced)
+                            .scaledFont(size: 11, design: .monospaced)
                             .foregroundColor(.brandTextMuted)
-                            .lineSpacing(2)
+                            .lineSpacing(3)
                     }
 
                     if idx < items.count - 1 {

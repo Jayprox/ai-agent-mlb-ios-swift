@@ -3,7 +3,6 @@ import SwiftUI
 struct SettingsView: View {
     @EnvironmentObject var auth: AuthViewModel
     @State private var showSignOutConfirm = false
-    @State private var showHelp = false
 
     private let books = ["DK", "FD", "CZR", "MGM", "BOV"]
     private let bookNames = [
@@ -77,9 +76,7 @@ struct SettingsView: View {
 
                         // MARK: - Help
                         sectionCard(title: "HELP") {
-                            Button {
-                                showHelp = true
-                            } label: {
+                            NavigationLink(destination: HelpView()) {
                                 HStack {
                                     Text("Help & Guide")
                                         .scaledFont(size: 13, design: .monospaced)
@@ -165,9 +162,6 @@ struct SettingsView: View {
         }
         .navigationViewStyle(.stack)
         .colorScheme(.dark)
-        .sheet(isPresented: $showHelp) {
-            HelpView()
-        }
     }
 
     // MARK: - User card

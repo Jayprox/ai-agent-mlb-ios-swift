@@ -5,6 +5,7 @@ struct BoardView: View {
     @EnvironmentObject var picksVM: PicksViewModel
     @State private var showingGames = false
     @State private var gameFilter: GameFilter = .all
+    @Environment(\.horizontalSizeClass) var sizeClass
 
     enum GameFilter: String, CaseIterable, Identifiable {
         case all = "All"
@@ -13,6 +14,10 @@ struct BoardView: View {
         case finished = "Finished"
 
         var id: String { rawValue }
+    }
+
+    private var isIpad: Bool {
+        sizeClass == .regular
     }
 
     var body: some View {
@@ -33,12 +38,6 @@ struct BoardView: View {
                         Divider().background(Color.brandBorder)
                     }
 
-                    // MARK: - Game status filter (always visible)
-                    gameFilterBar
-                        .background(Color.brandSurface2)
-
-                    Divider().background(Color.brandBorder)
-
                     // MARK: - Content
                     if vm.isLoading && vm.snapshot == nil {
                         ScrollView { BoardSkeletonList() }
@@ -58,41 +57,111 @@ struct BoardView: View {
         .colorScheme(.dark)
     }
 
-    // MARK: - Primary tabs: HR / Hits / K / Outs / Games
+    // MARK: - Primary tabs: HR / Hits / K / Outs / Games (Adaptive for iPhone/iPad)
     private var primaryTabBar: some View {
-        ScrollView(.horizontal, showsIndicators: false) {
-            HStack(spacing: 0) {
-                ForEach(BoardMarket.primaryTabs) { market in
-                    tabButton(market, isSelected: !showingGames && vm.selectedMarket == market) {
-                        vm.selectedMarket = market
-                        showingGames = false
+        Group {
+            if isIpad {
+                // iPad: All tabs in one row, spread equally
+                HStack(spacing: 8) {
+                    ForEach(BoardMarket.primaryTabs) { market in
+                        tabButton(market, isSelected: !showingGames && vm.selectedMarket == market) {
+                            vm.selectedMarket = market
+                            showingGames = false
+                        }
+                    }
+                    // Games tab
+                    tabButton(label: "Games", color: .brandTextMuted,
+                              isSelected: showingGames,
+                              isGames: true) {
+                        showingGames = true
                     }
                 }
-                // Games tab
-                tabButton(label: "Games", color: .brandTextMuted,
-                          isSelected: showingGames,
-                          isGames: true) {
-                    showingGames = true
+                .padding(.horizontal, 12)
+            } else {
+                // iPhone: Two-row layout (3 + 2)
+                VStack(spacing: 6) {
+                    // Row 1: HR, Hits, K
+                    HStack(spacing: 6) {
+                        tabButton(BoardMarket.hr, isSelected: !showingGames && vm.selectedMarket == .hr) {
+                            vm.selectedMarket = .hr
+                            showingGames = false
+                        }
+                        tabButton(BoardMarket.hits, isSelected: !showingGames && vm.selectedMarket == .hits) {
+                            vm.selectedMarket = .hits
+                            showingGames = false
+                        }
+                        tabButton(BoardMarket.k, isSelected: !showingGames && vm.selectedMarket == .k) {
+                            vm.selectedMarket = .k
+                            showingGames = false
+                        }
+                    }
+
+                    // Row 2: Outs, Games
+                    HStack(spacing: 6) {
+                        tabButton(BoardMarket.outs, isSelected: !showingGames && vm.selectedMarket == .outs) {
+                            vm.selectedMarket = .outs
+                            showingGames = false
+                        }
+                        tabButton(label: "Games", color: .brandTextMuted,
+                                  isSelected: showingGames,
+                                  isGames: true) {
+                            showingGames = true
+                        }
+                        Spacer()
+                    }
                 }
+                .padding(.horizontal, 8)
             }
-            .padding(.horizontal, 8)
         }
-        .frame(height: 44)
+        .frame(height: isIpad ? 54 : 108)
     }
 
-    // MARK: - Game sub-tabs
+    // MARK: - Game sub-tabs (Adaptive for iPhone/iPad)
     private var gameSubTabBar: some View {
-        ScrollView(.horizontal, showsIndicators: false) {
-            HStack(spacing: 0) {
-                ForEach(BoardMarket.gameTabs) { market in
-                    tabButton(market, isSelected: vm.selectedGameMarket == market) {
-                        vm.selectedGameMarket = market
+        Group {
+            if isIpad {
+                // iPad: All tabs in one row, spread equally
+                HStack(spacing: 8) {
+                    ForEach(BoardMarket.gameTabs) { market in
+                        tabButton(market, isSelected: vm.selectedGameMarket == market) {
+                            vm.selectedGameMarket = market
+                        }
                     }
                 }
+                .padding(.horizontal, 12)
+            } else {
+                // iPhone: Two-row layout (3 + 3)
+                VStack(spacing: 6) {
+                    // Row 1: NRFI, Total, ML
+                    HStack(spacing: 6) {
+                        tabButton(BoardMarket.nrfi, isSelected: vm.selectedGameMarket == .nrfi) {
+                            vm.selectedGameMarket = .nrfi
+                        }
+                        tabButton(BoardMarket.total, isSelected: vm.selectedGameMarket == .total) {
+                            vm.selectedGameMarket = .total
+                        }
+                        tabButton(BoardMarket.ml, isSelected: vm.selectedGameMarket == .ml) {
+                            vm.selectedGameMarket = .ml
+                        }
+                    }
+
+                    // Row 2: Spread, F5 ML, F5 Spread
+                    HStack(spacing: 6) {
+                        tabButton(BoardMarket.spread, isSelected: vm.selectedGameMarket == .spread) {
+                            vm.selectedGameMarket = .spread
+                        }
+                        tabButton(BoardMarket.f5ml, isSelected: vm.selectedGameMarket == .f5ml) {
+                            vm.selectedGameMarket = .f5ml
+                        }
+                        tabButton(BoardMarket.f5spread, isSelected: vm.selectedGameMarket == .f5spread) {
+                            vm.selectedGameMarket = .f5spread
+                        }
+                    }
+                }
+                .padding(.horizontal, 8)
             }
-            .padding(.horizontal, 8)
         }
-        .frame(height: 36)
+        .frame(height: isIpad ? 54 : 108)
     }
 
     // MARK: - Game status filter bar
@@ -226,14 +295,14 @@ struct BoardView: View {
         let stats = vm.hitStats(for: market)
         let showStats = stats.total > 0
         return Button(action: action) {
-            VStack(spacing: 3) {
+            VStack(spacing: 4) {
                 HStack(spacing: 3) {
                     Text(market.label)
-                        .scaledFont(size: 12, weight: isSelected ? .bold : .medium, design: .monospaced)
+                        .scaledFont(size: 13, weight: isSelected ? .bold : .medium, design: .monospaced)
                         .foregroundColor(isSelected ? market.color : .brandTextMuted)
                     if showStats {
                         Text("\(stats.hits)/\(stats.total)")
-                            .scaledFont(size: 9, design: .monospaced)
+                            .scaledFont(size: 10, design: .monospaced)
                             .foregroundColor(isSelected ? market.color.opacity(0.8) : .brandTextDim)
                     }
                 }
@@ -241,24 +310,24 @@ struct BoardView: View {
                     .fill(isSelected ? market.color : Color.clear)
                     .frame(height: 2)
             }
+            .frame(minHeight: 44)
         }
-        .frame(minWidth: 52)
-        .padding(.horizontal, 6)
+        .frame(maxWidth: .infinity)
     }
 
     private func tabButton(label: String, color: Color, isSelected: Bool, isGames: Bool = false, action: @escaping () -> Void) -> some View {
         Button(action: action) {
-            VStack(spacing: 3) {
+            VStack(spacing: 4) {
                 Text(label)
-                    .scaledFont(size: 12, weight: isSelected ? .bold : .medium, design: .monospaced)
+                    .scaledFont(size: 13, weight: isSelected ? .bold : .medium, design: .monospaced)
                     .foregroundColor(isSelected ? .brandText : color)
                 Rectangle()
                     .fill(isSelected ? Color.brandText : Color.clear)
                     .frame(height: 2)
             }
+            .frame(minHeight: 44)
         }
-        .frame(minWidth: 52)
-        .padding(.horizontal, 6)
+        .frame(maxWidth: .infinity)
     }
 
     // MARK: - Empty state message

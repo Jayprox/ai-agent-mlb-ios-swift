@@ -3,6 +3,11 @@ import SwiftUI
 struct AIBoardView: View {
     @StateObject private var vm = AIBoardViewModel()
     @EnvironmentObject var picksVM: PicksViewModel
+    @Environment(\.horizontalSizeClass) var sizeClass
+
+    private var isIpad: Bool {
+        sizeClass == .regular
+    }
 
     var body: some View {
         NavigationView {
@@ -34,34 +39,62 @@ struct AIBoardView: View {
         .colorScheme(.dark)
     }
 
-    // MARK: - Filter bar
+    // MARK: - Filter bar (Adaptive for iPhone/iPad)
     private var filterBar: some View {
-        ScrollView(.horizontal, showsIndicators: false) {
-            HStack(spacing: 4) {
-                ForEach(AIBoardFilter.allCases) { filter in
-                    let stats = vm.hitStats(for: filter)
-                    let showCount = filter != .all && stats.total > 0
-                    let label = showCount
-                        ? "\(filter.rawValue) \(stats.hits)/\(stats.total)"
-                        : filter.rawValue
-                    Button {
-                        vm.selectedFilter = filter
-                    } label: {
-                        Text(label)
-                            .scaledFont(size: 12,
-                                          weight: vm.selectedFilter == filter ? .bold : .medium,
-                                          design: .monospaced)
-                            .foregroundColor(vm.selectedFilter == filter ? .brandBackground : .brandTextMuted)
-                            .padding(.horizontal, 12)
-                            .padding(.vertical, 7)
-                            .background(vm.selectedFilter == filter ? Color.brandGreen : Color.clear)
-                            .cornerRadius(6)
+        Group {
+            if isIpad {
+                // iPad: All filters in one row, spread equally
+                HStack(spacing: 8) {
+                    ForEach(AIBoardFilter.allCases) { filter in
+                        filterButton(filter)
                     }
                 }
+                .padding(.horizontal, 12)
+            } else {
+                // iPhone: Two-row layout (3 + 3)
+                VStack(spacing: 6) {
+                    // Row 1: All, K, Outs
+                    HStack(spacing: 6) {
+                        filterButton(.all)
+                        filterButton(.k)
+                        filterButton(.outs)
+                    }
+
+                    // Row 2: HR, Hits, F5 ML
+                    HStack(spacing: 6) {
+                        filterButton(.hr)
+                        filterButton(.hits)
+                        filterButton(.f5ml)
+                    }
+                }
+                .padding(.horizontal, 8)
             }
-            .padding(.horizontal, 12)
         }
-        .frame(height: 44)
+        .frame(height: isIpad ? 54 : 108)
+    }
+
+    // MARK: - Filter button
+    private func filterButton(_ filter: AIBoardFilter) -> some View {
+        let stats = vm.hitStats(for: filter)
+        let showCount = filter != .all && stats.total > 0
+        let label = showCount
+            ? "\(filter.rawValue) \(stats.hits)/\(stats.total)"
+            : filter.rawValue
+
+        return Button {
+            vm.selectedFilter = filter
+        } label: {
+            Text(label)
+                .scaledFont(size: 12,
+                              weight: vm.selectedFilter == filter ? .bold : .medium,
+                              design: .monospaced)
+                .foregroundColor(vm.selectedFilter == filter ? .brandBackground : .brandTextMuted)
+                .padding(.horizontal, 12)
+                .padding(.vertical, isIpad ? 10 : 8)
+                .frame(maxWidth: .infinity)
+                .background(vm.selectedFilter == filter ? Color.brandGreen : Color.clear)
+                .cornerRadius(6)
+        }
     }
 
     // MARK: - Edge list
