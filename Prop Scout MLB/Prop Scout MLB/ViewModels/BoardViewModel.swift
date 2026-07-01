@@ -38,11 +38,97 @@ final class BoardViewModel: ObservableObject {
         return snapshot?.candidates(for: market) ?? []
     }
 
-    /// Returns (hits, gradedTotal) for a given market tab.
+    /// Returns (hits, gradedTotal) for a given market tab, using boxscore or linescore data.
     func hitStats(for market: BoardMarket) -> (hits: Int, total: Int) {
         let candidates = snapshot?.candidates(for: market) ?? []
-        let graded = candidates.filter { $0.gradeIsHit != nil }
-        return (graded.filter { $0.gradeIsHit == true }.count, graded.count)
+        var hits = 0
+        var graded = 0
+
+        let gameMarkets = ["nrfi", "total", "ml", "spread", "f5ml", "f5spread"]
+        let isGameMarket = gameMarkets.contains(market.rawValue.lowercased())
+
+        for candidate in candidates {
+            if isGameMarket {
+                // Handle game markets
+                guard let gamePk = candidate.gamePk else { continue }
+                let marketLower = market.rawValue.lowercased()
+
+                // Check if game is final
+                let isF5Market = ["f5ml", "f5spread"].contains(marketLower)
+                if isF5Market {
+                    // F5 markets need boxscore innings data
+                    guard let innings = BoxscoreManager.shared.innings(for: gamePk) else { continue }
+                    guard innings.count >= 5 else { continue }  // Need at least 5 innings
+                } else {
+                    // Other game markets need linescore and game must be final
+                    guard let linescore = GameResultManager.shared.linescore(for: gamePk) else { continue }
+                    guard let inning = linescore.inning, inning >= 9 else { continue }  // Only count final games
+                }
+
+                graded += 1
+                let outcome = calculateGameOutcome(for: candidate)
+                if outcome == .hit {
+                    hits += 1
+                }
+            } else {
+                // Handle player-prop markets
+                guard let playerId = candidate.rawId else { continue }
+                guard let result = BoxscoreManager.shared.result(for: playerId) else { continue }
+                guard !result.live else { continue }  // Only count final results
+
+                graded += 1
+
+                // Calculate outcome based on market type
+                let didHit = calculateHit(candidate: candidate, result: result, market: market)
+                if didHit {
+                    hits += 1
+                }
+            }
+        }
+
+        return (hits, graded)
+    }
+
+    /// Calculate if a pick hit based on market type and boxscore data
+    private func calculateHit(candidate: BoardCandidate, result: PlayerResult, market: BoardMarket) -> Bool {
+        switch market {
+        case .hr:
+            return (result.ab ?? 0) > 0 && (result.hr ?? 0) > 0
+
+        case .hits:
+            let hasHR = (result.ab ?? 0) > 0 && (result.hr ?? 0) > 0
+            let hasHit = (result.ab ?? 0) > 0 && (result.h ?? 0) > 0 && !hasHR
+            return hasHR || hasHit
+
+        case .k:
+            guard let k = result.k, let line = candidate.bookLine else { return false }
+            let isUnder = candidate.lean?.uppercased() == "UNDER"
+            return isUnder ? Double(k) < line : Double(k) > line
+
+        case .outs:
+            guard let outs = result.outs, let line = candidate.bookLine else { return false }
+            let isUnder = candidate.lean?.uppercased() == "UNDER"
+            return isUnder ? Double(outs) < line : Double(outs) > line
+
+        case .nrfi:
+            guard let linescore = GameResultManager.shared.linescore(for: candidate.gamePk ?? 0) else { return false }
+            guard let f1Away = linescore.firstInning?.away, let f1Home = linescore.firstInning?.home else { return false }
+            let wasNRFI = f1Away == 0 && f1Home == 0
+            let lean = candidate.lean?.uppercased() ?? "NRFI"
+            return lean == "NRFI" ? wasNRFI : !wasNRFI
+
+        case .total:
+            guard let linescore = GameResultManager.shared.linescore(for: candidate.gamePk ?? 0) else { return false }
+            guard let away = linescore.awayScore, let home = linescore.homeScore else { return false }
+            guard let line = candidate.bookLine else { return false }
+            let isUnder = candidate.lean?.uppercased() == "UNDER"
+            let total = Double(away + home)
+            return isUnder ? total < line : total > line
+
+        case .ml, .spread, .f5ml, .f5spread:
+            // Game outcome markets not yet supported in calculateHit (use calculateGameOutcome instead)
+            return false
+        }
     }
 
     /// True when the snapshot has been checked and this market is present
@@ -83,6 +169,15 @@ final class BoardViewModel: ObservableObject {
             #endif
 
             let oddsByGamePk = Self.buildOddsByGamePk(from: bundle)
+
+            // Fetch boxscores and linescores for live/started games
+            for game in bundle.schedule {
+                if game.isLive || game.isFinal || !game.isUpcoming {
+                    await BoxscoreManager.shared.fetchBoxscore(gamePk: game.gamePk, isFinal: game.isFinal)
+                    await GameResultManager.shared.fetchLinescore(gamePk: game.gamePk, isFinal: game.isFinal)
+                }
+            }
+
             DispatchQueue.main.async {
                 self.snapshot = snap
                 self.slateOddsByGamePk = oddsByGamePk
@@ -128,6 +223,106 @@ final class BoardViewModel: ObservableObject {
     func fallbackOdds(for gamePk: Int?) -> OddsData? {
         guard let gamePk else { return nil }
         return slateOddsByGamePk[gamePk]
+    }
+
+    // MARK: - Game market outcome helpers
+    func calculateGameOutcome(for candidate: BoardCandidate) -> BadgeOutcome {
+        let marketLower = candidate.market.lowercased()
+
+        // Handle F5 markets first (they need boxscore, not linescore)
+        if marketLower == "f5ml" {
+            return calculateF5MLOutcome(candidate: candidate)
+        }
+        if marketLower == "f5spread" || marketLower == "f5rl" {
+            return calculateF5RLOutcome(candidate: candidate)
+        }
+
+        guard let gamePk = candidate.gamePk else { return .pending }
+        guard let linescore = GameResultManager.shared.linescore(for: gamePk) else { return .pending }
+
+        switch marketLower {
+        case "nrfi":
+            return calculateNRFIOutcome(candidate: candidate, linescore: linescore)
+
+        case "total":
+            guard let inning = linescore.inning, inning >= 9 else { return .pending }  // Game must be finished
+            return calculateTotalOutcome(candidate: candidate, linescore: linescore)
+
+        case "ml":
+            guard let inning = linescore.inning, inning >= 9 else { return .pending }
+            return calculateMLOutcome(candidate: candidate, linescore: linescore)
+
+        case "spread", "rl":
+            guard let inning = linescore.inning, inning >= 9 else { return .pending }
+            return calculateSpreadOutcome(candidate: candidate, linescore: linescore)
+
+        default:
+            return .pending
+        }
+    }
+
+    private func calculateNRFIOutcome(candidate: BoardCandidate, linescore: LinescoreResponse) -> BadgeOutcome {
+        guard let f1Away = linescore.firstInning?.away, let f1Home = linescore.firstInning?.home else { return .pending }
+        let wasNRFI = f1Away == 0 && f1Home == 0
+        let lean = candidate.lean?.uppercased() ?? "NRFI"
+        let hit = lean == "NRFI" ? wasNRFI : !wasNRFI
+        return hit ? .hit : .miss
+    }
+
+    private func calculateTotalOutcome(candidate: BoardCandidate, linescore: LinescoreResponse) -> BadgeOutcome {
+        guard let away = linescore.awayScore, let home = linescore.homeScore else { return .pending }
+        guard let line = candidate.bookLine else { return .pending }
+        let total = Double(away + home)
+        let isUnder = candidate.lean?.uppercased() == "UNDER"
+        let hit = isUnder ? total < line : total > line
+        return hit ? .hit : .miss
+    }
+
+    private func calculateMLOutcome(candidate: BoardCandidate, linescore: LinescoreResponse) -> BadgeOutcome {
+        guard let away = linescore.awayScore, let home = linescore.homeScore else { return .pending }
+        if away == home { return .pending }  // Tie
+        let lean = candidate.lean?.uppercased() ?? "HOME"
+        let hit = lean == "HOME" ? home > away : away > home
+        return hit ? .hit : .miss
+    }
+
+    private func calculateSpreadOutcome(candidate: BoardCandidate, linescore: LinescoreResponse) -> BadgeOutcome {
+        guard let away = linescore.awayScore, let home = linescore.homeScore else { return .pending }
+        guard let line = candidate.bookLine else { return .pending }
+        let lean = candidate.lean?.uppercased() ?? "HOME"
+        let awayDouble = Double(away)
+        let homeDouble = Double(home)
+        let hit = lean == "HOME" ? (homeDouble + line) > awayDouble : (awayDouble + line) > homeDouble
+        return hit ? .hit : .miss
+    }
+
+    private func calculateF5MLOutcome(candidate: BoardCandidate) -> BadgeOutcome {
+        guard let gamePk = candidate.gamePk else { return .pending }
+        guard let innings = BoxscoreManager.shared.innings(for: gamePk) else { return .pending }
+        guard innings.count >= 5 else { return .pending }
+
+        let f5Away = innings[0..<5].reduce(0) { $0 + ($1.away ?? 0) }
+        let f5Home = innings[0..<5].reduce(0) { $0 + ($1.home ?? 0) }
+
+        if f5Away == f5Home { return .pending }  // F5 tie = push, no result
+
+        let lean = candidate.lean?.uppercased() ?? "HOME"
+        let hit = lean == "HOME" ? f5Home > f5Away : f5Away > f5Home
+        return hit ? .hit : .miss
+    }
+
+    private func calculateF5RLOutcome(candidate: BoardCandidate) -> BadgeOutcome {
+        guard let gamePk = candidate.gamePk else { return .pending }
+        guard let innings = BoxscoreManager.shared.innings(for: gamePk) else { return .pending }
+        guard innings.count >= 5 else { return .pending }
+        guard let line = candidate.bookLine else { return .pending }
+
+        let f5Away = Double(innings[0..<5].reduce(0) { $0 + ($1.away ?? 0) })
+        let f5Home = Double(innings[0..<5].reduce(0) { $0 + ($1.home ?? 0) })
+
+        let lean = candidate.lean?.uppercased() ?? "HOME"
+        let hit = lean == "HOME" ? (f5Home + line) > f5Away : (f5Away + line) > f5Home
+        return hit ? .hit : .miss
     }
 
     private static func buildOddsByGamePk(from bundle: SlateBundle) -> [Int: OddsData] {

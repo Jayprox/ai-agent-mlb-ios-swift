@@ -41,8 +41,66 @@ struct AIBoardEdge: Identifiable {
     var displayGameLabel: String { gameLabel ?? "" }
     var displayMarket: String    { market ?? "—" }
 
-    var isHit: Bool     { resultHit == true  && gradeStatus == nil }
-    var isMiss: Bool    { resultHit == false && gradeStatus == nil }
+    var isHit: Bool {
+        // First check old API fields
+        if resultHit == true && gradeStatus == nil { return true }
+
+        // Then check boxscore data
+        guard let pId = playerId, let m = market?.lowercased() else { return false }
+        guard let result = BoxscoreManager.shared.result(for: pId) else { return false }
+        guard !result.live else { return false }  // Don't show badges during live games
+
+        // Calculate outcome based on market
+        switch m {
+        case "hr":
+            return (result.ab ?? 0) > 0 && (result.hr ?? 0) > 0
+        case "hits":
+            let hasHR = (result.ab ?? 0) > 0 && (result.hr ?? 0) > 0
+            let hasHit = (result.ab ?? 0) > 0 && (result.h ?? 0) > 0 && !hasHR
+            return hasHR || hasHit
+        case "k":
+            guard let k = result.k, let line = candidate?.bookLine else { return false }
+            let isUnder = (lean ?? "OVER").uppercased() == "UNDER"
+            return isUnder ? Double(k) < line : Double(k) > line
+        case "outs":
+            guard let outs = result.outs, let line = candidate?.bookLine else { return false }
+            let isUnder = (lean ?? "OVER").uppercased() == "UNDER"
+            return isUnder ? Double(outs) < line : Double(outs) > line
+        default:
+            return false
+        }
+    }
+
+    var isMiss: Bool {
+        // First check old API fields
+        if resultHit == false && gradeStatus == nil { return true }
+
+        // Then check boxscore data
+        guard let pId = playerId, let m = market?.lowercased() else { return false }
+        guard let result = BoxscoreManager.shared.result(for: pId) else { return false }
+        guard !result.live else { return false }
+
+        // Calculate inverse of isHit (the hit calculation above)
+        switch m {
+        case "hr":
+            return (result.ab ?? 0) > 0 && (result.hr ?? 0) == 0
+        case "hits":
+            let hasHR = (result.ab ?? 0) > 0 && (result.hr ?? 0) > 0
+            let hasHit = (result.ab ?? 0) > 0 && (result.h ?? 0) > 0 && !hasHR
+            return (result.ab ?? 0) > 0 && !hasHR && !hasHit
+        case "k":
+            guard let k = result.k, let line = candidate?.bookLine else { return false }
+            let isUnder = (lean ?? "OVER").uppercased() == "UNDER"
+            return isUnder ? Double(k) >= line : Double(k) <= line
+        case "outs":
+            guard let outs = result.outs, let line = candidate?.bookLine else { return false }
+            let isUnder = (lean ?? "OVER").uppercased() == "UNDER"
+            return isUnder ? Double(outs) >= line : Double(outs) <= line
+        default:
+            return false
+        }
+    }
+
     var isPPD: Bool     { gradeStatus == "ppd" }
     var isScratch: Bool { gradeStatus == "scratch" }
 

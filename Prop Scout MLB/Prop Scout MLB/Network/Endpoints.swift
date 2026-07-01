@@ -25,6 +25,9 @@ enum Endpoints {
     static func pickVoid(id: String)  -> String { "/api/picks/\(id)/void" }
     static func pickGrade(id: String) -> String { "/api/picks/\(id)/grade" }
 
+    // MARK: - Leaderboard
+    static let leaderboard = "/api/leaderboard"
+
     // MARK: - Live Data
     static func linescore(gamePk: Int) -> String { "/api/linescore/\(gamePk)" }
     static func boxscore(gamePk: Int)  -> String { "/api/boxscore/\(gamePk)" }

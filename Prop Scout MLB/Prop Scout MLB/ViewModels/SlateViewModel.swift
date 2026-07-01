@@ -39,14 +39,6 @@ final class SlateViewModel: ObservableObject {
                 self.kHintsMap   = bundle.kHintsMap ?? [:]
                 self.isLoading   = false
                 self.lastUpdated = Date()
-
-                // Debug: check what data we have
-                if let firstGame = bundle.schedule.first {
-                    print("DEBUG - Venue: \(firstGame.venue ?? "nil")")
-                    print("DEBUG - Away Pitcher: \(firstGame.probablePitchers?.away?.name ?? "nil")")
-                    print("DEBUG - Home Pitcher: \(firstGame.probablePitchers?.home?.name ?? "nil")")
-                    print("DEBUG - Odds Map count: \(bundle.oddsMap?.count ?? 0)")
-                }
             }
             await loadProbablePitcherStats(for: bundle.schedule)
             startPolling()

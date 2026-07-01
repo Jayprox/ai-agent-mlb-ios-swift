@@ -214,7 +214,8 @@ struct BoardView: View {
                         BoardCandidateCardView(
                             rank: index + 1,
                             candidate: candidate,
-                            fallbackOdds: vm.fallbackOdds(for: candidate.gamePk)
+                            fallbackOdds: vm.fallbackOdds(for: candidate.gamePk),
+                            boardVM: vm
                         )
                             .padding(.horizontal, 16)
                     }

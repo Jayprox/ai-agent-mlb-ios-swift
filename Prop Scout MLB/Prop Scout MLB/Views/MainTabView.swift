@@ -28,28 +28,11 @@ struct MainTabView: View {
                 .tabItem { Label("Model", systemImage: "cpu") }
                 .tag(3)
 
-            PredictView()
+            MoreView()
                 .environmentObject(picksVM)
-                .tabItem { Label("Predict", systemImage: "bolt.fill") }
+                .environmentObject(router)
+                .tabItem { Label("More", systemImage: "ellipsis") }
                 .tag(4)
-
-            ScoutView()
-                .environmentObject(picksVM)
-                .tabItem { Label("Scout", systemImage: "scope") }
-                .tag(5)
-
-            ChatView()
-                .tabItem { Label("Chat", systemImage: "bubble.left.and.bubble.right.fill") }
-                .tag(6)
-
-            PicksView()
-                .environmentObject(picksVM)
-                .tabItem { Label("Picks", systemImage: "note.text") }
-                .tag(7)
-
-            SettingsView()
-                .tabItem { Label("Settings", systemImage: "gearshape.fill") }
-                .tag(8)
         }
         .accentColor(.brandGreen)
         .colorScheme(.dark)

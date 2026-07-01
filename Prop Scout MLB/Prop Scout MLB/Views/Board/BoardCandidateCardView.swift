@@ -4,6 +4,7 @@ struct BoardCandidateCardView: View {
     let rank: Int
     let candidate: BoardCandidate
     let fallbackOdds: OddsData?
+    let boardVM: BoardViewModel
     @EnvironmentObject var picksVM: PicksViewModel
     @EnvironmentObject var auth: AuthViewModel
     @State private var showWhy = false
@@ -508,7 +509,22 @@ struct BoardCandidateCardView: View {
     private var borderColor: Color {
         if candidate.gradeIsHit == true  { return .brandGreen.opacity(0.3) }
         if candidate.gradeIsHit == false { return .brandRed.opacity(0.2) }
-        return .brandBorder
+
+        // Use boxscore-derived outcome for border color
+        let outcome = calculateOutcome()
+        switch outcome {
+        case .hit:
+            // Check for HR (yellow border)
+            if candidate.market.lowercased() == "hr" {
+                return .brandAmber.opacity(0.3)
+            }
+            // Otherwise green for regular hits
+            return .brandGreen.opacity(0.3)
+        case .miss:
+            return .brandRed.opacity(0.2)
+        case .pending:
+            return .brandBorder
+        }
     }
 
     @ViewBuilder
@@ -529,6 +545,119 @@ struct BoardCandidateCardView: View {
                 .padding(.vertical, 3)
                 .background((hit ? Color.brandGreen : Color.brandRed).opacity(0.12))
                 .cornerRadius(4)
+        } else {
+            // Calculate badge from boxscore data
+            let outcome = calculateOutcome()
+            switch outcome {
+            case .hit:
+                Text(badgeText(hit: true))
+                    .scaledFont(size: 9, weight: .bold, design: .monospaced)
+                    .foregroundColor(.brandGreen)
+                    .padding(.horizontal, 6)
+                    .padding(.vertical, 3)
+                    .background(Color.brandGreen.opacity(0.12))
+                    .cornerRadius(4)
+            case .miss:
+                Text("MISS ✗")
+                    .scaledFont(size: 9, weight: .bold, design: .monospaced)
+                    .foregroundColor(.brandRed)
+                    .padding(.horizontal, 6)
+                    .padding(.vertical, 3)
+                    .background(Color.brandRed.opacity(0.12))
+                    .cornerRadius(4)
+            case .pending:
+                Text("PENDING")
+                    .scaledFont(size: 9, weight: .bold, design: .monospaced)
+                    .foregroundColor(.brandTextDim)
+                    .padding(.horizontal, 6)
+                    .padding(.vertical, 3)
+                    .background(Color.brandBorder.opacity(0.2))
+                    .cornerRadius(4)
+            }
         }
+    }
+
+    private func calculateOutcome() -> BadgeOutcome {
+        // Handle game markets first (they don't have rawId)
+        let market = candidate.market.lowercased()
+        if ["nrfi", "total", "ml", "spread", "f5ml", "f5spread"].contains(market) {
+            return boardVM.calculateGameOutcome(for: candidate)
+        }
+
+        // Handle player-prop markets
+        guard let playerId = candidate.rawId else { return .pending }
+        guard let result = BoxscoreManager.shared.result(for: playerId) else { return .pending }
+        guard !result.live else { return .pending }  // Don't show badges during live games
+
+        switch market {
+        case "hr":
+            let hasHR = (result.ab ?? 0) > 0 && (result.hr ?? 0) > 0
+            return hasHR ? .hit : .miss
+
+        case "hits":
+            let hasHR = (result.ab ?? 0) > 0 && (result.hr ?? 0) > 0
+            let hasHit = (result.ab ?? 0) > 0 && (result.h ?? 0) > 0 && !hasHR
+            return hasHR || hasHit ? .hit : .miss
+
+        case "k":
+            guard let k = result.k, let line = candidate.bookLine else { return .pending }
+            let isUnder = candidate.lean?.uppercased() == "UNDER"
+            let hit = isUnder ? Double(k) < line : Double(k) > line
+            return hit ? .hit : .miss
+
+        case "outs":
+            guard let outs = result.outs, let line = candidate.bookLine else { return .pending }
+            let isUnder = candidate.lean?.uppercased() == "UNDER"
+            let hit = isUnder ? Double(outs) < line : Double(outs) > line
+            return hit ? .hit : .miss
+
+        // Game markets
+        case "nrfi":
+            return calculateNRFIOutcome()
+
+        case "total":
+            return calculateTotalOutcome()
+
+        case "ml", "spread", "f5ml", "f5spread":
+            // Game outcome markets require more complex logic
+            // For now, fall back to PENDING
+            return .pending
+
+        default:
+            return .pending
+        }
+    }
+
+    private func badgeText(hit: Bool) -> String {
+        guard let playerId = candidate.rawId else { return "HIT ✓" }
+        guard let result = BoxscoreManager.shared.result(for: playerId) else { return "HIT ✓" }
+
+        switch candidate.market.lowercased() {
+        case "hr":
+            if let hrCount = result.hr, hrCount > 1 {
+                return "⚾ HR ×\(hrCount)"
+            }
+            return "⚾ HR"
+
+        case "hits":
+            if let hrCount = result.hr, hrCount > 0 {
+                return "⚾ HR"
+            }
+            if let hitCount = result.h, hitCount > 1 {
+                return "✓ HIT ×\(hitCount)"
+            }
+            return "✓ HIT"
+
+        default:
+            return "HIT ✓"
+        }
+    }
+
+    private func calculateNRFIOutcome() -> BadgeOutcome {
+        return boardVM.calculateGameOutcome(for: candidate)
+    }
+
+    private func calculateTotalOutcome() -> BadgeOutcome {
+        return boardVM.calculateGameOutcome(for: candidate)
     }
 }

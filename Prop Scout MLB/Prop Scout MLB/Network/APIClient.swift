@@ -76,12 +76,6 @@ final class APIClient {
         do {
             return try JSONDecoder().decode(T.self, from: data)
         } catch {
-            #if DEBUG
-            print("⚠️ Decode error for \(T.self): \(error)")
-            if let raw = String(data: data, encoding: .utf8) {
-                print("📦 Raw response (first 2000 chars):\n\(raw.prefix(2000))")
-            }
-            #endif
             throw APIError.decodingError(error)
         }
     }
